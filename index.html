@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOCC · mono</title>
+    <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         * {
@@ -33,7 +38,7 @@
             background: #000000;
         }
 
-        /* header */
+/* header */
         .header {
             padding: 10px 16px;
             background: #0a0a0a;
@@ -53,6 +58,10 @@
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
+        }
+        .header-actions {
+            display: flex;
+            gap: 8px; /* відступ між кнопками */
         }
         #status {
             font-size: 0.65rem;
@@ -218,6 +227,7 @@
             flex-shrink: 0;
             cursor: pointer;
             transition: all 0.2s ease;
+            bottom: -40px;
         }
         .btn-icon:hover {
             background: #2e2e2e;
@@ -227,6 +237,12 @@
         .btn-icon:active {
             transform: scale(0.9);
         }
+/* Якщо квадрат все одно низько */
+.btn-icon span {
+    display: inline-block;
+    transform: translateY(-1px); /* значення піднімає вгору */
+}
+
         /* червоний стан для запису */
         .btn-red {
             background: #3a2a2a !important;
@@ -373,7 +389,10 @@
             <h1>SOC.</h1>
             <span id="status">OFFLINE</span>
         </div>
-        <button class="exit-btn" onclick="showConfirm()">✕</button>
+<div class="header-actions">
+            <button class="exit-btn" onclick="showRules()">ⅰ</button>
+            <button class="exit-btn" onclick="showConfirm()">✕</button>
+        </div>
     </div>
     <div class="setup" id="setup-ui">
         <div class="id-box" onclick="copyMyId()">
@@ -388,7 +407,7 @@
     <div id="chat"></div>
     <div class="input-area">
         <button class="btn-icon" id="attachBtn" onclick="document.getElementById('fileInput').click()"><span>✚</span></button>
-        <button class="btn-icon" id="recordBtn" onclick="toggleRecord()"><span>♫</span></button>
+        <button class="btn-icon" id="recordBtn" onclick="toggleRecord()"><span>♪</span></button>
         <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
         <button class="btn-icon send-btn" onclick="sendText()"><span>➤</span></button>
     </div>
@@ -430,9 +449,9 @@
 
     window.onload = () => {
         loadHistory();
-        updateStatus('connecting', '#aaaaaa');
+        updateStatus('connecting', '#ddc12f');
         peer.on('open', (id) => {
-            updateStatus('online', '#cccccc');
+            updateStatus('online', '#da8f27');
             if (id !== myId) {
                 myId = id;
                 localStorage.setItem('soc-c-device-id', myId);
@@ -456,7 +475,7 @@
         if (!conn) return;
         conn.on('open', () => {
             document.getElementById('setup-ui').style.display = 'none';
-            updateStatus('connected', '#f0f0f0');
+            updateStatus('connected', '#559b61');
         });
         conn.on('data', (payload) => {
             if (payload && payload.type && payload.data) {
@@ -599,7 +618,7 @@
             };
             mediaRecorder.start();
             btn.classList.add('btn-red');
-            btn.innerHTML = "<span>⏹</span>";
+            btn.innerHTML = "<span>⏹︎</span>";
         } catch (err) {
             console.error(err);
             showAlert("Microphone access denied or HTTPS needed");
@@ -662,6 +681,31 @@
         conn = incomingConn;
         setupConnection();
     });
+
+    function showRules() {
+        const overlay = document.getElementById('modal-overlay');
+        const txtDiv = document.getElementById('modal-text');
+        const actionsDiv = document.getElementById('modal-actions');
+        txtDiv.style.textAlign = 'left';
+        txtDiv.innerHTML = `
+            <b style="color:white; display:block; margin-bottom:10px; font-size:1.1rem;">Legal Disclaimer</b>
+            This application uses P2P (Peer-to-Peer) technology. All data is transferred directly between devices.<br><br>
+            The developer does NOT store, monitor, or have access to your conversations. Therefore, the developer is NOT responsible for user behavior or content shared.<br><br>
+            This tool was created for good purposes and privacy. Please use it responsibly.
+        `;
+        actionsDiv.innerHTML = `<button class="modal-btn" id="rulesOkBtn" style="width:100%">I UNDERSTAND</button>`;
+        overlay.style.display = 'flex';
+        document.getElementById('rulesOkBtn').onclick = () => overlay.style.display = 'none';
+    }
 </script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(() => {
+      console.log('Service Worker Registered');
+    });
+  }
+</script>
+
 </body>
 </html>
