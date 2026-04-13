@@ -8,6 +8,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="icon" type="image/png" href="logo.jpg">
     <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -28,15 +29,18 @@
             color: #e5e5e5;
         }
 
-        .app {
-            display: flex;
-            flex-direction: column;
-            height: 100dvh;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            background: #000000;
-        }
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background: #000000;
+    /* Додай ці два рядки нижче: */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
 
 /* header */
         .header {
@@ -382,7 +386,7 @@
     </style>
 </head>
 <body>
-
+<audio id="msgSound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
 <div class="app">
     <div class="header">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -697,6 +701,21 @@
         overlay.style.display = 'flex';
         document.getElementById('rulesOkBtn').onclick = () => overlay.style.display = 'none';
     }
+    // 2. ПЕРЕПИСАНА ФУНКЦІЯ ДОДАВАННЯ ПОВІДОМЛЕННЯ (ЗІ ЗВУКОМ)
+// Вона замінить твою стару функцію addMsg
+const originalAddMsg = addMsg; 
+addMsg = function(data, side, type, saveToStorage = true) {
+    // Граємо звук, якщо пише співрозмовник
+    if (side === 'other') {
+        const sound = document.getElementById('msgSound');
+        if (sound) {
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Sound interaction required"));
+        }
+    }
+    // Викликаємо оригінальну логіку (відображення та збереження)
+    originalAddMsg(data, side, type, saveToStorage);
+};
 </script>
 
 <script>
