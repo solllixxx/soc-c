@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOC-C Final</title>
+    <title>SOC-C Final v3</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --bg: #0b0e11; --panel: #1c2126; --accent: #00a3ff; --text: #f0f0f0; }
+        :root { --bg: #0b0e11; --panel: #1c2126; --accent: #00a3ff; --text: #f0f0f0; --danger: #ff4444; }
         
-        * { 
-            box-sizing: border-box; 
-            touch-action: manipulation; /* Покращує відгук на дотик */
-        }
+        * { box-sizing: border-box; touch-action: manipulation; }
 
         body, html { 
             margin: 0; padding: 0; 
-            height: 100%; width: 100%;
+            height: 100dvh; width: 100%;
             background: var(--bg); 
             font-family: -apple-system, system-ui, sans-serif; 
             color: var(--text); 
             overflow: hidden; 
-            position: fixed; /* Запобігає прокручуванню всієї сторінки */
+            position: fixed;
         }
 
         .app { 
@@ -32,6 +29,7 @@
             margin: 0 auto; 
         }
 
+        /* Шапка */
         .header { 
             padding: 10px 15px; 
             background: var(--panel); 
@@ -41,17 +39,41 @@
             border-bottom: 1px solid #23292e;
             flex-shrink: 0;
         }
-        .header h1 { margin: 0; font-size: 18px; color: var(--accent); }
-        #status { font-size: 10px; color: #ffab00; font-weight: bold; }
+        .header h1 { margin: 0; font-size: 18px; color: var(--accent); font-weight: 900; }
+        #status { font-size: 10px; color: #ffab00; font-weight: bold; text-transform: uppercase; }
 
+        /* Кнопка EXIT */
+        .exit-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .exit-btn:hover { opacity: 0.8; }
+
+        /* Налаштування підключення */
         .setup { 
             padding: 10px; 
             background: var(--panel); 
             border-bottom: 1px solid #23292e;
             flex-shrink: 0;
         }
-        .id-box { background: #0b0e11; padding: 8px; border-radius: 8px; text-align: center; margin-bottom: 8px; }
+        .id-box { 
+            background: #0b0e11; 
+            padding: 8px; 
+            border-radius: 8px; 
+            text-align: center; 
+            margin-bottom: 8px; 
+            border: 1px solid #23292e;
+            cursor: pointer;
+        }
         
+        /* Область чату */
         #chat { 
             flex: 1; 
             padding: 15px; 
@@ -62,55 +84,57 @@
             background: var(--bg);
         }
 
-        .msg { max-width: 80%; padding: 8px 12px; border-radius: 15px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
-        .my { align-self: flex-end; background: var(--accent); border-bottom-right-radius: 2px; }
-        .other { align-self: flex-start; background: #2a2e33; border-bottom-left-radius: 2px; }
-        .msg img { max-width: 100%; border-radius: 8px; margin-top: 4px; }
+        .msg { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .my { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+        .other { align-self: flex-start; background: #2a2e33; border-bottom-left-radius: 4px; }
+        .msg img { max-width: 100%; border-radius: 10px; display: block; margin-top: 5px; }
+        audio { height: 36px; width: 200px; margin-top: 5px; display: block; }
 
-        /* Фікс панелі введення */
+        /* Панель введення */
         .input-area { 
             padding: 8px 10px; 
             background: var(--panel); 
             display: flex; 
-            gap: 6px; 
+            gap: 8px; 
             align-items: center; 
             border-top: 1px solid #23292e;
             flex-shrink: 0;
-            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
         }
         
         .btn-circle { 
-            width: 38px; height: 38px; 
+            width: 40px; height: 40px; 
             border-radius: 50%; 
             border: none; 
             background: #2a2e33; 
             color: white; 
-            font-size: 16px; 
+            font-size: 18px; 
             display: flex; 
             align-items: center; 
             justify-content: center;
             flex-shrink: 0;
+            cursor: pointer;
         }
+        .btn-circle:hover { background: #3a3f44; }
         
         input[type="text"] { 
             flex: 1; 
-            min-width: 0; /* Важливо для того, щоб інпут не розпирав контейнер */
+            min-width: 0; 
             background: #0b0e11; 
             border: 1px solid #333; 
-            padding: 8px 12px; 
+            padding: 10px 15px; 
             border-radius: 20px; 
             color: white; 
             outline: none; 
-            font-size: 16px; /* 16px запобігає зуму на iOS */
+            font-size: 16px; 
         }
 
         .send-btn { background: var(--accent); }
-        .btn-red { background: #ff4444 !important; }
+        .send-btn:hover { background: #0082cc; }
+        .btn-red { background: var(--danger) !important; }
 
-        /* Ховаємо зайве на дуже малих екранах */
-        @media (max-width: 350px) {
-            .header h1 { font-size: 16px; }
-            .btn-circle { width: 34px; height: 34px; }
+        @media (max-width: 360px) {
+            .btn-circle { width: 36px; height: 36px; font-size: 16px; }
         }
     </style>
 </head>
@@ -119,17 +143,17 @@
 <div class="app">
     <div class="header">
         <div><h1>SOC-C</h1><span id="status">CONNECTING...</span></div>
-        <button onclick="localStorage.clear(); location.reload();" style="background:none; border:none; color:#555; font-size:10px;">RESET</button>
+        <button class="exit-btn" onclick="localStorage.clear(); location.reload();">EXIT</button>
     </div>
 
     <div class="setup" id="setup-ui">
-        <div class="id-box">
-            <div id="my-id-display" style="font-size: 16px; font-weight: bold; color: #00ff88;" onclick="copyMyId()">...</div>
-            <small style="color:#555; font-size:9px;">TAP ID TO COPY</small>
+        <div class="id-box" onclick="copyMyId()">
+            <div id="my-id-display" style="font-size: 16px; font-weight: bold; color: #ffffff;">...</div>
+            <small style="color:#555; font-size:9px;">TAP TO COPY ID</small>
         </div>
-        <div style="display:flex; gap:5px;">
-            <input type="text" id="peer-id-input" placeholder="Friend ID...">
-            <button class="btn-circle send-btn" style="width:auto; border-radius:10px; padding:0 12px; font-size:12px;" onclick="connectToPeer()">CONNECT</button>
+        <div style="display:flex; gap:6px;">
+            <input type="text" id="peer-id-input" placeholder="Friend ID..." autocomplete="off">
+            <button class="btn-circle send-btn" style="width:auto; border-radius:12px; padding:0 15px; font-size:12px;" onclick="connectToPeer()">CONNECT</button>
         </div>
     </div>
 
@@ -175,11 +199,12 @@
             document.getElementById('status').style.color = "#00ff88";
         });
         conn.on('data', d => addMsg(d.data, 'other', d.type, true));
+        conn.on('close', () => { location.reload(); });
     }
 
     function copyMyId() {
         navigator.clipboard.writeText(myId);
-        alert("ID Copied!");
+        alert("ID скопійовано!");
     }
 
     function sendText() {
@@ -206,22 +231,24 @@
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
             try {
                 const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/webm';
                 mediaRecorder = new MediaRecorder(s);
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
                 mediaRecorder.onstop = () => {
-                    const blob = new Blob(audioChunks, { type: 'audio/ogg' });
+                    const blob = new Blob(audioChunks, { type: mimeType });
                     const r = new FileReader();
                     r.onload = e => {
                         if(conn?.open) conn.send({ type: 'audio', data: e.target.result });
                         addMsg(e.target.result, 'my', 'audio', true);
                     };
                     r.readAsDataURL(blob);
-                    audioChunks = [];
+                    s.getTracks().forEach(t => t.stop());
                 };
                 mediaRecorder.start();
                 b.classList.add('btn-red');
                 b.innerHTML = "<span>⏹</span>";
-            } catch(e) { alert("Mic error"); }
+            } catch(e) { alert("Mic error: Use HTTPS!"); }
         } else {
             mediaRecorder.stop();
             b.classList.remove('btn-red');
@@ -234,14 +261,14 @@
         d.className = `msg ${side}`;
         if (type === 'text') d.innerText = data;
         if (type === 'image') d.innerHTML = `<img src="${data}">`;
-        if (type === 'audio') d.innerHTML = `<audio controls src="${data}" style="width:180px;"></audio>`;
+        if (type === 'audio') d.innerHTML = `<audio controls playsinline src="${data}"></audio>`;
         const chat = document.getElementById('chat');
         chat.appendChild(d);
         chat.scrollTop = chat.scrollHeight;
         if (save) {
             const h = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
             h.push({ data, side, type });
-            localStorage.setItem('soc-c-media-history', JSON.stringify(h.slice(-20)));
+            localStorage.setItem('soc-c-media-history', JSON.stringify(h.slice(-25)));
         }
     }
 </script>
