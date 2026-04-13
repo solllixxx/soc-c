@@ -27,12 +27,14 @@
             overflow: hidden;
             position: fixed;
             color: #e5e5e5;
+            height: -webkit-fill-available;
         }
 
 .app {
     display: flex;
     flex-direction: column;
-    height: 100dvh;
+    height: 100vh; /* Використовуємо звичайний vh замість dvh для тесту */
+    height: -webkit-fill-available; /* Для iOS Safari, щоб розтягнути на весь екран */
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
@@ -207,12 +209,17 @@
         /* ========= ОНОВЛЕНА ПАНЕЛЬ ВВОДУ ========= */
         /* компактний рядок, всі кнопки влізають ідеально */
 .input-area {
-    padding: 8px 12px;
+    padding: 6px 12px; /* Трохи зменшив внутрішній відступ */
     background: #0a0a0a;
     border-top: 1px solid #1f1f1f;
     flex-shrink: 0;
-    /* Використовуємо мінімальний відступ */
-    padding-bottom: max(8px, env(safe-area-inset-bottom)); 
+    
+    /* Жорстке обмеження нижнього відступу */
+    padding-bottom: 6px !important; 
+    
+    /* Якщо на iPhone все одно дірка, додаємо це: */
+    margin-bottom: 0 !important;
+    
     display: flex;
     gap: 8px;
     align-items: center;
