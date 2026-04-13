@@ -37,9 +37,8 @@
     max-width: 800px;
     margin: 0 auto;
     background: #000000;
-    /* Додай ці два рядки нижче: */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top); /* Залишаємо тільки верх */
+    padding-bottom: 0 !important; /* Обнуляємо низ */
 }
 
 /* header */
@@ -212,8 +211,8 @@
     background: #0a0a0a;
     border-top: 1px solid #1f1f1f;
     flex-shrink: 0;
-    /* Цей рядок робить правильний відступ тільки знизу клавіатури/екрану */
-    padding-bottom: calc(8px + env(safe-area-inset-bottom)); 
+    /* Використовуємо мінімальний відступ */
+    padding-bottom: max(8px, env(safe-area-inset-bottom)); 
     display: flex;
     gap: 8px;
     align-items: center;
