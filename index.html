@@ -3,68 +3,399 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOC-C Final v3</title>
+    <title>SOCC · mono</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --bg: #0b0e11; --panel: #1c2126; --accent: #00a3ff; --text: #f0f0f0; --danger: #ff4444; }
-        * { box-sizing: border-box; touch-action: manipulation; }
-        body, html { margin: 0; padding: 0; height: 100dvh; width: 100%; background: var(--bg); font-family: -apple-system, system-ui, sans-serif; color: var(--text); overflow: hidden; position: fixed; }
-        .app { display: flex; flex-direction: column; height: 100dvh; width: 100%; max-width: 600px; margin: 0 auto; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .header { padding: 10px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #23292e; flex-shrink: 0; }
-        .header h1 { margin: 0; font-size: 18px; color: var(--accent); font-weight: 900; }
-        #status { font-size: 10px; color: #ffab00; font-weight: bold; text-transform: uppercase; }
+        body, html {
+            height: 100dvh;
+            width: 100%;
+            background: #000000;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            overflow: hidden;
+            position: fixed;
+            color: #e5e5e5;
+        }
 
-        .exit-btn { background: var(--danger); color: white; border: none; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #000000;
+        }
 
-        .setup { padding: 10px; background: var(--panel); border-bottom: 1px solid #23292e; flex-shrink: 0; }
-        .id-box { background: #0b0e11; padding: 8px; border-radius: 8px; text-align: center; margin-bottom: 8px; border: 1px solid #23292e; cursor: pointer; }
-        
-        #chat { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
-        .msg { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
-        .my { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
-        .other { align-self: flex-start; background: #2a2e33; border-bottom-left-radius: 4px; }
-        .msg img { max-width: 100%; border-radius: 10px; display: block; margin-top: 5px; }
-        audio { height: 36px; width: 200px; margin-top: 5px; display: block; }
+        /* header */
+        .header {
+            padding: 10px 16px;
+            background: #0a0a0a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+            flex-shrink: 0;
+            min-height: 56px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        #status {
+            font-size: 0.65rem;
+            font-weight: 600;
+            background: #1a1a1a;
+            padding: 4px 10px;
+            border-radius: 40px;
+            color: #bbb;
+            border: 0.5px solid #2c2c2c;
+        }
+        .exit-btn {
+            background: #1c1c1c;
+            color: #e0e0e0;
+            border: none;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .exit-btn:hover { background: #2e2e2e; transform: scale(0.96); }
+        .exit-btn:active { transform: scale(0.94); background: #3a3a3a; }
 
-        .input-area { padding: 8px 10px; background: var(--panel); display: flex; gap: 8px; align-items: center; border-top: 1px solid #23292e; flex-shrink: 0; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
-        .btn-circle { width: 40px; height: 40px; border-radius: 50%; border: none; background: #2a2e33; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
-        input[type="text"] { flex: 1; min-width: 0; background: #0b0e11; border: 1px solid #333; padding: 10px 15px; border-radius: 20px; color: white; outline: none; font-size: 16px; }
-        .send-btn { background: var(--accent); }
-        .btn-red { background: var(--danger) !important; }
+        /* панель підключення */
+        .setup {
+            padding: 12px 14px;
+            background: #050505;
+            border-bottom: 1px solid #1c1c1c;
+            flex-shrink: 0;
+        }
+        .id-box {
+            background: #111111;
+            padding: 8px 12px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 10px;
+            border: 1px solid #2a2a2a;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .id-box:hover { background: #1a1a1a; border-color: #4a4a4a; }
+        #my-id-display {
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            color: #f0f0f0;
+        }
+        .id-box small { color: #6a6a6a; font-size: 0.6rem; }
+        .connect-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        #peer-id-input {
+            flex: 1;
+            background: #111;
+            border: 1px solid #2c2c2c;
+            padding: 10px 14px;
+            border-radius: 40px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        #peer-id-input:focus { border-color: #6a6a6a; background: #181818; }
+        .connect-btn {
+            background: #222;
+            border: none;
+            border-radius: 40px;
+            padding: 0 18px;
+            height: 42px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.3px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .connect-btn:hover { background: #333; color: white; transform: scale(0.97); }
 
-        /* Custom Modal */
-        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-        .modal { background: var(--panel); padding: 20px; border-radius: 15px; width: 100%; max-width: 300px; text-align: center; border: 1px solid #333; }
-        .modal-btns { display: flex; gap: 10px; margin-top: 15px; }
-        .modal-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        /* чат */
+        #chat {
+            flex: 1;
+            padding: 16px 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #000000;
+            scroll-behavior: smooth;
+        }
+        .msg {
+            max-width: 80%;
+            padding: 9px 14px;
+            border-radius: 22px;
+            font-size: 0.9rem;
+            line-height: 1.35;
+            word-wrap: break-word;
+            animation: fadeSlide 0.18s ease;
+        }
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(5px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .my {
+            align-self: flex-end;
+            background: #2c2c2c;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        .other {
+            align-self: flex-start;
+            background: #141414;
+            border: 0.5px solid #2b2b2b;
+            border-bottom-left-radius: 5px;
+            color: #efefef;
+        }
+        .msg img {
+            max-width: 100%;
+            border-radius: 16px;
+            display: block;
+            margin-top: 5px;
+            border: 1px solid #2e2e2e;
+        }
+        audio {
+            height: 38px;
+            width: 200px;
+            max-width: 100%;
+            margin-top: 5px;
+            border-radius: 30px;
+            filter: grayscale(0.2);
+        }
+
+        /* ========= ОНОВЛЕНА ПАНЕЛЬ ВВОДУ ========= */
+        /* компактний рядок, всі кнопки влізають ідеально */
+        .input-area {
+            padding: 8px 12px;
+            background: #0a0a0a;
+            border-top: 1px solid #1f1f1f;
+            flex-shrink: 0;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: #1a1a1a;
+            color: #ddd;
+            font-size: 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-icon:hover {
+            background: #2e2e2e;
+            transform: scale(0.94);
+            color: white;
+        }
+        .btn-icon:active {
+            transform: scale(0.9);
+        }
+        /* червоний стан для запису */
+        .btn-red {
+            background: #3a2a2a !important;
+            color: #ffaaaa !important;
+        }
+        .btn-red:hover {
+            background: #522e2e !important;
+        }
+        /* поле вводу гнучке */
+        #msgInput {
+            flex: 1;
+            min-width: 0;  /* критично для flex вміщування */
+            background: #111;
+            border: 1px solid #2a2a2a;
+            padding: 10px 14px;
+            border-radius: 32px;
+            color: #f0f0f0;
+            outline: none;
+            font-size: 0.9rem;
+        }
+        #msgInput:focus {
+            border-color: #6a6a6a;
+            background: #1a1a1a;
+        }
+        .send-btn {
+            background: #202020;
+            font-size: 1.1rem;
+        }
+        .send-btn:hover {
+            background: #3a3a3a;
+        }
+
+        /* модальне вікно */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 24px;
+        }
+        .modal {
+            background: #111111;
+            padding: 22px 18px;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 280px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        .modal #modal-text {
+            font-size: 1rem;
+            margin-bottom: 18px;
+            font-weight: 500;
+            color: #eee;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            font-size: 0.85rem;
+        }
+        .modal-btn:first-child {
+            background: #1f1f1f;
+            color: #ccc;
+        }
+        .modal-btn:first-child:hover {
+            background: #2d2d2d;
+            color: white;
+        }
+        .modal-btn:last-child {
+            background: #222;
+            color: #ffa2a2;
+        }
+        .modal-btn:last-child:hover {
+            background: #3a1e1e;
+            color: #ffc5c5;
+        }
+        #chat::-webkit-scrollbar { width: 4px; }
+        #chat::-webkit-scrollbar-track { background: #0a0a0a; }
+        #chat::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        /* дуже малі екрани (до 380px) - ще трохи стискаємо кнопки */
+        @media (max-width: 420px) {
+            .btn-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
+            }
+            .input-area {
+                gap: 6px;
+                padding: 6px 10px;
+            }
+            #msgInput {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            .connect-btn {
+                padding: 0 12px;
+                height: 38px;
+                font-size: 0.7rem;
+            }
+            #peer-id-input {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        @media (max-width: 360px) {
+            .btn-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            .send-btn {
+                font-size: 1rem;
+            }
+        }
+        @media (min-width: 1200px) {
+            .app { max-width: 1000px; border-radius: 0px; box-shadow: 0 0 0 1px #2a2a2a; }
+            body { background: #050505; }
+        }
     </style>
 </head>
 <body>
 
 <div class="app">
     <div class="header">
-        <div><h1>SOC-C</h1><span id="status">CONNECTING...</span></div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <h1>SOC.</h1>
+            <span id="status">OFFLINE</span>
+        </div>
         <button class="exit-btn" onclick="showConfirm()">✕</button>
     </div>
     <div class="setup" id="setup-ui">
-        <div class="id-box" onclick="copyMyId()"><div id="my-id-display">...</div><small style="color:#555; font-size:9px;">TAP TO COPY ID</small></div>
-        <div style="display:flex; gap:6px;">
-            <input type="text" id="peer-id-input" placeholder="Friend ID..." autocomplete="off">
-            <button class="btn-circle send-btn" style="width:auto; border-radius:12px; padding:0 15px; font-size:12px;" onclick="connectToPeer()">CONNECT</button>
+        <div class="id-box" onclick="copyMyId()">
+            <div id="my-id-display">---</div>
+            <small>⤹ TAP TO COPY</small>
+        </div>
+        <div class="connect-row">
+            <input type="text" id="peer-id-input" placeholder="peer ID..." autocomplete="off">
+            <button class="connect-btn" onclick="connectToPeer()">CONNECT</button>
         </div>
     </div>
     <div id="chat"></div>
     <div class="input-area">
-        <button class="btn-circle" onclick="document.getElementById('fileInput').click()"><span>✚</span></button>
-        <button class="btn-circle" id="recordBtn" onclick="toggleRecord()"><span>♫</span></button>
+        <button class="btn-icon" id="attachBtn" onclick="document.getElementById('fileInput').click()"><span>✚</span></button>
+        <button class="btn-icon" id="recordBtn" onclick="toggleRecord()"><span>♫</span></button>
         <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
-        <button class="btn-circle send-btn" onclick="sendText()"><span>➤</span></button>
+        <button class="btn-icon send-btn" onclick="sendText()"><span>➤</span></button>
     </div>
 </div>
 
 <div id="modal-overlay">
-    <div class="modal" id="modal-content">
+    <div class="modal">
         <div id="modal-text"></div>
         <div class="modal-btns" id="modal-actions"></div>
     </div>
@@ -73,120 +404,264 @@
 <input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
-    let myId = localStorage.getItem('soc-c-device-id') || 'u' + Math.random().toString(36).substr(2, 4);
-    localStorage.setItem('soc-c-device-id', myId);
-    document.getElementById('my-id-display').innerText = 'MY ID: ' + myId;
+    let myId = localStorage.getItem('soc-c-device-id');
+    if (!myId) {
+        myId = 'u' + Math.random().toString(36).substring(2, 8);
+        localStorage.setItem('soc-c-device-id', myId);
+    }
+    document.getElementById('my-id-display').innerHTML = `ID: ${myId}`;
 
-    const peer = new Peer(myId);
-    let conn, mediaRecorder, audioChunks = [];
+    const peer = new Peer(myId, { debug: 2 });
+    let conn = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let activeStream = null;
+
+    function loadHistory() {
+        const raw = localStorage.getItem('soc-c-media-history');
+        if (!raw) return;
+        try {
+            const history = JSON.parse(raw);
+            history.forEach(item => {
+                addMsg(item.data, item.side, item.type, false);
+            });
+        } catch(e) {}
+    }
 
     window.onload = () => {
-        const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
-        history.forEach(m => addMsg(m.data, m.side, m.type, false));
+        loadHistory();
+        updateStatus('connecting', '#aaaaaa');
+        peer.on('open', (id) => {
+            updateStatus('online', '#cccccc');
+            if (id !== myId) {
+                myId = id;
+                localStorage.setItem('soc-c-device-id', myId);
+                document.getElementById('my-id-display').innerHTML = `ID: ${myId}`;
+            }
+        });
+        peer.on('error', (err) => {
+            console.warn(err);
+            updateStatus('error', '#aa5555');
+            showAlert("Peer error, reload?");
+        });
     };
 
-    peer.on('connection', (c) => { conn = c; setupConnection(); });
-    peer.on('open', () => { document.getElementById('status').innerText = "ONLINE"; });
+    function updateStatus(text, colorHint) {
+        const st = document.getElementById('status');
+        st.innerText = text.toUpperCase();
+        st.style.color = colorHint || '#bbb';
+    }
 
     function setupConnection() {
+        if (!conn) return;
         conn.on('open', () => {
             document.getElementById('setup-ui').style.display = 'none';
-            document.getElementById('status').innerText = "CONNECTED";
-            document.getElementById('status').style.color = "#00ff88";
+            updateStatus('connected', '#f0f0f0');
         });
-        conn.on('data', d => addMsg(d.data, 'other', d.type, true));
-        conn.on('close', () => { showAlert("Connection lost", () => location.reload()); });
+        conn.on('data', (payload) => {
+            if (payload && payload.type && payload.data) {
+                addMsg(payload.data, 'other', payload.type, true);
+            }
+        });
+        conn.on('close', () => {
+            showAlert("Connection closed", () => {
+                location.reload();
+            });
+        });
+        conn.on('error', () => {
+            showAlert("Connection error", () => location.reload());
+        });
     }
 
     function connectToPeer() {
-        const fId = document.getElementById('peer-id-input').value.trim();
-        if (fId) { conn = peer.connect(fId); setupConnection(); }
-    }
-
-    function addMsg(data, side, type, save) {
-        const d = document.createElement('div');
-        d.className = `msg ${side}`;
-        if (type === 'text') d.innerText = data;
-        if (type === 'image') d.innerHTML = `<img src="${data}">`;
-        if (type === 'audio') d.innerHTML = `<audio controls playsinline webkit-playsinline src="${data}"></audio>`;
-        const chat = document.getElementById('chat');
-        chat.appendChild(d);
-        chat.scrollTop = chat.scrollHeight;
-        if (save) {
-            const h = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
-            h.push({ data, side, type });
-            localStorage.setItem('soc-c-media-history', JSON.stringify(h.slice(-25)));
+        const friendId = document.getElementById('peer-id-input').value.trim();
+        if (!friendId) {
+            showAlert("Enter peer ID");
+            return;
         }
+        if (conn && (conn.open || conn.peerConnection)) {
+            showAlert("Already connected");
+            return;
+        }
+        const newConn = peer.connect(friendId);
+        conn = newConn;
+        setupConnection();
+        updateStatus('connecting...', '#b0b0b0');
     }
 
-    async function toggleRecord() {
-        const b = document.getElementById('recordBtn');
-        if (!mediaRecorder || mediaRecorder.state === "inactive") {
-            try {
-                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-                // КРИТИЧНО ДЛЯ IPHONE: Використовуємо audio/mp4 якщо доступно
-                const types = ['audio/mp4', 'audio/webm', 'audio/ogg'];
-                let selectedType = types.find(t => MediaRecorder.isTypeSupported(t));
-                
-                mediaRecorder = new MediaRecorder(s, { mimeType: selectedType });
-                audioChunks = [];
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(audioChunks, { type: selectedType });
-                    const r = new FileReader();
-                    r.onload = e => {
-                        if(conn?.open) conn.send({ type: 'audio', data: e.target.result });
-                        addMsg(e.target.result, 'my', 'audio', true);
-                    };
-                    r.readAsDataURL(blob);
-                    s.getTracks().forEach(t => t.stop());
-                };
-                mediaRecorder.start();
-                b.classList.add('btn-red');
-                b.innerHTML = "<span>⏹︎</span>";
-            } catch(e) { showAlert("Mic error: Check HTTPS/Permissions"); }
-        } else {
-            mediaRecorder.stop();
-            b.classList.remove('btn-red');
-            b.innerHTML = "<span>♫</span>";
+    function addMsg(data, side, type, saveToStorage = true) {
+        const chatDiv = document.getElementById('chat');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
+        
+        if (type === 'text') {
+            msgDiv.innerText = data;
+        } 
+        else if (type === 'image') {
+            const img = document.createElement('img');
+            img.src = data;
+            img.loading = 'lazy';
+            img.style.maxWidth = '100%';
+            msgDiv.appendChild(img);
+        }
+        else if (type === 'audio') {
+            const audioEl = document.createElement('audio');
+            audioEl.controls = true;
+            audioEl.preload = 'metadata';
+            audioEl.src = data;
+            msgDiv.appendChild(audioEl);
+        }
+        
+        chatDiv.appendChild(msgDiv);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+        
+        if (saveToStorage) {
+            const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
+            history.push({ data, side, type });
+            if (history.length > 35) history.shift();
+            localStorage.setItem('soc-c-media-history', JSON.stringify(history));
         }
     }
 
     function sendText() {
-        const i = document.getElementById('msgInput');
-        if (conn?.open && i.value) {
-            conn.send({ type: 'text', data: i.value });
-            addMsg(i.value, 'my', 'text', true);
-            i.value = '';
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim();
+        if (conn && conn.open && text !== "") {
+            conn.send({ type: 'text', data: text });
+            addMsg(text, 'my', 'text', true);
+            input.value = '';
+        } else if (!conn || !conn.open) {
+            showAlert("No active connection");
         }
     }
 
     function sendFile(file) {
-        if (!file || !conn?.open) return;
-        const r = new FileReader();
-        r.onload = e => { conn.send({ type: 'image', data: e.target.result }); addMsg(e.target.result, 'my', 'image', true); };
-        r.readAsDataURL(file);
+        if (!file || !conn || !conn.open) {
+            if(!conn || !conn.open) showAlert("Connect first");
+            return;
+        }
+        if (!file.type.startsWith('image/')) {
+            showAlert("Only images allowed");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const b64 = ev.target.result;
+            conn.send({ type: 'image', data: b64 });
+            addMsg(b64, 'my', 'image', true);
+        };
+        reader.readAsDataURL(file);
     }
 
-    function copyMyId() { navigator.clipboard.writeText(myId); showAlert("ID Copied!"); }
+    async function toggleRecord() {
+        const btn = document.getElementById('recordBtn');
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
+                activeStream = null;
+            }
+            btn.classList.remove('btn-red');
+            btn.innerHTML = "<span>♫</span>";
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            activeStream = stream;
+            let mimeType = '';
+            if (MediaRecorder.isTypeSupported('audio/webm')) mimeType = 'audio/webm';
+            else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+            else if (MediaRecorder.isTypeSupported('audio/ogg')) mimeType = 'audio/ogg';
+            
+            mediaRecorder = new MediaRecorder(stream, { mimeType });
+            audioChunks = [];
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) audioChunks.push(e.data);
+            };
+            mediaRecorder.onstop = () => {
+                if (audioChunks.length === 0) return;
+                const blob = new Blob(audioChunks, { type: mimeType || 'audio/webm' });
+                const fileReader = new FileReader();
+                fileReader.onload = (ev) => {
+                    const audioDataUrl = ev.target.result;
+                    if (conn && conn.open) {
+                        conn.send({ type: 'audio', data: audioDataUrl });
+                    } else {
+                        showAlert("Disconnected, can't send voice");
+                    }
+                    addMsg(audioDataUrl, 'my', 'audio', true);
+                };
+                fileReader.readAsDataURL(blob);
+                if (activeStream) {
+                    activeStream.getTracks().forEach(t => t.stop());
+                    activeStream = null;
+                }
+            };
+            mediaRecorder.start();
+            btn.classList.add('btn-red');
+            btn.innerHTML = "<span>⏹</span>";
+        } catch (err) {
+            console.error(err);
+            showAlert("Microphone access denied or HTTPS needed");
+        }
+    }
 
-    /* UI Modals */
-    function showAlert(txt, cb) {
-        const o = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerText = txt;
-        document.getElementById('modal-actions').innerHTML = `<button class="modal-btn send-btn" onclick="document.getElementById('modal-overlay').style.display='none'; ${cb ? '('+cb+')()' : ''}">OK</button>`;
-        o.style.display = 'flex';
+    function copyMyId() {
+        navigator.clipboard.writeText(myId).then(() => {
+            showAlert("ID copied");
+        }).catch(() => {
+            showAlert("Manual copy: " + myId);
+        });
+    }
+
+    function showAlert(msg, callback) {
+        const overlay = document.getElementById('modal-overlay');
+        const txtDiv = document.getElementById('modal-text');
+        const actionsDiv = document.getElementById('modal-actions');
+        txtDiv.innerText = msg;
+        actionsDiv.innerHTML = `<button class="modal-btn" id="alertOkBtn">OK</button>`;
+        overlay.style.display = 'flex';
+        const okBtn = document.getElementById('alertOkBtn');
+        const closeHandler = () => {
+            overlay.style.display = 'none';
+            if (callback && typeof callback === 'function') callback();
+        };
+        okBtn.onclick = closeHandler;
+        overlay.onclick = (e) => {
+            if (e.target === overlay) closeHandler();
+        };
     }
 
     function showConfirm() {
-        const o = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerText = "Clear history and exit?";
-        document.getElementById('modal-actions').innerHTML = `
-            <button class="modal-btn" style="background:#333; color:white;" onclick="document.getElementById('modal-overlay').style.display='none'">NO</button>
-            <button class="modal-btn" style="background:var(--danger); color:white;" onclick="localStorage.clear(); location.reload();">YES</button>
+        const overlay = document.getElementById('modal-overlay');
+        const txtDiv = document.getElementById('modal-text');
+        const actionsDiv = document.getElementById('modal-actions');
+        txtDiv.innerText = "Clear history and exit?";
+        actionsDiv.innerHTML = `
+            <button class="modal-btn" id="confirmNo">CANCEL</button>
+            <button class="modal-btn" id="confirmYes">CLEAR & EXIT</button>
         `;
-        o.style.display = 'flex';
+        overlay.style.display = 'flex';
+        document.getElementById('confirmNo').onclick = () => {
+            overlay.style.display = 'none';
+        };
+        document.getElementById('confirmYes').onclick = () => {
+            localStorage.clear();
+            location.reload();
+        };
+        overlay.onclick = (e) => {
+            if (e.target === overlay) overlay.style.display = 'none';
+        };
     }
+
+    peer.on('connection', (incomingConn) => {
+        if (conn && (conn.open || conn.peerConnection)) {
+            incomingConn.close();
+            return;
+        }
+        conn = incomingConn;
+        setupConnection();
+    });
 </script>
 </body>
 </html>
