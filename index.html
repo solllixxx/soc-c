@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOC-C Final v3</title>
+    <title>SOC-C Final v3.1</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root { --bg: #0b0e11; --panel: #1c2126; --accent: #00a3ff; --text: #f0f0f0; --danger: #ff4444; }
@@ -42,16 +42,20 @@
         .header h1 { margin: 0; font-size: 18px; color: var(--accent); font-weight: 900; }
         #status { font-size: 10px; color: #ffab00; font-weight: bold; text-transform: uppercase; }
 
-        /* Кнопка EXIT */
+        /* Кнопка EXIT (Квадратна) */
         .exit-btn {
             background: var(--danger);
             color: white;
             border: none;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 11px;
+            width: 32px;  /* Фіксована ширина */
+            height: 32px; /* Фіксована висота для квадрата */
+            border-radius: 4px; /* Легке закруглення, але форма квадратна */
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: opacity 0.2s;
         }
         .exit-btn:hover { opacity: 0.8; }
@@ -73,7 +77,6 @@
             cursor: pointer;
         }
         
-        /* Область чату */
         #chat { 
             flex: 1; 
             padding: 15px; 
@@ -88,9 +91,10 @@
         .my { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
         .other { align-self: flex-start; background: #2a2e33; border-bottom-left-radius: 4px; }
         .msg img { max-width: 100%; border-radius: 10px; display: block; margin-top: 5px; }
-        audio { height: 36px; width: 200px; margin-top: 5px; display: block; }
+        
+        /* Стиль аудіо для iOS */
+        audio { height: 40px; width: 220px; margin-top: 5px; display: block; }
 
-        /* Панель введення */
         .input-area { 
             padding: 8px 10px; 
             background: var(--panel); 
@@ -130,7 +134,6 @@
         }
 
         .send-btn { background: var(--accent); }
-        .send-btn:hover { background: #0082cc; }
         .btn-red { background: var(--danger) !important; }
 
         @media (max-width: 360px) {
@@ -143,17 +146,17 @@
 <div class="app">
     <div class="header">
         <div><h1>SOC-C</h1><span id="status">CONNECTING...</span></div>
-        <button class="exit-btn" onclick="localStorage.clear(); location.reload();">⛌</button>
+        <button class="exit-btn" onclick="if(confirm('Очистити історію?')){localStorage.clear(); location.reload();}">✕</button>
     </div>
 
     <div class="setup" id="setup-ui">
         <div class="id-box" onclick="copyMyId()">
             <div id="my-id-display" style="font-size: 16px; font-weight: bold; color: #ffffff;">...</div>
-            <small style="color:#555; font-size:9px;">TAP TO COPY ID</small>
+            <small style="color:#555; font-size:9px;">НАТИСНІТЬ, ЩОБ КОПІЮВАТИ ID</small>
         </div>
         <div style="display:flex; gap:6px;">
-            <input type="text" id="peer-id-input" placeholder="Friend ID..." autocomplete="off">
-            <button class="btn-circle send-btn" style="width:auto; border-radius:12px; padding:0 15px; font-size:12px;" onclick="connectToPeer()">CONNECT</button>
+            <input type="text" id="peer-id-input" placeholder="ID друга..." autocomplete="off">
+            <button class="btn-circle send-btn" style="width:auto; border-radius:12px; padding:0 15px; font-size:12px;" onclick="connectToPeer()">З'ЄДНАТИ</button>
         </div>
     </div>
 
@@ -162,7 +165,7 @@
     <div class="input-area">
         <button class="btn-circle" onclick="document.getElementById('fileInput').click()"><span>✚</span></button>
         <button class="btn-circle" id="recordBtn" onclick="toggleRecord()"><span>♫</span></button>
-        <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
+        <input type="text" id="msgInput" placeholder="Повідомлення..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
         <button class="btn-circle send-btn" onclick="sendText()"><span>➤</span></button>
     </div>
 </div>
@@ -172,7 +175,7 @@
 <script>
     let myId = localStorage.getItem('soc-c-device-id') || 'u' + Math.random().toString(36).substr(2, 4);
     localStorage.setItem('soc-c-device-id', myId);
-    document.getElementById('my-id-display').innerText = 'MY ID: ' + myId;
+    document.getElementById('my-id-display').innerText = 'МІЙ ID: ' + myId;
 
     const peer = new Peer(myId);
     let conn;
@@ -184,22 +187,34 @@
         history.forEach(m => addMsg(m.data, m.side, m.type, false));
     };
 
-    peer.on('connection', (c) => { conn = c; setupConnection(); });
-    peer.on('open', () => { document.getElementById('status').innerText = "ONLINE"; });
+    peer.on('connection', (c) => { 
+        conn = c; 
+        setupConnection(); 
+    });
+
+    peer.on('open', () => { 
+        document.getElementById('status').innerText = "ОНЛАЙН"; 
+    });
 
     function connectToPeer() {
         const fId = document.getElementById('peer-id-input').value.trim();
-        if (fId) { conn = peer.connect(fId); setupConnection(); }
+        if (fId) { 
+            conn = peer.connect(fId); 
+            setupConnection(); 
+        }
     }
 
     function setupConnection() {
         conn.on('open', () => {
             document.getElementById('setup-ui').style.display = 'none';
-            document.getElementById('status').innerText = "CONNECTED";
+            document.getElementById('status').innerText = "ПІДКЛЮЧЕНО";
             document.getElementById('status').style.color = "#00ff88";
         });
         conn.on('data', d => addMsg(d.data, 'other', d.type, true));
-        conn.on('close', () => { location.reload(); });
+        conn.on('close', () => { 
+            alert("З'єднання розірвано");
+            location.reload(); 
+        });
     }
 
     function copyMyId() {
@@ -231,6 +246,7 @@
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
             try {
                 const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // Для iOS краще підходить audio/mp4 або просто audio/webm
                 const mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/webm';
                 mediaRecorder = new MediaRecorder(s);
                 audioChunks = [];
@@ -248,7 +264,7 @@
                 mediaRecorder.start();
                 b.classList.add('btn-red');
                 b.innerHTML = "<span>⏹︎</span>";
-            } catch(e) { alert("Mic error: Use HTTPS!"); }
+            } catch(e) { alert("Помилка мікрофона. Потрібен HTTPS!"); }
         } else {
             mediaRecorder.stop();
             b.classList.remove('btn-red');
@@ -259,12 +275,19 @@
     function addMsg(data, side, type, save) {
         const d = document.createElement('div');
         d.className = `msg ${side}`;
+        
         if (type === 'text') d.innerText = data;
         if (type === 'image') d.innerHTML = `<img src="${data}">`;
-        if (type === 'audio') d.innerHTML = `<audio controls playsinline src="${data}"></audio>`;
+        
+        if (type === 'audio') {
+            // Додано preload="auto" та playsinline для стабільної роботи на iPhone
+            d.innerHTML = `<audio controls preload="auto" playsinline src="${data}"></audio>`;
+        }
+        
         const chat = document.getElementById('chat');
         chat.appendChild(d);
         chat.scrollTop = chat.scrollHeight;
+
         if (save) {
             const h = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
             h.push({ data, side, type });
