@@ -3,257 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>soc-c</title>
+    <title>soc-c | PeerJS</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root {
-            --bg: #0b0e11;
-            --panel: #15191c;
-            --accent: #00a3ff;
-            --text: #e1e1e1;
-            --my-msg: #005fb8;
-            --other-msg: #2a2e33;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 450px;
-            height: 90vh;
-            background: var(--panel);
-            display: flex;
-            flex-direction: column;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid #23292e;
-        }
-
-        /* Header */
-        .header {
-            padding: 20px;
-            background: #1c2126;
-            text-align: center;
-            border-bottom: 1px solid #23292e;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            letter-spacing: 2px;
-            color: var(--accent);
-        }
-
-        /* Connection Area */
-        .setup-box {
-            padding: 15px;
-            background: #1c2126;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 60px;
-            background: var(--bg);
-            border: 1px solid #333;
-            color: #888;
-            border-radius: 10px;
-            padding: 10px;
-            resize: none;
-            font-size: 11px;
-            box-sizing: border-box;
-        }
-
-        .btn {
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .btn-main { background: var(--accent); color: white; }
-        .btn-sub { background: #2a2e33; color: white; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        /* Chat Area */
-        #chat {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .msg {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            font-size: 15px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .my-msg {
-            align-self: flex-end;
-            background: var(--my-msg);
-            border-bottom-right-radius: 2px;
-        }
-
-        .other-msg {
-            align-self: flex-start;
-            background: var(--other-msg);
-            border-bottom-left-radius: 2px;
-        }
-
-        /* Input Area */
-        .input-bar {
-            padding: 20px;
-            display: flex;
-            gap: 10px;
-            background: #1c2126;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            background: var(--bg);
-            border: 1px solid #333;
-            padding: 12px;
-            border-radius: 10px;
-            color: white;
-            outline: none;
-        }
-
-        .status {
-            font-size: 10px;
-            text-transform: uppercase;
-            color: #555;
-            margin-top: 5px;
-        }
+        :root { --bg: #0b0e11; --panel: #15191c; --accent: #00a3ff; --text: #f0f0f0; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow: hidden; }
+        .app { display: flex; flex-direction: column; height: 100vh; width: 100%; max-width: 1000px; margin: 0 auto; border-left: 1px solid #23292e; border-right: 1px solid #23292e; }
+        .header { padding: 15px 20px; background: #1c2126; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #23292e; }
+        .header h1 { margin: 0; font-size: 24px; color: var(--accent); letter-spacing: 2px; }
+        #status { font-size: 12px; font-weight: bold; color: #ffab00; }
+        .setup { padding: 20px; background: #1c2126; display: flex; flex-direction: column; gap: 10px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-blue { background: var(--accent); color: white; }
+        .btn-icon { background: #2a2e33; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 45px; }
+        #chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #0b0e11; }
+        .msg { max-width: 70%; padding: 10px; border-radius: 15px; font-size: 15px; word-wrap: break-word; line-height: 1.4; }
+        .my { align-self: flex-end; background: var(--accent); border-bottom-right-radius: 2px; }
+        .other { align-self: flex-start; background: #2a2e33; border-bottom-left-radius: 2px; }
+        .msg img { max-width: 100%; border-radius: 10px; margin-top: 5px; }
+        audio { margin-top: 5px; max-width: 100%; height: 35px; }
+        .input-area { padding: 15px 20px; background: #1c2126; display: flex; gap: 10px; align-items: center; }
+        input[type="text"] { flex: 1; background: #0b0e11; border: 1px solid #333; padding: 12px; border-radius: 8px; color: white; outline: none; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app">
     <div class="header">
-        <h1>SOC-C</h1>
-        <div id="status" class="status">Очікування з'єднання</div>
+        <div><h1>SOC-C</h1><span id="status">ПІДКЛЮЧЕННЯ...</span></div>
+        <button class="btn" style="background:#ff4444; color:white;" onclick="localStorage.clear(); location.reload();">Скидання ID</button>
     </div>
 
-    <div class="setup-box">
-        <button class="btn btn-main" onclick="createOffer()">Створити ключ доступу</button>
-        <textarea id="localOffer" readonly placeholder="Ваш ключ з'явиться тут"></textarea>
-        
-        <textarea id="remoteOffer" placeholder="Вставте ключ партнера"></textarea>
-        <button class="btn btn-sub" onclick="connect()">Підключитися</button>
+    <div class="setup" id="setup-ui">
+        <div style="background: #2a2e33; padding: 10px; border-radius: 8px; text-align: center;">
+            <small>Ваш постійний ID:</small>
+            <div id="my-id-display" style="font-size: 20px; font-weight: bold; color: #00ff88;">...</div>
+            <button class="btn" style="margin-top:5px; font-size:10px;" onclick="copyMyId()">Копіювати мій ID</button>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 10px;">
+            <input type="text" id="peer-id-input" placeholder="Введіть ID друга..." style="background: #0b0e11;">
+            <button class="btn btn-blue" onclick="connectToPeer()">З'єднати</button>
+        </div>
     </div>
 
     <div id="chat"></div>
 
-    <div class="input-bar">
-        <input type="text" id="messageInput" placeholder="Повідомлення..." onkeypress="handleEnter(event)">
-        <button class="btn btn-main" onclick="sendMessage()">Відправити</button>
+    <div class="input-area">
+        <button class="btn btn-icon" onclick="document.getElementById('fileInput').click()">📸</button>
+        <button class="btn btn-icon" id="recordBtn" onclick="toggleRecord()">🎤</button>
+        <input type="text" id="msgInput" placeholder="Повідомлення..." onkeypress="if(event.key==='Enter') sendText()">
+        <button class="btn btn-blue" style="width: 60px;" onclick="sendText()">></button>
     </div>
 </div>
 
+<input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
+
 <script>
-    let pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
-    let dc;
-
-    // Створення кімнати (Host)
-    async function createOffer() {
-        dc = pc.createDataChannel("chat");
-        setupDataChannel(dc);
-
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-
-        pc.onicecandidate = (e) => {
-            if (!e.candidate) {
-                document.getElementById('localOffer').value = btoa(JSON.stringify(pc.localDescription));
-                document.getElementById('status').innerText = "Ключ створено. Відправте його другу";
-            }
-        };
+    // 1. Ініціалізація унікального ID пристрою
+    let myId = localStorage.getItem('soc-c-device-id');
+    if (!myId) {
+        myId = 'user-' + Math.random().toString(36).substr(2, 6);
+        localStorage.setItem('soc-c-device-id', myId);
     }
+    document.getElementById('my-id-display').innerText = myId;
 
-    // Підключення
-    async function connect() {
-        const input = document.getElementById('remoteOffer').value.trim();
-        if (!input) return;
+    // 2. Створення Peer об'єкта
+    const peer = new Peer(myId);
+    let conn;
+    let mediaRecorder;
+    let audioChunks = [];
 
-        try {
-            const remoteDesc = new RTCSessionDescription(JSON.parse(atob(input)));
-
-            if (remoteDesc.type === "offer") {
-                await pc.setRemoteDescription(remoteDesc);
-                const answer = await pc.createAnswer();
-                await pc.setLocalDescription(answer);
-                
-                pc.onicecandidate = (e) => {
-                    if (!e.candidate) {
-                        document.getElementById('localOffer').value = btoa(JSON.stringify(pc.localDescription));
-                        document.getElementById('status').innerText = "Відправте свій ключ у відповідь";
-                    }
-                };
-            } else {
-                await pc.setRemoteDescription(remoteDesc);
-            }
-        } catch (err) {
-            alert("Помилка ключа. Перевірте правильність.");
-        }
-    }
-
-    pc.ondatachannel = (e) => {
-        dc = e.channel;
-        setupDataChannel(dc);
+    // Завантаження історії
+    window.onload = () => {
+        const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
+        history.forEach(m => addMsg(m.data, m.side, m.type, false));
     };
 
-    function setupDataChannel(channel) {
-        channel.onopen = () => {
-            document.getElementById('status').innerText = "Онлайн";
-            document.getElementById('status').style.color = "#00ff88";
-        };
-        channel.onmessage = (e) => addMessage(e.data, 'other');
-        channel.onclose = () => {
-            document.getElementById('status').innerText = "Офлайн";
-            document.getElementById('status').style.color = "#ff4444";
-        };
+    // Слухаємо вхідні підключення
+    peer.on('connection', (connection) => {
+        conn = connection;
+        setupConnection();
+    });
+
+    peer.on('open', () => {
+        document.getElementById('status').innerText = "ГОТОВИЙ";
+    });
+
+    peer.on('error', (err) => {
+        alert("Помилка: " + err.type);
+        console.error(err);
+    });
+
+    // 3. Функція підключення до друга
+    function connectToPeer() {
+        const friendId = document.getElementById('peer-id-input').value.trim();
+        if (!friendId) return alert("Введіть ID!");
+        conn = peer.connect(friendId);
+        setupConnection();
     }
 
-    function sendMessage() {
-        const input = document.getElementById('messageInput');
-        if (dc && dc.readyState === "open" && input.value.trim() !== "") {
-            dc.send(input.value);
-            addMessage(input.value, 'me');
-            input.value = "";
+    function setupConnection() {
+        conn.on('open', () => {
+            document.getElementById('setup-ui').style.display = 'none';
+            document.getElementById('status').innerText = "ОНЛАЙН";
+            document.getElementById('status').style.color = "#00ff88";
+        });
+
+        conn.on('data', (data) => {
+            addMsg(data.data, 'other', data.type, true);
+        });
+
+        conn.on('close', () => {
+            document.getElementById('status').innerText = "ВІДКЛЮЧЕНО";
+            document.getElementById('status').style.color = "#ff4444";
+        });
+    }
+
+    function copyMyId() {
+        navigator.clipboard.writeText(myId);
+        alert("ID скопійовано: " + myId);
+    }
+
+    // --- ЛОГІКА ПОВІДОМЛЕНЬ ---
+    function sendText() {
+        const i = document.getElementById('msgInput');
+        if (conn && conn.open && i.value) {
+            const payload = { type: 'text', data: i.value };
+            conn.send(payload);
+            addMsg(i.value, 'my', 'text', true);
+            i.value = '';
         }
     }
 
-    function handleEnter(e) {
-        if (e.key === 'Enter') sendMessage();
+    function sendFile(file) {
+        if (!file || !conn || !conn.open) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const payload = { type: 'image', data: e.target.result };
+            conn.send(payload);
+            addMsg(e.target.result, 'my', 'image', true);
+        };
+        reader.readAsDataURL(file);
     }
 
-    function addMessage(text, side) {
-        const chat = document.getElementById('chat');
-        const div = document.createElement('div');
-        div.className = `msg ${side === 'me' ? 'my-msg' : 'other-msg'}`;
-        div.innerText = text;
-        chat.appendChild(div);
-        chat.scrollTop = chat.scrollHeight;
+    async function toggleRecord() {
+        const btn = document.getElementById('recordBtn');
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/ogg' });
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const payload = { type: 'audio', data: e.target.result };
+                        if(conn && conn.open) conn.send(payload);
+                        addMsg(e.target.result, 'my', 'audio', true);
+                    };
+                    reader.readAsDataURL(blob);
+                    audioChunks = [];
+                };
+                mediaRecorder.start();
+                btn.style.background = "#ff4444";
+                btn.innerText = "🛑";
+            } catch(e) { alert("Доступ до мікрофону заборонено"); }
+        } else {
+            mediaRecorder.stop();
+            btn.style.background = "#2a2e33";
+            btn.innerText = "🎤";
+        }
+    }
+
+    function addMsg(data, side, type, save) {
+        const d = document.createElement('div');
+        d.className = `msg ${side}`;
+        if (type === 'text') d.innerText = data;
+        if (type === 'image') d.innerHTML = `<img src="${data}">`;
+        if (type === 'audio') d.innerHTML = `<audio controls src="${data}"></audio>`;
+        document.getElementById('chat').appendChild(d);
+        document.getElementById('chat').scrollTop = 99999;
+        if (save) {
+            const h = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
+            h.push({ data, side, type });
+            localStorage.setItem('soc-c-media-history', JSON.stringify(h.slice(-50))); // зберігаємо останні 50
+        }
     }
 </script>
-
 </body>
 </html>
