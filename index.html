@@ -2,21 +2,25 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOC-C Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SOC-C Final</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root { --bg: #0b0e11; --panel: #1c2126; --accent: #00a3ff; --text: #f0f0f0; }
         
-        * { box-sizing: border-box; }
+        * { 
+            box-sizing: border-box; 
+            touch-action: manipulation; /* Покращує відгук на дотик */
+        }
 
         body, html { 
             margin: 0; padding: 0; 
-            height: 100dvh; /* Динамічна висота для мобільних */
+            height: 100%; width: 100%;
             background: var(--bg); 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            font-family: -apple-system, system-ui, sans-serif; 
             color: var(--text); 
             overflow: hidden; 
+            position: fixed; /* Запобігає прокручуванню всієї сторінки */
         }
 
         .app { 
@@ -24,12 +28,10 @@
             flex-direction: column; 
             height: 100dvh; 
             width: 100%; 
-            max-width: 800px; 
+            max-width: 600px; 
             margin: 0 auto; 
-            position: relative;
         }
 
-        /* Хедер */
         .header { 
             padding: 10px 15px; 
             background: var(--panel); 
@@ -39,21 +41,17 @@
             border-bottom: 1px solid #23292e;
             flex-shrink: 0;
         }
-        .header h1 { margin: 0; font-size: 20px; color: var(--accent); font-weight: 800; }
-        #status { font-size: 10px; font-weight: bold; color: #ffab00; display: block; }
+        .header h1 { margin: 0; font-size: 18px; color: var(--accent); }
+        #status { font-size: 10px; color: #ffab00; font-weight: bold; }
 
-        /* Налаштування ID */
         .setup { 
-            padding: 15px; 
+            padding: 10px; 
             background: var(--panel); 
             border-bottom: 1px solid #23292e;
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px;
+            flex-shrink: 0;
         }
-        .id-box { background: #0b0e11; padding: 10px; border-radius: 10px; text-align: center; border: 1px dashed #444; }
+        .id-box { background: #0b0e11; padding: 8px; border-radius: 8px; text-align: center; margin-bottom: 8px; }
         
-        /* Чат */
         #chat { 
             flex: 1; 
             padding: 15px; 
@@ -62,72 +60,76 @@
             flex-direction: column; 
             gap: 10px; 
             background: var(--bg);
-            -webkit-overflow-scrolling: touch;
         }
-        .msg { max-width: 85%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; position: relative; }
-        .my { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
-        .other { align-self: flex-start; background: #2a2e33; border-bottom-left-radius: 4px; }
-        .msg img { max-width: 100%; border-radius: 10px; display: block; }
-        audio { height: 35px; width: 200px; }
 
-        /* Нижня панель (введення) */
+        .msg { max-width: 80%; padding: 8px 12px; border-radius: 15px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .my { align-self: flex-end; background: var(--accent); border-bottom-right-radius: 2px; }
+        .other { align-self: flex-start; background: #2a2e33; border-bottom-left-radius: 2px; }
+        .msg img { max-width: 100%; border-radius: 8px; margin-top: 4px; }
+
+        /* Фікс панелі введення */
         .input-area { 
-            padding: 10px 15px; 
+            padding: 8px 10px; 
             background: var(--panel); 
             display: flex; 
-            gap: 8px; 
+            gap: 6px; 
             align-items: center; 
             border-top: 1px solid #23292e;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* Для iPhone з челкою */
+            flex-shrink: 0;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
         }
         
         .btn-circle { 
-            width: 42px; height: 42px; 
+            width: 38px; height: 38px; 
             border-radius: 50%; 
             border: none; 
             background: #2a2e33; 
             color: white; 
-            font-size: 18px; 
+            font-size: 16px; 
             display: flex; 
             align-items: center; 
             justify-content: center;
             flex-shrink: 0;
-            cursor: pointer;
         }
         
         input[type="text"] { 
             flex: 1; 
+            min-width: 0; /* Важливо для того, щоб інпут не розпирав контейнер */
             background: #0b0e11; 
             border: 1px solid #333; 
-            padding: 10px 15px; 
+            padding: 8px 12px; 
             border-radius: 20px; 
             color: white; 
             outline: none; 
-            font-size: 16px; /* Запобігає авто-зуму на iPhone */
+            font-size: 16px; /* 16px запобігає зуму на iOS */
         }
 
-        .send-btn { background: var(--accent); color: white; font-weight: bold; }
-
+        .send-btn { background: var(--accent); }
         .btn-red { background: #ff4444 !important; }
+
+        /* Ховаємо зайве на дуже малих екранах */
+        @media (max-width: 350px) {
+            .header h1 { font-size: 16px; }
+            .btn-circle { width: 34px; height: 34px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="app">
     <div class="header">
-        <div><h1>SOC-C</h1><span id="status">З'ЄДНАННЯ...</span></div>
-        <button onclick="localStorage.clear(); location.reload();" style="background:none; border:none; color:#666; font-size:12px;">Скинути ID</button>
+        <div><h1>SOC-C</h1><span id="status">CONNECTING...</span></div>
+        <button onclick="localStorage.clear(); location.reload();" style="background:none; border:none; color:#555; font-size:10px;">RESET</button>
     </div>
 
     <div class="setup" id="setup-ui">
         <div class="id-box">
-            <small style="color:#888">Мій ID:</small>
-            <div id="my-id-display" style="font-size: 18px; font-weight: bold; color: #00ff88; margin: 4px 0;">...</div>
-            <button class="btn-circle" style="width:auto; border-radius:5px; height:25px; font-size:11px; padding:0 10px; margin:0 auto;" onclick="copyMyId()">КОПІЮВАТИ</button>
+            <div id="my-id-display" style="font-size: 16px; font-weight: bold; color: #00ff88;" onclick="copyMyId()">...</div>
+            <small style="color:#555; font-size:9px;">TAP ID TO COPY</small>
         </div>
         <div style="display:flex; gap:5px;">
-            <input type="text" id="peer-id-input" placeholder="ID друга...">
-            <button class="btn-circle send-btn" style="width: auto; border-radius: 10px; padding: 0 15px;" onclick="connectToPeer()">OK</button>
+            <input type="text" id="peer-id-input" placeholder="Friend ID...">
+            <button class="btn-circle send-btn" style="width:auto; border-radius:10px; padding:0 12px; font-size:12px;" onclick="connectToPeer()">CONNECT</button>
         </div>
     </div>
 
@@ -136,7 +138,7 @@
     <div class="input-area">
         <button class="btn-circle" onclick="document.getElementById('fileInput').click()"><span>➕</span></button>
         <button class="btn-circle" id="recordBtn" onclick="toggleRecord()"><span>🎙️</span></button>
-        <input type="text" id="msgInput" placeholder="Повідомлення..." onkeypress="if(event.key==='Enter') sendText()">
+        <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
         <button class="btn-circle send-btn" onclick="sendText()"><span>➤</span></button>
     </div>
 </div>
@@ -144,9 +146,9 @@
 <input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
-    let myId = localStorage.getItem('soc-c-device-id') || 'u-' + Math.random().toString(36).substr(2, 5);
+    let myId = localStorage.getItem('soc-c-device-id') || 'u' + Math.random().toString(36).substr(2, 4);
     localStorage.setItem('soc-c-device-id', myId);
-    document.getElementById('my-id-display').innerText = myId;
+    document.getElementById('my-id-display').innerText = 'MY ID: ' + myId;
 
     const peer = new Peer(myId);
     let conn;
@@ -158,19 +160,12 @@
         history.forEach(m => addMsg(m.data, m.side, m.type, false));
     };
 
-    peer.on('connection', (connection) => {
-        conn = connection;
-        setupConnection();
-    });
-
+    peer.on('connection', (c) => { conn = c; setupConnection(); });
     peer.on('open', () => { document.getElementById('status').innerText = "ONLINE"; });
 
     function connectToPeer() {
-        const friendId = document.getElementById('peer-id-input').value.trim();
-        if (friendId) {
-            conn = peer.connect(friendId);
-            setupConnection();
-        }
+        const fId = document.getElementById('peer-id-input').value.trim();
+        if (fId) { conn = peer.connect(fId); setupConnection(); }
     }
 
     function setupConnection() {
@@ -179,12 +174,12 @@
             document.getElementById('status').innerText = "CONNECTED";
             document.getElementById('status').style.color = "#00ff88";
         });
-        conn.on('data', data => addMsg(data.data, 'other', data.type, true));
+        conn.on('data', d => addMsg(d.data, 'other', d.type, true));
     }
 
     function copyMyId() {
         navigator.clipboard.writeText(myId);
-        alert("ID скопійовано!");
+        alert("ID Copied!");
     }
 
     function sendText() {
@@ -198,37 +193,39 @@
 
     function sendFile(file) {
         if (!file || !conn?.open) return;
-        const reader = new FileReader();
-        reader.onload = e => {
+        const r = new FileReader();
+        r.onload = e => {
             conn.send({ type: 'image', data: e.target.result });
             addMsg(e.target.result, 'my', 'image', true);
         };
-        reader.readAsDataURL(file);
+        r.readAsDataURL(file);
     }
 
     async function toggleRecord() {
-        const btn = document.getElementById('recordBtn');
+        const b = document.getElementById('recordBtn');
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(audioChunks, { type: 'audio/ogg' });
-                const reader = new FileReader();
-                reader.onload = e => {
-                    if(conn?.open) conn.send({ type: 'audio', data: e.target.result });
-                    addMsg(e.target.result, 'my', 'audio', true);
+            try {
+                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(s);
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/ogg' });
+                    const r = new FileReader();
+                    r.onload = e => {
+                        if(conn?.open) conn.send({ type: 'audio', data: e.target.result });
+                        addMsg(e.target.result, 'my', 'audio', true);
+                    };
+                    r.readAsDataURL(blob);
+                    audioChunks = [];
                 };
-                reader.readAsDataURL(blob);
-                audioChunks = [];
-            };
-            mediaRecorder.start();
-            btn.classList.add('btn-red');
-            btn.innerHTML = "<span>⏹️</span>";
+                mediaRecorder.start();
+                b.classList.add('btn-red');
+                b.innerHTML = "<span>⏹</span>";
+            } catch(e) { alert("Mic error"); }
         } else {
             mediaRecorder.stop();
-            btn.classList.remove('btn-red');
-            btn.innerHTML = "<span>🎙️</span>";
+            b.classList.remove('btn-red');
+            b.innerHTML = "<span>🎙️</span>";
         }
     }
 
@@ -237,14 +234,14 @@
         d.className = `msg ${side}`;
         if (type === 'text') d.innerText = data;
         if (type === 'image') d.innerHTML = `<img src="${data}">`;
-        if (type === 'audio') d.innerHTML = `<audio controls src="${data}"></audio>`;
+        if (type === 'audio') d.innerHTML = `<audio controls src="${data}" style="width:180px;"></audio>`;
         const chat = document.getElementById('chat');
         chat.appendChild(d);
         chat.scrollTop = chat.scrollHeight;
         if (save) {
             const h = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
             h.push({ data, side, type });
-            localStorage.setItem('soc-c-media-history', JSON.stringify(h.slice(-30)));
+            localStorage.setItem('soc-c-media-history', JSON.stringify(h.slice(-20)));
         }
     }
 </script>
