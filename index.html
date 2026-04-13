@@ -207,16 +207,17 @@
 
         /* ========= ОНОВЛЕНА ПАНЕЛЬ ВВОДУ ========= */
         /* компактний рядок, всі кнопки влізають ідеально */
-        .input-area {
-            padding: 8px 12px;
-            background: #0a0a0a;
-            border-top: 1px solid #1f1f1f;
-            flex-shrink: 0;
-            padding-bottom: max(10px, env(safe-area-inset-bottom));
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+.input-area {
+    padding: 8px 12px;
+    background: #0a0a0a;
+    border-top: 1px solid #1f1f1f;
+    flex-shrink: 0;
+    /* Цей рядок робить правильний відступ тільки знизу клавіатури/екрану */
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)); 
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
         .btn-icon {
             width: 42px;
             height: 42px;
