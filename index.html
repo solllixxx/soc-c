@@ -383,6 +383,54 @@
             .app { max-width: 1000px; border-radius: 0px; box-shadow: 0 0 0 1px #2a2a2a; }
             body { background: #050505; }
         }
+
+        /* Роздільник дати по центру */
+.date-divider {
+    align-self: center;
+    margin: 20px 0 10px;
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: #0a0a0a;
+    padding: 4px 12px;
+    border-radius: 10px;
+}
+
+/* Оновлення контейнера повідомлення для відображення часу */
+.msg {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.msg-time {
+    font-size: 0.6rem;
+    opacity: 0.5;
+    margin-top: 4px;
+    align-self: flex-end; /* Час буде внизу праворуч */
+}
+
+.btn-img {
+    width: 20px;  /* Розмір іконки всередині кнопки */
+    height: 20px;
+    object-fit: contain;
+    display: block;
+    /* Якщо твої іконки чорні, а фон кнопок темний, 
+       можна додати цей фільтр, щоб зробити їх білими: */
+    filter: brightness(0) invert(1); 
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.btn-icon:hover .btn-img {
+    opacity: 1;
+}
+
+/* Коли мікрофон горить червоним (запис) */
+.btn-red .btn-img {
+    filter: none; /* Щоб бачити справжній колір або підсвітку */
+}
     </style>
 </head>
 <body>
@@ -409,12 +457,21 @@
         </div>
     </div>
     <div id="chat"></div>
-    <div class="input-area">
-        <button class="btn-icon" id="attachBtn" onclick="document.getElementById('fileInput').click()"><span>✚</span></button>
-        <button class="btn-icon" id="recordBtn" onclick="toggleRecord()"><span>♪</span></button>
-        <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
-        <button class="btn-icon send-btn" onclick="sendText()"><span>➤</span></button>
-    </div>
+<div class="input-area">
+    <button class="btn-icon" id="attachBtn" onclick="document.getElementById('fileInput').click()">
+        <img src="plus.png" alt="+" class="btn-img">
+    </button>
+    
+    <button class="btn-icon" id="recordBtn" onclick="toggleRecord()">
+        <img src="mic.png" alt="V" class="btn-img" id="mic-icon">
+    </button>
+    
+    <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
+    
+    <button class="btn-icon send-btn" onclick="sendText()">
+        <img src="send.png" alt=">" class="btn-img">
+    </button>
+</div>
 </div>
 
 <div id="modal-overlay">
@@ -440,16 +497,17 @@
     let audioChunks = [];
     let activeStream = null;
 
-    function loadHistory() {
-        const raw = localStorage.getItem('soc-c-media-history');
-        if (!raw) return;
-        try {
-            const history = JSON.parse(raw);
-            history.forEach(item => {
-                addMsg(item.data, item.side, item.type, false);
-            });
-        } catch(e) {}
-    }
+function loadHistory() {
+    const raw = localStorage.getItem('soc-c-media-history');
+    if (!raw) return;
+    try {
+        const history = JSON.parse(raw);
+        history.forEach(item => {
+            // Передаємо item.time як п'ятий параметр
+            addMsg(item.data, item.side, item.type, false, item.time);
+        });
+    } catch(e) {}
+}
 
     window.onload = () => {
         loadHistory();
@@ -717,18 +775,73 @@ function showConfirm() {
     // 2. ПЕРЕПИСАНА ФУНКЦІЯ ДОДАВАННЯ ПОВІДОМЛЕННЯ (ЗІ ЗВУКОМ)
 // Вона замінить твою стару функцію addMsg
 const originalAddMsg = addMsg; 
-addMsg = function(data, side, type, saveToStorage = true) {
-    // Граємо звук, якщо пише співрозмовник
-    if (side === 'other') {
-        const sound = document.getElementById('msgSound');
-        if (sound) {
-            sound.currentTime = 0;
-            sound.play().catch(e => console.log("Sound interaction required"));
-        }
+let lastDateLabel = ""; // Додай цю змінну на початку скрипта
+
+function addMsg(data, side, type, saveToStorage = true, savedTime = null) {
+    const chatDiv = document.getElementById('chat');
+    // Використовуємо або збережений час з історії, або поточний
+    const now = savedTime ? new Date(savedTime) : new Date();
+    
+    // Форматування для роздільника дня
+    const dateOptions = { day: 'numeric', month: 'long' };
+    const currentDateLabel = now.toLocaleDateString('uk-UA', dateOptions);
+
+    // Малюємо дату по центру, якщо це новий день
+    if (currentDateLabel !== lastDateLabel) {
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'date-divider';
+        dateDiv.innerText = currentDateLabel;
+        chatDiv.appendChild(dateDiv);
+        lastDateLabel = currentDateLabel;
     }
-    // Викликаємо оригінальну логіку (відображення та збереження)
-    originalAddMsg(data, side, type, saveToStorage);
-};
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
+    
+    // Створюємо контент залежно від типу
+    const content = document.createElement('div');
+    if (type === 'text') {
+        content.innerText = data;
+    } else if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = data;
+        content.appendChild(img);
+    } else if (type === 'audio') {
+        const audioEl = document.createElement('audio');
+        audioEl.controls = true;
+        audioEl.src = data;
+        content.appendChild(audioEl);
+    }
+    msgDiv.appendChild(content);
+
+    // Додаємо годинник
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'msg-time';
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    timeDiv.innerText = `${hours}:${minutes}`;
+    msgDiv.appendChild(timeDiv);
+    
+    chatDiv.appendChild(msgDiv);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+    
+// Відтворення звуку для вхідних повідомлень (якщо це не завантаження історії)
+if (side === 'other' && !savedTime) {
+    const sound = document.getElementById('msgSound');
+    if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("Потрібна взаємодія зі сторінкою для звуку"));
+    }
+}
+
+    if (saveToStorage) {
+        const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
+        // Тепер зберігаємо і час (time)
+        history.push({ data, side, type, time: now.getTime() });
+        if (history.length > 50) history.shift();
+        localStorage.setItem('soc-c-media-history', JSON.stringify(history));
+    }
+}
 </script>
 
 <script>
