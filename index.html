@@ -641,58 +641,58 @@ conn.on('data', (payload) => {
         reader.readAsDataURL(file);
     }
 
-    async function toggleRecord() {
-        const btn = document.getElementById('recordBtn');
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-            mediaRecorder.stop();
-            if (activeStream) {
-                activeStream.getTracks().forEach(track => track.stop());
-                activeStream = null;
-            }
-            btn.classList.remove('btn-red');
-            btn.innerHTML = "<span>♫</span>";
-            return;
+async function toggleRecord() {
+    const btn = document.getElementById('recordBtn');
+    const micImg = document.getElementById('mic-icon');
+
+    // Якщо запис уже йде — зупиняємо
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        if (activeStream) {
+            activeStream.getTracks().forEach(track => track.stop());
+            activeStream = null;
         }
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            activeStream = stream;
-            let mimeType = '';
-            if (MediaRecorder.isTypeSupported('audio/webm')) mimeType = 'audio/webm';
-            else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
-            else if (MediaRecorder.isTypeSupported('audio/ogg')) mimeType = 'audio/ogg';
-            
-            mediaRecorder = new MediaRecorder(stream, { mimeType });
-            audioChunks = [];
-            mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) audioChunks.push(e.data);
-            };
-            mediaRecorder.onstop = () => {
-                if (audioChunks.length === 0) return;
-                const blob = new Blob(audioChunks, { type: mimeType || 'audio/webm' });
-                const fileReader = new FileReader();
-                fileReader.onload = (ev) => {
-                    const audioDataUrl = ev.target.result;
-                    if (conn && conn.open) {
-                        conn.send({ type: 'audio', data: audioDataUrl });
-                    } else {
-                        showAlert("Disconnected, can't send voice");
-                    }
-                    addMsg(audioDataUrl, 'my', 'audio', true);
-                };
-                fileReader.readAsDataURL(blob);
-                if (activeStream) {
-                    activeStream.getTracks().forEach(t => t.stop());
-                    activeStream = null;
-                }
-            };
-            mediaRecorder.start();
-            btn.classList.add('btn-red');
-            btn.innerHTML = "<span>⏹︎</span>";
-        } catch (err) {
-            console.error(err);
-            showAlert("Microphone access denied or HTTPS needed");
-        }
+        btn.classList.remove('btn-red');
+        if (micImg) micImg.src = "mic.png"; 
+        return;
     }
+
+    // Якщо запис не йде — починаємо
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        activeStream = stream;
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const audioUrl = ev.target.result;
+                // Відправляємо другу
+                if (conn && conn.open) {
+                    conn.send({ type: 'audio', data: audioUrl });
+                }
+                // Додаємо собі в чат
+                addMsg(audioUrl, 'my', 'audio', true);
+            };
+            reader.readAsDataURL(blob);
+        };
+
+        mediaRecorder.start();
+        btn.classList.add('btn-red');
+        if (micImg) micImg.src = "stop.png"; 
+
+} catch (err) {
+        console.error(err);
+        // Замість alert використовуємо твою гарну модалку
+        showAlert("Access denied: Please enable microphone in settings");
+    }
+}
 
     function copyMyId() {
         navigator.clipboard.writeText(myId).then(() => {
