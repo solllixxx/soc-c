@@ -26,6 +26,92 @@
             color: #e5e5e5;
         }
 
+        /* --- СТИЛІ ДЛЯ ПРЕЛОАДЕРА (ЗАВАНТАЖЕННЯ) --- */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(0px);
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .preloader.hide-preloader {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloader-content {
+            text-align: center;
+            width: 80%;
+            max-width: 280px;
+        }
+
+        .preloader-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 32px;
+            animation: subtlePulse 1.8s infinite ease;
+        }
+
+        @keyframes subtlePulse {
+            0% { opacity: 0.7; letter-spacing: -0.5px; }
+            50% { opacity: 1; letter-spacing: -0.2px; }
+            100% { opacity: 0.7; letter-spacing: -0.5px; }
+        }
+
+        /* Контейнер лінії */
+        .loader-line-wrapper {
+            width: 100%;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        .loader-line {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #e9e9e9, #bbbbbb, #b4b4b4);
+            border-radius: 4px;
+            animation: loadingProgress 2s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+            position: relative;
+            box-shadow: 0 0 6px #707070;
+        }
+
+        @keyframes loadingProgress {
+            0% { width: 0%; }
+            20% { width: 25%; }
+            50% { width: 65%; }
+            80% { width: 88%; }
+            100% { width: 100%; }
+        }
+
+        .preloader-sub {
+            font-size: 0.7rem;
+            color: #6a6a6a;
+            letter-spacing: 1px;
+            margin-top: 16px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* Основний інтерфейс (спочатку невидимий) */
         .app {
             display: flex;
             flex-direction: column;
@@ -36,6 +122,12 @@
             background: #000000;
             padding-top: env(safe-area-inset-top);
             padding-bottom: 0 !important;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .app.app-visible {
+            opacity: 1;
         }
 
         .header {
@@ -454,7 +546,19 @@
 </head>
 <body>
 <audio id="msgSound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
-<div class="app">
+
+<!-- ПРЕЛОАДЕР: напис SOC. + лінія завантаження на 2 секунди -->
+<div id="preloader" class="preloader">
+    <div class="preloader-content">
+        <div class="preloader-title">SOC.</div>
+        <div class="loader-line-wrapper">
+            <div class="loader-line"></div>
+        </div>
+        <div class="preloader-sub">initializing secure channel</div>
+    </div>
+</div>
+
+<div class="app" id="mainApp">
     <div class="header">
         <div style="display: flex; align-items: center; gap: 10px;">
             <h1>SOC.</h1>
@@ -507,6 +611,27 @@
 <input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
+    // ---------- ЛОГІКА ПРЕЛОАДЕРА: приховати через 2 секунди та показати основний інтерфейс ----------
+    window.addEventListener('load', () => {
+        const preloader = document.getElementById('preloader');
+        const mainApp = document.getElementById('mainApp');
+        
+        // Через 2 секунди (як триває анімація лінії) ховаємо прелоадер і плавно показуємо додаток
+        setTimeout(() => {
+            if (preloader) {
+                preloader.classList.add('hide-preloader');
+                // Після зникнення прелоадера видаляємо його з DOM, щоб не заважав клікам
+                setTimeout(() => {
+                    if (preloader && preloader.parentNode) {
+                        preloader.style.display = 'none';
+                    }
+                }, 500);
+            }
+            // Робимо основний додаток видимим
+            mainApp.classList.add('app-visible');
+        }, 2000); // Точно 2 секунди, як лінія завантаження
+    });
+
     let myNick = localStorage.getItem('soc-nickname');
     let peer = null;
     let conn = null;
@@ -831,11 +956,20 @@
         st.style.color = colorHint || '#bbb';
     }
 
+    // Запуск після прелоадера, але основні функції будуть доступні після того як юзер введе нік.
+    // Щоб уникнути конфліктів: ініціалізація відкладена до моменту появи інтерфейсу, але loadHistory та інше запустимо, коли додаток видимий.
+    // Проте, щоб все було стабільно, викликаємо ініціалізацію після прелоадера. 
+    // Але через setTimeout на завантаженні, прелоадер зникає через 2 секунди. Запустимо ініціалізацію після зникнення або одразу, але збережемо порядок.
+    // Просто викликаємо initOrChangeNick одразу після того, як DOM готовий, але контроли будуть заблоковані поки нік не валідний.
+    // Але елементи можуть бути заблоковані, поки не введений нік, що ідеально. Тому викликаємо:
     window.onload = () => {
+        // Ініціалізація логіки ніка та пірів (вона спрацює або одразу, або через модалку)
         initOrChangeNick();
         loadHistory();
+        // Оскільки прелоадер показується 2 секунди, то за цей час нік може бути ще не заданий,
+        // але це нормально. Після введення ніка пір стартує.
     };
-
+    
     function sendText() {
         const input = document.getElementById('msgInput');
         const text = input.value.trim();
