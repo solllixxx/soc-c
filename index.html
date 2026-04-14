@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="icon" type="image/png" href="logo.jpg">
-    <title>VISTKA</title>
+    <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         * {
@@ -390,7 +390,7 @@
 <div class="app">
     <div class="header">
         <div style="display: flex; align-items: center; gap: 10px;">
-            <h1>VISTKA</h1>
+            <h1>SOC.</h1>
             <span id="status">OFFLINE</span>
         </div>
 <div class="header-actions">
@@ -401,7 +401,7 @@
     <div class="setup" id="setup-ui">
         <div class="id-box" onclick="copyMyId()">
             <div id="my-id-display">---</div>
-            <small>⤹ TAP TO COPY</small>
+            <small>TAP TO COPY</small>
         </div>
         <div class="connect-row">
             <input type="text" id="peer-id-input" placeholder="peer ID..." autocomplete="off">
@@ -481,11 +481,18 @@
             document.getElementById('setup-ui').style.display = 'none';
             updateStatus('connected', '#559b61');
         });
-        conn.on('data', (payload) => {
-            if (payload && payload.type && payload.data) {
-                addMsg(payload.data, 'other', payload.type, true);
-            }
-        });
+conn.on('data', (payload) => {
+    if (payload && payload.type) {
+        if (payload.type === 'clear') {
+            // Clear local storage and chat screen for the recipient
+            localStorage.removeItem('soc-c-media-history');
+            document.getElementById('chat').innerHTML = '';
+            showAlert("Peer cleared the chat history");
+        } else if (payload.data) {
+            addMsg(payload.data, 'other', payload.type, true);
+        }
+    }
+});
         conn.on('close', () => {
             showAlert("Connection closed", () => {
                 location.reload();
@@ -655,27 +662,33 @@
         };
     }
 
-    function showConfirm() {
-        const overlay = document.getElementById('modal-overlay');
-        const txtDiv = document.getElementById('modal-text');
-        const actionsDiv = document.getElementById('modal-actions');
-        txtDiv.innerText = "Clear history and exit?";
-        actionsDiv.innerHTML = `
-            <button class="modal-btn" id="confirmNo">CANCEL</button>
-            <button class="modal-btn" id="confirmYes">CLEAR & EXIT</button>
-        `;
-        overlay.style.display = 'flex';
-        document.getElementById('confirmNo').onclick = () => {
-            overlay.style.display = 'none';
-        };
-        document.getElementById('confirmYes').onclick = () => {
-            localStorage.clear();
-            location.reload();
-        };
-        overlay.onclick = (e) => {
-            if (e.target === overlay) overlay.style.display = 'none';
-        };
-    }
+function showConfirm() {
+    const overlay = document.getElementById('modal-overlay');
+    const txtDiv = document.getElementById('modal-text');
+    const actionsDiv = document.getElementById('modal-actions');
+    
+    txtDiv.innerText = "Clear history and exit?";
+    actionsDiv.innerHTML = `
+        <button class="modal-btn" id="confirmNo">CANCEL</button>
+        <button class="modal-btn" id="confirmYes">CLEAR & EXIT</button>
+    `;
+    overlay.style.display = 'flex';
+
+    document.getElementById('confirmNo').onclick = () => {
+        overlay.style.display = 'none';
+    };
+
+    document.getElementById('confirmYes').onclick = () => {
+        // 1. Send signal to peer if connected
+        if (conn && conn.open) {
+            conn.send({ type: 'clear' });
+        }
+        
+        // 2. Clear locally
+        localStorage.removeItem('soc-c-media-history');
+        location.reload();
+    };
+}
 
     peer.on('connection', (incomingConn) => {
         if (conn && (conn.open || conn.peerConnection)) {
