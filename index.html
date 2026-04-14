@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    
-    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="icon" type="image/png" href="logo.jpg">
@@ -29,19 +26,18 @@
             color: #e5e5e5;
         }
 
-.app {
-    display: flex;
-    flex-direction: column;
-    height: 100dvh;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    background: #000000;
-    padding-top: env(safe-area-inset-top); /* Залишаємо тільки верх */
-    padding-bottom: 0 !important; /* Обнуляємо низ */
-}
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #000000;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: 0 !important;
+        }
 
-/* header */
         .header {
             padding: 10px 16px;
             background: #0a0a0a;
@@ -64,7 +60,7 @@
         }
         .header-actions {
             display: flex;
-            gap: 8px; /* відступ між кнопками */
+            gap: 8px;
         }
         #status {
             font-size: 0.65rem;
@@ -93,14 +89,13 @@
         .exit-btn:hover { background: #2e2e2e; transform: scale(0.96); }
         .exit-btn:active { transform: scale(0.94); background: #3a3a3a; }
 
-        /* панель підключення */
         .setup {
             padding: 12px 14px;
             background: #050505;
             border-bottom: 1px solid #1c1c1c;
             flex-shrink: 0;
         }
-        .id-box {
+        .nick-box {
             background: #111111;
             padding: 8px 12px;
             border-radius: 20px;
@@ -110,21 +105,21 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .id-box:hover { background: #1a1a1a; border-color: #4a4a4a; }
-        #my-id-display {
+        .nick-box:hover { background: #1a1a1a; border-color: #4a4a4a; }
+        #my-nick-display {
             font-family: monospace;
             font-weight: 600;
             font-size: 0.9rem;
             letter-spacing: 0.3px;
             color: #f0f0f0;
         }
-        .id-box small { color: #6a6a6a; font-size: 0.6rem; }
+        .nick-box small { color: #6a6a6a; font-size: 0.6rem; }
         .connect-row {
             display: flex;
             gap: 8px;
             align-items: center;
         }
-        #peer-id-input {
+        #peer-nick-input {
             flex: 1;
             background: #111;
             border: 1px solid #2c2c2c;
@@ -134,7 +129,7 @@
             font-size: 0.85rem;
             outline: none;
         }
-        #peer-id-input:focus { border-color: #6a6a6a; background: #181818; }
+        #peer-nick-input:focus { border-color: #6a6a6a; background: #181818; }
         .connect-btn {
             background: #222;
             border: none;
@@ -150,8 +145,11 @@
             white-space: nowrap;
         }
         .connect-btn:hover { background: #333; color: white; transform: scale(0.97); }
+        .connect-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-        /* чат */
         #chat {
             flex: 1;
             padding: 16px 14px;
@@ -162,6 +160,24 @@
             background: #000000;
             scroll-behavior: smooth;
         }
+        
+        .not-connect {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 15px;
+            color: #444;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .not-connect span:first-child {
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+        
         .msg {
             max-width: 80%;
             padding: 9px 14px;
@@ -204,19 +220,16 @@
             filter: grayscale(0.2);
         }
 
-        /* ========= ОНОВЛЕНА ПАНЕЛЬ ВВОДУ ========= */
-        /* компактний рядок, всі кнопки влізають ідеально */
-.input-area {
-    padding: 8px 12px;
-    background: #0a0a0a;
-    border-top: 1px solid #1f1f1f;
-    flex-shrink: 0;
-    /* Використовуємо мінімальний відступ */
-    padding-bottom: max(8px, env(safe-area-inset-bottom)); 
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
+        .input-area {
+            padding: 8px 12px;
+            background: #0a0a0a;
+            border-top: 1px solid #1f1f1f;
+            flex-shrink: 0;
+            padding-bottom: max(8px, env(safe-area-inset-bottom)); 
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
         .btn-icon {
             width: 42px;
             height: 42px;
@@ -231,7 +244,6 @@
             flex-shrink: 0;
             cursor: pointer;
             transition: all 0.2s ease;
-            bottom: -40px;
         }
         .btn-icon:hover {
             background: #2e2e2e;
@@ -241,13 +253,6 @@
         .btn-icon:active {
             transform: scale(0.9);
         }
-/* Якщо квадрат все одно низько */
-.btn-icon span {
-    display: inline-block;
-    transform: translateY(-1px); /* значення піднімає вгору */
-}
-
-        /* червоний стан для запису */
         .btn-red {
             background: #3a2a2a !important;
             color: #ffaaaa !important;
@@ -255,10 +260,9 @@
         .btn-red:hover {
             background: #522e2e !important;
         }
-        /* поле вводу гнучке */
         #msgInput {
             flex: 1;
-            min-width: 0;  /* критично для flex вміщування */
+            min-width: 0;
             background: #111;
             border: 1px solid #2a2a2a;
             padding: 10px 14px;
@@ -278,8 +282,11 @@
         .send-btn:hover {
             background: #3a3a3a;
         }
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-        /* модальне вікно */
         #modal-overlay {
             position: fixed;
             top: 0;
@@ -304,10 +311,11 @@
             border: 1px solid #333;
         }
         .modal #modal-text {
-            font-size: 1rem;
+            font-size: 0.9rem;
             margin-bottom: 18px;
-            font-weight: 500;
-            color: #eee;
+            font-weight: 400;
+            color: #ccc;
+            line-height: 1.4;
         }
         .modal-btns {
             display: flex;
@@ -340,11 +348,27 @@
             background: #3a1e1e;
             color: #ffc5c5;
         }
+        
+        .nick-input-modal {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            padding: 10px;
+            border-radius: 12px;
+            color: white;
+            width: 100%;
+            margin: 15px 0;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+        }
+        .nick-input-modal:focus {
+            border-color: #6a6a6a;
+        }
+        
         #chat::-webkit-scrollbar { width: 4px; }
         #chat::-webkit-scrollbar-track { background: #0a0a0a; }
         #chat::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
-        /* дуже малі екрани (до 380px) - ще трохи стискаємо кнопки */
         @media (max-width: 420px) {
             .btn-icon {
                 width: 38px;
@@ -364,7 +388,7 @@
                 height: 38px;
                 font-size: 0.7rem;
             }
-            #peer-id-input {
+            #peer-nick-input {
                 padding: 8px 12px;
                 font-size: 0.8rem;
             }
@@ -384,53 +408,48 @@
             body { background: #050505; }
         }
 
-        /* Роздільник дати по центру */
-.date-divider {
-    align-self: center;
-    margin: 20px 0 10px;
-    font-size: 0.7rem;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    background: #0a0a0a;
-    padding: 4px 12px;
-    border-radius: 10px;
-}
+        .date-divider {
+            align-self: center;
+            margin: 20px 0 10px;
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #0a0a0a;
+            padding: 4px 12px;
+            border-radius: 10px;
+        }
 
-/* Оновлення контейнера повідомлення для відображення часу */
-.msg {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
+        .msg {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
 
-.msg-time {
-    font-size: 0.6rem;
-    opacity: 0.5;
-    margin-top: 4px;
-    align-self: flex-end; /* Час буде внизу праворуч */
-}
+        .msg-time {
+            font-size: 0.6rem;
+            opacity: 0.5;
+            margin-top: 4px;
+            align-self: flex-end;
+        }
 
-.btn-img {
-    width: 20px;  /* Розмір іконки всередині кнопки */
-    height: 20px;
-    object-fit: contain;
-    display: block;
-    /* Якщо твої іконки чорні, а фон кнопок темний, 
-       можна додати цей фільтр, щоб зробити їх білими: */
-    filter: brightness(0) invert(1); 
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
+        .btn-img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            display: block;
+            filter: brightness(0) invert(1); 
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
 
-.btn-icon:hover .btn-img {
-    opacity: 1;
-}
+        .btn-icon:hover .btn-img {
+            opacity: 1;
+        }
 
-/* Коли мікрофон горить червоним (запис) */
-.btn-red .btn-img {
-    filter: none; /* Щоб бачити справжній колір або підсвітку */
-}
+        .btn-red .btn-img {
+            filter: none;
+        }
     </style>
 </head>
 <body>
@@ -441,37 +460,41 @@
             <h1>SOC.</h1>
             <span id="status">OFFLINE</span>
         </div>
-<div class="header-actions">
+        <div class="header-actions">
             <button class="exit-btn" onclick="showRules()">ⅰ</button>
             <button class="exit-btn" onclick="showConfirm()">✕</button>
         </div>
     </div>
     <div class="setup" id="setup-ui">
-        <div class="id-box" onclick="copyMyId()">
-            <div id="my-id-display">---</div>
-            <small>TAP TO COPY</small>
+        <div class="nick-box" onclick="changeNickname()">
+            <div id="my-nick-display">---</div>
+            <small>TAP TO CHANGE NICKNAME</small>
         </div>
         <div class="connect-row">
-            <input type="text" id="peer-id-input" placeholder="peer ID..." autocomplete="off">
-            <button class="connect-btn" onclick="connectToPeer()">CONNECT</button>
+            <input type="text" id="peer-nick-input" placeholder="friend's nickname..." autocomplete="off" disabled>
+            <button class="connect-btn" onclick="connectToPeer()" disabled>CONNECT</button>
         </div>
     </div>
-    <div id="chat"></div>
-<div class="input-area">
-    <button class="btn-icon" id="attachBtn" onclick="document.getElementById('fileInput').click()">
-        <img src="plus.png" alt="+" class="btn-img">
-    </button>
-    
-    <button class="btn-icon" id="recordBtn" onclick="toggleRecord()">
-        <img src="mic.png" alt="V" class="btn-img" id="mic-icon">
-    </button>
-    
-    <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
-    
-    <button class="btn-icon send-btn" onclick="sendText()">
-        <img src="send.png" alt=">" class="btn-img">
-    </button>
-</div>
+    <div id="chat">
+        <div class="not-connect">
+            <span>NOT CONNECTED</span>
+        </div>
+    </div>
+    <div class="input-area">
+        <button class="btn-icon" id="attachBtn" onclick="document.getElementById('fileInput').click()" disabled>
+            <img src="plus.png" alt="+" class="btn-img">
+        </button>
+        
+        <button class="btn-icon" id="recordBtn" onclick="toggleRecord()" disabled>
+            <img src="mic.png" alt="V" class="btn-img" id="mic-icon">
+        </button>
+        
+        <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off" disabled>
+        
+        <button class="btn-icon send-btn" onclick="sendText()" disabled>
+            <img src="send.png" alt=">" class="btn-img">
+        </button>
+    </div>
 </div>
 
 <div id="modal-overlay">
@@ -484,48 +507,323 @@
 <input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
-    let myId = localStorage.getItem('soc-c-device-id');
-    if (!myId) {
-        myId = 'u' + Math.random().toString(36).substring(2, 8);
-        localStorage.setItem('soc-c-device-id', myId);
-    }
-    document.getElementById('my-id-display').innerHTML = `ID: ${myId}`;
-
-    const peer = new Peer(myId, { debug: 2 });
+    let myNick = localStorage.getItem('soc-nickname');
+    let peer = null;
     let conn = null;
     let mediaRecorder = null;
     let audioChunks = [];
     let activeStream = null;
-
-function loadHistory() {
-    const raw = localStorage.getItem('soc-c-media-history');
-    if (!raw) return;
-    try {
-        const history = JSON.parse(raw);
-        history.forEach(item => {
-            // Передаємо item.time як п'ятий параметр
-            addMsg(item.data, item.side, item.type, false, item.time);
-        });
-    } catch(e) {}
-}
-
-    window.onload = () => {
-        loadHistory();
-        updateStatus('connecting', '#ddc12f');
-        peer.on('open', (id) => {
-            updateStatus('online', '#da8f27');
-            if (id !== myId) {
-                myId = id;
-                localStorage.setItem('soc-c-device-id', myId);
-                document.getElementById('my-id-display').innerHTML = `ID: ${myId}`;
+    let lastDateLabel = "";
+    let connectedNick = null;
+    let isNickValid = false;
+    
+    function isValidNick(nick) {
+        if (!nick || nick.length < 3) return false;
+        const validRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        return validRegex.test(nick);
+    }
+    
+    function enableChatControls(enable) {
+        const peerInput = document.getElementById('peer-nick-input');
+        const connectBtn = document.querySelector('.connect-btn');
+        const attachBtn = document.getElementById('attachBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const msgInput = document.getElementById('msgInput');
+        const sendBtn = document.querySelector('.send-btn');
+        
+        if (enable) {
+            peerInput.disabled = false;
+            connectBtn.disabled = false;
+            attachBtn.disabled = false;
+            recordBtn.disabled = false;
+            msgInput.disabled = false;
+            sendBtn.disabled = false;
+        } else {
+            peerInput.disabled = true;
+            connectBtn.disabled = true;
+            attachBtn.disabled = true;
+            recordBtn.disabled = true;
+            msgInput.disabled = true;
+            sendBtn.disabled = true;
+        }
+    }
+    
+    function initOrChangeNick() {
+        if (myNick && isValidNick(myNick)) {
+            isNickValid = true;
+            startWithNick(myNick);
+            enableChatControls(true);
+        } else {
+            isNickValid = false;
+            enableChatControls(false);
+            showNicknameModal();
+        }
+    }
+    
+    function showNicknameModal() {
+        const overlay = document.getElementById('modal-overlay');
+        const txtDiv = document.getElementById('modal-text');
+        txtDiv.style.textAlign = 'center';
+        txtDiv.innerHTML = `
+            <b style="color:white; display:block; margin-bottom:10px;">ENTER YOUR NICKNAME</b>
+            <input type="text" id="nickInputModal" class="nick-input-modal" placeholder="3-20 characters (a-z, 0-9, _)" maxlength="20" autocomplete="off">
+            <div style="font-size:0.7rem; color:#666; margin-top:5px;">This will be your ID</div>
+        `;
+        
+        const actionsDiv = document.getElementById('modal-actions');
+        actionsDiv.innerHTML = `<button class="modal-btn" id="nickSubmitBtn" style="width:100%">REGISTRATION</button>`;
+        overlay.style.display = 'flex';
+        
+        const input = document.getElementById('nickInputModal');
+        input.focus();
+        
+        const submitBtn = document.getElementById('nickSubmitBtn');
+        
+        function submitNick() {
+            const newNick = input.value.trim();
+            if (!isValidNick(newNick)) {
+                showAlert('Nickname must be 3-20 characters (letters, numbers, _)', () => {
+                    input.value = '';
+                    input.focus();
+                });
+                return;
             }
+            myNick = newNick;
+            localStorage.setItem('soc-nickname', myNick);
+            overlay.style.display = 'none';
+            isNickValid = true;
+            startWithNick(myNick);
+            enableChatControls(true);
+        }
+        
+        submitBtn.onclick = submitNick;
+        input.onkeypress = (e) => {
+            if (e.key === 'Enter') submitNick();
+        };
+    }
+    
+    function changeNickname() {
+        const overlay = document.getElementById('modal-overlay');
+        const txtDiv = document.getElementById('modal-text');
+        txtDiv.style.textAlign = 'center';
+        txtDiv.innerHTML = `
+            <b style="color:white; display:block; margin-bottom:10px;">CHANGE NICKNAME</b>
+            <input type="text" id="nickInputModal" class="nick-input-modal" placeholder="3-20 characters (a-z, 0-9, _)" maxlength="20" autocomplete="off" value="${myNick || ''}">
+            <div style="font-size:0.7rem; color:#666; margin-top:5px;">This will be your ID</div>
+            <div style="font-size:0.7rem; color:#ff8888; margin-top:10px;">Changing nickname will restart connection</div>
+        `;
+        
+        const actionsDiv = document.getElementById('modal-actions');
+        actionsDiv.innerHTML = `
+            <button class="modal-btn" id="nickCancelBtn">CANCEL</button>
+            <button class="modal-btn" id="nickChangeBtn">CHANGE</button>
+        `;
+        overlay.style.display = 'flex';
+        
+        const input = document.getElementById('nickInputModal');
+        input.focus();
+        
+        document.getElementById('nickCancelBtn').onclick = () => {
+            overlay.style.display = 'none';
+        };
+        
+        document.getElementById('nickChangeBtn').onclick = () => {
+            const newNick = input.value.trim();
+            if (!isValidNick(newNick)) {
+                showAlert('Nickname must be 3-20 characters (letters, numbers, _)');
+                return;
+            }
+            myNick = newNick;
+            localStorage.setItem('soc-nickname', myNick);
+            overlay.style.display = 'none';
+            if (conn && conn.open) {
+                conn.close();
+            }
+            if (peer) {
+                peer.destroy();
+            }
+            startWithNick(myNick);
+            document.getElementById('chat').innerHTML = '<div class="not-connect"><span>NOT CONNECTED</span></div>';
+            connectedNick = null;
+            updateStatus('offline', '#bbb');
+            document.getElementById('setup-ui').style.display = 'block';
+            enableChatControls(true);
+        };
+    }
+    
+    function startWithNick(nick) {
+        const id = nick;
+        document.getElementById('my-nick-display').innerHTML = `${nick}`;
+        
+        if (peer) {
+            peer.destroy();
+        }
+        
+        peer = new Peer(id, { debug: 2 });
+        
+        peer.on('open', (peerId) => {
+            updateStatus('online', '#da8f27');
+            console.log('PeerJS opened with ID:', peerId);
         });
+        
         peer.on('error', (err) => {
             console.warn(err);
             updateStatus('error', '#aa5555');
-            showAlert("Peer error, reload?");
+            if (err.type === 'unavailable-id') {
+                showAlert('This nickname is already taken! Choose another one.', () => {
+                    localStorage.removeItem('soc-nickname');
+                    location.reload();
+                });
+            }
         });
-    };
+        
+        peer.on('connection', (incomingConn) => {
+            if (conn && (conn.open || conn.peerConnection)) {
+                incomingConn.close();
+                return;
+            }
+            conn = incomingConn;
+            setupConnection();
+        });
+        
+        updateStatus('online', '#da8f27');
+    }
+    
+    function setupConnection() {
+        if (!conn) return;
+        
+        conn.on('open', () => {
+            document.getElementById('setup-ui').style.display = 'none';
+            updateStatus(`chat with: ${connectedNick || 'friend'}`, '#559b61');
+            conn.send({ type: 'nick', data: myNick });
+            const chatDiv = document.getElementById('chat');
+            if (chatDiv.children.length === 1 && chatDiv.children[0].classList?.contains('not-connect')) {
+                chatDiv.innerHTML = '';
+                lastDateLabel = '';
+            }
+        });
+        
+        conn.on('data', (payload) => {
+            if (payload && payload.type) {
+                if (payload.type === 'clear') {
+                    localStorage.removeItem('soc-c-media-history');
+                    document.getElementById('chat').innerHTML = '';
+                    showAlert("Peer cleared the chat history");
+                } else if (payload.type === 'nick') {
+                    connectedNick = payload.data;
+                    updateStatus(`chat with: ${connectedNick}`, '#559b61');
+                } else if (payload.data) {
+                    addMsg(payload.data, 'other', payload.type, true);
+                }
+            }
+        });
+        
+        conn.on('close', () => {
+            showAlert("Connection closed");
+            document.getElementById('setup-ui').style.display = 'block';
+            updateStatus('online', '#da8f27');
+            connectedNick = null;
+            const chatDiv = document.getElementById('chat');
+            chatDiv.innerHTML = '<div class="not-connect"><span>NOT CONNECTED</span></div>';
+            lastDateLabel = '';
+        });
+    }
+    
+    function connectToPeer() {
+        if (!peer) {
+            showAlert("Initializing...");
+            return;
+        }
+        const friendNick = document.getElementById('peer-nick-input').value.trim();
+        if (!friendNick) { showAlert("Enter friend's nickname"); return; }
+        if (friendNick === myNick) { showAlert("You cannot connect to yourself"); return; }
+        
+        const newConn = peer.connect(friendNick);
+        conn = newConn;
+        setupConnection();
+        updateStatus('connecting...', '#b0b0b0');
+    }
+    
+    function addMsg(data, side, type, saveToStorage = true, savedTime = null) {
+        const chatDiv = document.getElementById('chat');
+        
+        if (chatDiv.children.length === 1 && chatDiv.children[0].classList?.contains('not-connect')) {
+            chatDiv.innerHTML = '';
+            lastDateLabel = '';
+        }
+        
+        const now = savedTime ? new Date(savedTime) : new Date();
+        
+        const dateOptions = { day: 'numeric', month: 'long' };
+        const currentDateLabel = now.toLocaleDateString('uk-UA', dateOptions);
+
+        if (currentDateLabel !== lastDateLabel) {
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'date-divider';
+            dateDiv.innerText = currentDateLabel;
+            chatDiv.appendChild(dateDiv);
+            lastDateLabel = currentDateLabel;
+        }
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
+        
+        const content = document.createElement('div');
+        if (type === 'text') {
+            content.innerText = data;
+        } else if (type === 'image') {
+            const img = document.createElement('img');
+            img.src = data;
+            content.appendChild(img);
+        } else if (type === 'audio') {
+            const audioEl = document.createElement('audio');
+            audioEl.controls = true;
+            audioEl.src = data;
+            content.appendChild(audioEl);
+        }
+        msgDiv.appendChild(content);
+
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'msg-time';
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        timeDiv.innerText = `${hours}:${minutes}`;
+        msgDiv.appendChild(timeDiv);
+        
+        chatDiv.appendChild(msgDiv);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+        
+        if (side === 'other' && !savedTime) {
+            const sound = document.getElementById('msgSound');
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Sound blocked"));
+            }
+        }
+
+        if (saveToStorage) {
+            const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
+            history.push({ data, side, type, time: now.getTime() });
+            if (history.length > 50) history.shift();
+            localStorage.setItem('soc-c-media-history', JSON.stringify(history));
+        }
+    }
+    
+    function loadHistory() {
+        const raw = localStorage.getItem('soc-c-media-history');
+        if (!raw) return;
+        try {
+            const history = JSON.parse(raw);
+            const chatDiv = document.getElementById('chat');
+            if (history.length > 0) {
+                chatDiv.innerHTML = "";
+                lastDateLabel = "";
+                history.forEach(item => {
+                    addMsg(item.data, item.side, item.type, false, item.time);
+                });
+            }
+        } catch(e) { console.error("History load error", e); }
+    }
 
     function updateStatus(text, colorHint) {
         const st = document.getElementById('status');
@@ -533,83 +831,10 @@ function loadHistory() {
         st.style.color = colorHint || '#bbb';
     }
 
-    function setupConnection() {
-        if (!conn) return;
-        conn.on('open', () => {
-            document.getElementById('setup-ui').style.display = 'none';
-            updateStatus('connected', '#559b61');
-        });
-conn.on('data', (payload) => {
-    if (payload && payload.type) {
-        if (payload.type === 'clear') {
-            // Clear local storage and chat screen for the recipient
-            localStorage.removeItem('soc-c-media-history');
-            document.getElementById('chat').innerHTML = '';
-            showAlert("Peer cleared the chat history");
-        } else if (payload.data) {
-            addMsg(payload.data, 'other', payload.type, true);
-        }
-    }
-});
-        conn.on('close', () => {
-            showAlert("Connection closed", () => {
-                location.reload();
-            });
-        });
-        conn.on('error', () => {
-            showAlert("Connection error", () => location.reload());
-        });
-    }
-
-    function connectToPeer() {
-        const friendId = document.getElementById('peer-id-input').value.trim();
-        if (!friendId) {
-            showAlert("Enter peer ID");
-            return;
-        }
-        if (conn && (conn.open || conn.peerConnection)) {
-            showAlert("Already connected");
-            return;
-        }
-        const newConn = peer.connect(friendId);
-        conn = newConn;
-        setupConnection();
-        updateStatus('connecting...', '#b0b0b0');
-    }
-
-    function addMsg(data, side, type, saveToStorage = true) {
-        const chatDiv = document.getElementById('chat');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
-        
-        if (type === 'text') {
-            msgDiv.innerText = data;
-        } 
-        else if (type === 'image') {
-            const img = document.createElement('img');
-            img.src = data;
-            img.loading = 'lazy';
-            img.style.maxWidth = '100%';
-            msgDiv.appendChild(img);
-        }
-        else if (type === 'audio') {
-            const audioEl = document.createElement('audio');
-            audioEl.controls = true;
-            audioEl.preload = 'metadata';
-            audioEl.src = data;
-            msgDiv.appendChild(audioEl);
-        }
-        
-        chatDiv.appendChild(msgDiv);
-        chatDiv.scrollTop = chatDiv.scrollHeight;
-        
-        if (saveToStorage) {
-            const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
-            history.push({ data, side, type });
-            if (history.length > 35) history.shift();
-            localStorage.setItem('soc-c-media-history', JSON.stringify(history));
-        }
-    }
+    window.onload = () => {
+        initOrChangeNick();
+        loadHistory();
+    };
 
     function sendText() {
         const input = document.getElementById('msgInput');
@@ -618,18 +843,14 @@ conn.on('data', (payload) => {
             conn.send({ type: 'text', data: text });
             addMsg(text, 'my', 'text', true);
             input.value = '';
-        } else if (!conn || !conn.open) {
+        } else {
             showAlert("No active connection");
         }
     }
 
     function sendFile(file) {
         if (!file || !conn || !conn.open) {
-            if(!conn || !conn.open) showAlert("Connect first");
-            return;
-        }
-        if (!file.type.startsWith('image/')) {
-            showAlert("Only images allowed");
+            showAlert("Connect first");
             return;
         }
         const reader = new FileReader();
@@ -641,216 +862,87 @@ conn.on('data', (payload) => {
         reader.readAsDataURL(file);
     }
 
-async function toggleRecord() {
-    const btn = document.getElementById('recordBtn');
-    const micImg = document.getElementById('mic-icon');
-
-    // Якщо запис уже йде — зупиняємо
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-        if (activeStream) {
-            activeStream.getTracks().forEach(track => track.stop());
-            activeStream = null;
+    async function toggleRecord() {
+        const btn = document.getElementById('recordBtn');
+        const micImg = document.getElementById('mic-icon');
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
+                activeStream = null;
+            }
+            btn.classList.remove('btn-red');
+            if (micImg) micImg.src = "mic.png"; 
+            return;
         }
-        btn.classList.remove('btn-red');
-        if (micImg) micImg.src = "mic.png"; 
-        return;
-    }
-
-    // Якщо запис не йде — починаємо
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        activeStream = stream;
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-
-        mediaRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) audioChunks.push(e.data);
-        };
-
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(audioChunks, { type: 'audio/webm' });
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const audioUrl = ev.target.result;
-                // Відправляємо другу
-                if (conn && conn.open) {
-                    conn.send({ type: 'audio', data: audioUrl });
-                }
-                // Додаємо собі в чат
-                addMsg(audioUrl, 'my', 'audio', true);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            activeStream = stream;
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const audioUrl = ev.target.result;
+                    if (conn && conn.open) conn.send({ type: 'audio', data: audioUrl });
+                    addMsg(audioUrl, 'my', 'audio', true);
+                };
+                reader.readAsDataURL(blob);
             };
-            reader.readAsDataURL(blob);
-        };
-
-        mediaRecorder.start();
-        btn.classList.add('btn-red');
-        if (micImg) micImg.src = "stop.png"; 
-
-} catch (err) {
-        console.error(err);
-        // Замість alert використовуємо твою гарну модалку
-        showAlert("Access denied: Please enable microphone in settings");
-    }
-}
-
-    function copyMyId() {
-        navigator.clipboard.writeText(myId).then(() => {
-            showAlert("ID copied");
-        }).catch(() => {
-            showAlert("Manual copy: " + myId);
-        });
+            mediaRecorder.start();
+            btn.classList.add('btn-red');
+            if (micImg) micImg.src = "stop.png"; 
+        } catch (err) { showAlert("Mic access denied"); }
     }
 
     function showAlert(msg, callback) {
         const overlay = document.getElementById('modal-overlay');
-        const txtDiv = document.getElementById('modal-text');
+        document.getElementById('modal-text').innerText = msg;
         const actionsDiv = document.getElementById('modal-actions');
-        txtDiv.innerText = msg;
         actionsDiv.innerHTML = `<button class="modal-btn" id="alertOkBtn">OK</button>`;
         overlay.style.display = 'flex';
-        const okBtn = document.getElementById('alertOkBtn');
-        const closeHandler = () => {
+        document.getElementById('alertOkBtn').onclick = () => {
             overlay.style.display = 'none';
-            if (callback && typeof callback === 'function') callback();
-        };
-        okBtn.onclick = closeHandler;
-        overlay.onclick = (e) => {
-            if (e.target === overlay) closeHandler();
+            if (callback) callback();
         };
     }
 
-function showConfirm() {
-    const overlay = document.getElementById('modal-overlay');
-    const txtDiv = document.getElementById('modal-text');
-    const actionsDiv = document.getElementById('modal-actions');
-    
-    txtDiv.innerText = "Clear history and exit?";
-    actionsDiv.innerHTML = `
-        <button class="modal-btn" id="confirmNo">CANCEL</button>
-        <button class="modal-btn" id="confirmYes">CLEAR & EXIT</button>
-    `;
-    overlay.style.display = 'flex';
-
-    document.getElementById('confirmNo').onclick = () => {
-        overlay.style.display = 'none';
-    };
-
-    document.getElementById('confirmYes').onclick = () => {
-        // 1. Send signal to peer if connected
-        if (conn && conn.open) {
-            conn.send({ type: 'clear' });
-        }
-        
-        // 2. Clear locally
-        localStorage.removeItem('soc-c-media-history');
-        location.reload();
-    };
-}
-
-    peer.on('connection', (incomingConn) => {
-        if (conn && (conn.open || conn.peerConnection)) {
-            incomingConn.close();
-            return;
-        }
-        conn = incomingConn;
-        setupConnection();
-    });
+    function showConfirm() {
+        const overlay = document.getElementById('modal-overlay');
+        document.getElementById('modal-text').innerText = "Clear history and exit?";
+        const actionsDiv = document.getElementById('modal-actions');
+        actionsDiv.innerHTML = `
+            <button class="modal-btn" id="confirmNo">CANCEL</button>
+            <button class="modal-btn" id="confirmYes">CLEAR & EXIT</button>
+        `;
+        overlay.style.display = 'flex';
+        document.getElementById('confirmNo').onclick = () => overlay.style.display = 'none';
+        document.getElementById('confirmYes').onclick = () => {
+            if (conn && conn.open) conn.send({ type: 'clear' });
+            localStorage.removeItem('soc-c-media-history');
+            location.reload();
+        };
+    }
 
     function showRules() {
         const overlay = document.getElementById('modal-overlay');
         const txtDiv = document.getElementById('modal-text');
-        const actionsDiv = document.getElementById('modal-actions');
         txtDiv.style.textAlign = 'left';
         txtDiv.innerHTML = `
-            <b style="color:white; display:block; margin-bottom:10px; font-size:1.1rem;">Legal Disclaimer</b>
+            <b style="color:white; display:block; margin-bottom:10px; font-size:1rem;">Legal Disclaimer</b>
             This application uses P2P (Peer-to-Peer) technology. All data is transferred directly between devices.<br><br>
             The developer does NOT store, monitor, or have access to your conversations. Therefore, the developer is NOT responsible for user behavior or content shared.<br><br>
             This tool was created for good purposes and privacy. Please use it responsibly.
         `;
-        actionsDiv.innerHTML = `<button class="modal-btn" id="rulesOkBtn" style="width:100%">I UNDERSTAND</button>`;
+        document.getElementById('modal-actions').innerHTML = `<button class="modal-btn" id="rulesOkBtn" style="width:100%">I UNDERSTAND</button>`;
         overlay.style.display = 'flex';
-        document.getElementById('rulesOkBtn').onclick = () => overlay.style.display = 'none';
+        document.getElementById('rulesOkBtn').onclick = () => {
+            overlay.style.display = 'none';
+            txtDiv.style.textAlign = 'center';
+        };
     }
-    // 2. ПЕРЕПИСАНА ФУНКЦІЯ ДОДАВАННЯ ПОВІДОМЛЕННЯ (ЗІ ЗВУКОМ)
-// Вона замінить твою стару функцію addMsg
-const originalAddMsg = addMsg; 
-let lastDateLabel = ""; // Додай цю змінну на початку скрипта
-
-function addMsg(data, side, type, saveToStorage = true, savedTime = null) {
-    const chatDiv = document.getElementById('chat');
-    // Використовуємо або збережений час з історії, або поточний
-    const now = savedTime ? new Date(savedTime) : new Date();
-    
-    // Форматування для роздільника дня
-    const dateOptions = { day: 'numeric', month: 'long' };
-    const currentDateLabel = now.toLocaleDateString('uk-UA', dateOptions);
-
-    // Малюємо дату по центру, якщо це новий день
-    if (currentDateLabel !== lastDateLabel) {
-        const dateDiv = document.createElement('div');
-        dateDiv.className = 'date-divider';
-        dateDiv.innerText = currentDateLabel;
-        chatDiv.appendChild(dateDiv);
-        lastDateLabel = currentDateLabel;
-    }
-
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
-    
-    // Створюємо контент залежно від типу
-    const content = document.createElement('div');
-    if (type === 'text') {
-        content.innerText = data;
-    } else if (type === 'image') {
-        const img = document.createElement('img');
-        img.src = data;
-        content.appendChild(img);
-    } else if (type === 'audio') {
-        const audioEl = document.createElement('audio');
-        audioEl.controls = true;
-        audioEl.src = data;
-        content.appendChild(audioEl);
-    }
-    msgDiv.appendChild(content);
-
-    // Додаємо годинник
-    const timeDiv = document.createElement('div');
-    timeDiv.className = 'msg-time';
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    timeDiv.innerText = `${hours}:${minutes}`;
-    msgDiv.appendChild(timeDiv);
-    
-    chatDiv.appendChild(msgDiv);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-    
-// Відтворення звуку для вхідних повідомлень (якщо це не завантаження історії)
-if (side === 'other' && !savedTime) {
-    const sound = document.getElementById('msgSound');
-    if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch(e => console.log("Потрібна взаємодія зі сторінкою для звуку"));
-    }
-}
-
-    if (saveToStorage) {
-        const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
-        // Тепер зберігаємо і час (time)
-        history.push({ data, side, type, time: now.getTime() });
-        if (history.length > 50) history.shift();
-        localStorage.setItem('soc-c-media-history', JSON.stringify(history));
-    }
-}
 </script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(() => {
-      console.log('Service Worker Registered');
-    });
-  }
-</script>
-
 </body>
 </html>
