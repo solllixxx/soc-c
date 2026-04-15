@@ -92,7 +92,6 @@
             text-align: center;
         }
 
-        /* Контейнер для ПК-ліній та центрування всього інтерфейсу */
         .app-wrapper {
             display: flex;
             justify-content: center;
@@ -115,11 +114,10 @@
             transition: opacity 0.4s ease;
             position: relative;
             overflow-x: hidden;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.05); /* Тонка лінія для візуального розділення, якщо потрібно */
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
         }
         .app.app-visible { opacity: 1; }
 
-        /* HOME SCREEN - всегда виден */
         .home-screen {
             position: absolute;
             top: 0;
@@ -134,7 +132,6 @@
             z-index: 10;
         }
         
-        /* ЧАТ - выезжает справа */
         .chat-screen {
             position: absolute;
             top: 0;
@@ -149,7 +146,6 @@
             z-index: 20;
         }
         
-        /* Когда чат открыт - он на месте, а домашний экран сдвигается влево */
         .home-screen.chat-open {
             transform: translateX(-30%);
         }
@@ -258,16 +254,25 @@
             width: 36px;
             height: 36px;
             border-radius: 30px;
-            font-size: 1.2rem;
-            color: #ff9e9e;
             cursor: pointer;
             flex-shrink: 0;
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-chat-icon img {
+            width: 18px;
+            height: 18px;
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
         }
         .close-chat-icon:hover {
             transform: scale(0.92);
             background: #3a2a2a;
-            color: #ff6b6b;
+        }
+        .close-chat-icon:hover img {
+            opacity: 1;
         }
 
         .connect-section { margin: 10px 20px; }
@@ -340,7 +345,6 @@
             color: #aaa;
         }
 
-        /* Стили чата */
         .chat-header {
             padding: 10px 12px;
             background: #0a0a0a;
@@ -356,14 +360,25 @@
             width: 42px;
             height: 42px;
             border-radius: 30px;
-            font-size: 1.3rem;
             cursor: pointer;
             color: white;
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .back-home-btn img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
         }
         .back-home-btn:hover {
             transform: scale(0.9);
             background: #2a2a2a;
+        }
+        .back-home-btn:hover img {
+            opacity: 1;
         }
         .chat-peer-info-center {
             flex: 1;
@@ -597,7 +612,6 @@
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
 
-        /* Стилі для бічних ліній на ПК */
         @media (min-width: 801px) {
             body, html {
                 background: #000000;
@@ -607,7 +621,6 @@
                 border-left: 1px solid #1a1a1a;
                 border-right: 1px solid #1a1a1a;
             }
-            /* Додатковий ефект для затемнення по боках */
             .app-wrapper::before,
             .app-wrapper::after {
                 content: '';
@@ -627,7 +640,6 @@
             }
         }
         
-        /* Для мобільних пристроїв ніяких зайвих ліній */
         @media (max-width: 800px) {
             .app-wrapper::before,
             .app-wrapper::after {
@@ -675,7 +687,9 @@
                             <div class="active-chat-lastmsg" id="activeChatLastMsg">---</div>
                         </div>
                     </div>
-                    <button class="close-chat-icon" id="closeChatFromHomeBtn">✕</button>
+                    <button class="close-chat-icon" id="closeChatFromHomeBtn">
+                        <img src="image/close.png" alt="✕">
+                    </button>
                 </div>
                 
                 <div id="connectSection" class="connect-section">
@@ -695,7 +709,9 @@
 
         <div class="chat-screen" id="chatScreen">
             <div class="chat-header">
-                <button class="back-home-btn" id="backHomeBtn">⭠</button>
+                <button class="back-home-btn" id="backHomeBtn">
+                    <img src="image/back.png" alt="←">
+                </button>
                 <div class="chat-peer-info-center">
                     <div class="peer-info-button" id="peerInfoBtn">
                         <div class="peer-info-avatar"><img id="peerAvatarImg" src="https://i.pravatar.cc/100?img=1"></div>
@@ -717,7 +733,6 @@
 
 <div id="modal-overlay" class="modal-overlay"><div class="modal"><div id="modal-text"></div><div class="modal-btns" id="modal-actions"></div></div></div>
 
-<!-- REGISTRATION MODAL -->
 <div id="registrationModal" class="modal-overlay">
     <div class="modal">
         <div style="font-weight:600; margin-bottom:8px;">ENTER YOUR NICKNAME</div>
@@ -726,7 +741,6 @@
     </div>
 </div>
 
-<!-- EDIT PROFILE MODAL -->
 <div id="profileModal" class="modal-overlay">
     <div class="modal">
         <div style="font-weight:600; margin-bottom:8px;">Edit Profile</div>
@@ -1095,18 +1109,17 @@
 function sendText() {
     const input = document.getElementById('msgInput');
     const text = input.value.trim();
-    if (text === "") return; // Якщо порожнє повідомлення - просто нічого не робимо
+    if (text === "") return;
     
     if (conn && conn.open) {
         conn.send({ type: 'text', data: text });
         addMsg(text, 'my', 'text', true);
         input.value = '';
     }
-    // Видалено showAlert("No active connection")
 }
 
 function sendFile(file) {
-    if (!file) return; // Якщо немає файлу - нічого не робимо
+    if (!file) return;
     
     if (conn && conn.open) {
         const reader = new FileReader();
@@ -1116,7 +1129,6 @@ function sendFile(file) {
         };
         reader.readAsDataURL(file);
     }
-    // Видалено showAlert("Connect first")
 }
     
     async function toggleRecord() {
@@ -1172,7 +1184,6 @@ function sendFile(file) {
         document.getElementById('rulesOkBtn').onclick = () => { overlay.style.display = 'none'; };
     }
     
-    // Registration
     document.getElementById('regSubmitBtn').onclick = () => {
         const newNick = document.getElementById('regNickInput').value.trim();
         if (!isValidNick(newNick)) {
@@ -1184,7 +1195,6 @@ function sendFile(file) {
         startWithNick(newNick, true);
     };
     
-    // Edit Profile
     let tempAvatar = myAvatar;
     let tempStatus = myStatus;
     let tempNick = myNick;
@@ -1323,7 +1333,6 @@ function sendFile(file) {
     }
     document.getElementById('closePeerModal').onclick = () => document.getElementById('peerProfileModal').style.display = 'none';
     
-    // Анимация выезжания чата
     function switchToChatMode() {
         homeScreen.classList.add('chat-open');
         chatScreen.classList.add('chat-visible');
