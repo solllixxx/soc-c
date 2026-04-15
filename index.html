@@ -556,28 +556,6 @@
             margin: 15px 0;
             cursor: pointer;
         }
-        .avatar-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            justify-items: center;
-            margin: 20px 0;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .avatar-option {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: #2a2a2a;
-            overflow: hidden;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-        .avatar-option:hover { transform: scale(0.95); opacity: 0.8; }
-        .avatar-option.selected { border-color: #ffffff; }
-        .avatar-option img { width: 100%; height: 100%; object-fit: cover; }
         .flex-btns { display: flex; gap: 10px; margin-top: 12px; }
         .modal-avatar-container {
             position: relative;
@@ -764,16 +742,8 @@
     </div>
 </div>
 
-<div id="avatarSelectModal" class="modal-overlay">
-    <div class="modal">
-        <div style="font-weight:600; margin-bottom:10px;">Choose Avatar</div>
-        <div class="avatar-grid" id="avatarGrid"></div>
-        <div class="flex-btns">
-            <button class="modal-btn" id="cancelAvatarBtn" style="background:#1f1f1f;">CANCEL</button>
-            <button class="modal-btn" id="saveAvatarBtn">SAVE</button>
-        </div>
-    </div>
-</div>
+<!-- Скрытый input для загрузки своего аватара -->
+<input type="file" id="customAvatarInput" hidden accept="image/*" onchange="handleCustomAvatarUpload(this.files[0])">
 
 <div id="peerProfileModal" class="modal-overlay">
     <div class="modal">
@@ -817,6 +787,24 @@
     const notConnectedPlaceholder = document.getElementById('notConnectedPlaceholder');
     
     const avatarList = ['image/ava1.png','image/ava2.jpg','image/ava3.png','image/ava4.png','image/ava5.jpeg','image/ava6.jpg','image/ava7.jpg','image/ava8.jpg','image/ava9.gif','image/ava10.gif'];
+    
+    // Функция загрузки своего аватара
+    function handleCustomAvatarUpload(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const newAvatar = ev.target.result;
+            tempAvatar = newAvatar;
+            document.getElementById('modalAvatarImg').src = newAvatar;
+            // закрываем модалку выбора, если вдруг открыта (но сейчас её нет)
+            // просто обновляем временный аватар
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function openAvatarUpload() {
+        document.getElementById('customAvatarInput').click();
+    }
     
     function formatLastMessage(type, data) {
         if (type === 'text') return data.length > 30 ? data.substring(0, 27) + '...' : data;
@@ -1106,30 +1094,28 @@
         st.style.color = colorHint || '#bbb';
     }
     
-function sendText() {
-    const input = document.getElementById('msgInput');
-    const text = input.value.trim();
-    if (text === "") return;
-    
-    if (conn && conn.open) {
-        conn.send({ type: 'text', data: text });
-        addMsg(text, 'my', 'text', true);
-        input.value = '';
+    function sendText() {
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim();
+        if (text === "") return;
+        if (conn && conn.open) {
+            conn.send({ type: 'text', data: text });
+            addMsg(text, 'my', 'text', true);
+            input.value = '';
+        }
     }
-}
-
-function sendFile(file) {
-    if (!file) return;
     
-    if (conn && conn.open) {
-        const reader = new FileReader();
-        reader.onload = (ev) => { 
-            conn.send({ type: 'image', data: ev.target.result }); 
-            addMsg(ev.target.result, 'my', 'image', true); 
-        };
-        reader.readAsDataURL(file);
+    function sendFile(file) {
+        if (!file) return;
+        if (conn && conn.open) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { 
+                conn.send({ type: 'image', data: ev.target.result }); 
+                addMsg(ev.target.result, 'my', 'image', true); 
+            };
+            reader.readAsDataURL(file);
+        }
     }
-}
     
     async function toggleRecord() {
         const btn = document.getElementById('recordBtn');
@@ -1209,41 +1195,28 @@ function sendFile(file) {
         document.getElementById('profileModal').style.display = 'flex';
     }
     
-    function openAvatarSelectionModal() {
-        selectedAvatarTemp = tempAvatar;
-        buildAvatarGridForSelection();
-        document.getElementById('avatarSelectModal').style.display = 'flex';
+    // Замена открытия выбора аватара на загрузку своего
+    function openAvatarUploadFromProfile() {
+        document.getElementById('customAvatarInput').click();
     }
     
-    let selectedAvatarTemp = myAvatar;
-    function buildAvatarGridForSelection() {
-        const grid = document.getElementById('avatarGrid');
-        grid.innerHTML = '';
-        avatarList.forEach(av => {
-            const div = document.createElement('div'); div.className = 'avatar-option';
-            if(selectedAvatarTemp === av) div.classList.add('selected');
-            const img = document.createElement('img'); img.src = av; div.appendChild(img);
-            div.onclick = () => {
-                document.querySelectorAll('#avatarGrid .avatar-option').forEach(opt => opt.classList.remove('selected'));
-                div.classList.add('selected');
-                selectedAvatarTemp = av;
-            };
-            grid.appendChild(div);
-        });
-    }
+    // Обновление аватара после выбора файла
+    window.handleCustomAvatarUpload = function(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            tempAvatar = ev.target.result;
+            document.getElementById('modalAvatarImg').src = tempAvatar;
+        };
+        reader.readAsDataURL(file);
+    };
     
     document.getElementById('mainProfileBtn').addEventListener('click', openProfileModal);
-    document.getElementById('modalAvatarClickArea').onclick = (e) => { e.stopPropagation(); openAvatarSelectionModal(); };
+    document.getElementById('modalAvatarClickArea').onclick = (e) => { 
+        e.stopPropagation(); 
+        openAvatarUploadFromProfile(); 
+    };
     
-    document.getElementById('saveAvatarBtn').onclick = () => {
-        tempAvatar = selectedAvatarTemp;
-        document.getElementById('modalAvatarImg').src = tempAvatar;
-        document.getElementById('avatarSelectModal').style.display = 'none';
-    };
-    document.getElementById('cancelAvatarBtn').onclick = () => {
-        selectedAvatarTemp = tempAvatar;
-        document.getElementById('avatarSelectModal').style.display = 'none';
-    };
     document.getElementById('cancelProfileBtn').onclick = () => { document.getElementById('profileModal').style.display = 'none'; };
     
     document.getElementById('saveProfileBtn').onclick = () => {
@@ -1354,7 +1327,7 @@ function sendFile(file) {
         const overlay = document.getElementById('modal-overlay');
         document.getElementById('modal-text').innerText = "Close chat?";
         const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `<button class="modal-btn" id="confirmNo">CANCEL</button><button class="modal-btn" id="confirmYes">YES, CLOSE</button>`;
+        actionsDiv.innerHTML = `<button class="modal-btn" id="confirmNo">CANCEL</button><button class="modal-btn" id="confirmYes">CLOSE</button>`;
         overlay.style.display = 'flex';
         document.getElementById('confirmNo').onclick = () => overlay.style.display = 'none';
         document.getElementById('confirmYes').onclick = () => {
