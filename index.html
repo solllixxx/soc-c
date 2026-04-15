@@ -514,6 +514,31 @@
             max-width: 300px;
             text-align: center;
             border: 1px solid #333;
+            animation: modalPopIn 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transform-origin: center;
+        }
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.85);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes modalPopOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.85);
+            }
+        }
+        .modal-exit {
+            animation: modalPopOut 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
         }
         .modal #modal-text { font-size: 0.9rem; margin-bottom: 18px; color: #ccc; line-height: 1.4; }
         .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
@@ -588,6 +613,80 @@
         }
         #recordBtn {
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .drop-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .drop-overlay.active {
+            display: flex;
+        }
+        .drop-hint {
+            background: transparent;
+            padding: 20px 32px;
+            font-size: 1.1rem;
+            color: #ccc;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+        .welcome-sub {
+            font-size: 0.7rem;
+            color: #6a6a6a;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+        /* КНОПКА РЕГИСТРАЦИИ КАК В EDIT PROFILE — убрано подчеркивание, стиль как у modal-btn */
+        .reg-primary-btn {
+            background: #222;
+            border: none;
+            border-radius: 60px;
+            padding: 12px 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            width: 100%;
+            color: #ffa2a2;
+            margin-top: 8px;
+        }
+        .reg-primary-btn:hover {
+            transform: scale(0.96);
+            background: #2f2f2f;
+        }
+        .reg-rules-btn {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            font-size: 0.7rem;
+            margin-top: 12px;
+            cursor: pointer;
+            /* убираем подчеркивание */
+            text-decoration: none;
+            padding: 8px;
+            transition: color 0.2s;
+        }
+        .reg-rules-btn:hover {
+            color: #ffffff;
         }
 
         @media (min-width: 801px) {
@@ -682,7 +781,7 @@
                 </div>
             </div>
             
-            <div class="rules-bottom-btn" onclick="showRules()">RULES & DISCLAIMER</div>
+            <div class="rules-bottom-btn" onclick="showRulesFromHome()">RULES & DISCLAIMER</div>
         </div>
 
         <div class="chat-screen" id="chatScreen">
@@ -709,13 +808,20 @@
     </div>
 </div>
 
+<div id="dropOverlay" class="drop-overlay">
+    <div class="drop-hint">Release to send photo</div>
+</div>
+
 <div id="modal-overlay" class="modal-overlay"><div class="modal"><div id="modal-text"></div><div class="modal-btns" id="modal-actions"></div></div></div>
 
+<!-- Модалка регистрации: только WELCOME!, кнопка как в профиле, убрано подчеркивание у правил -->
 <div id="registrationModal" class="modal-overlay">
     <div class="modal">
-        <div style="font-weight:600; margin-bottom:8px;">ENTER YOUR NICKNAME</div>
+        <div class="welcome-title">SOC.</div>
+        <div class="welcome-sub">WELCOME!</div>
         <input type="text" id="regNickInput" class="nick-input-modal" placeholder="3-20 characters (a-z, 0-9, _)" maxlength="20">
-        <button class="modal-btn" id="regSubmitBtn" style="width:100%">REGISTRATION</button>
+        <button class="reg-primary-btn" id="regSubmitBtn">REGISTRATION</button>
+        <button class="reg-rules-btn" id="regRulesBtn">RULES & DISCLAIMER</button>
     </div>
 </div>
 
@@ -742,7 +848,6 @@
     </div>
 </div>
 
-<!-- Скрытый input для загрузки своего аватара -->
 <input type="file" id="customAvatarInput" hidden accept="image/*" onchange="handleCustomAvatarUpload(this.files[0])">
 
 <div id="peerProfileModal" class="modal-overlay">
@@ -786,18 +891,39 @@
     const connectSection = document.getElementById('connectSection');
     const notConnectedPlaceholder = document.getElementById('notConnectedPlaceholder');
     
-    const avatarList = ['image/ava1.png','image/ava2.jpg','image/ava3.png','image/ava4.png','image/ava5.jpeg','image/ava6.jpg','image/ava7.jpg','image/ava8.jpg','image/ava9.gif','image/ava10.gif'];
+    let pendingReturnToReg = false;
     
-    // Функция загрузки своего аватара
+    function animateModalClose(modalElement, callback) {
+        const modalContent = modalElement.querySelector('.modal');
+        if (modalContent) {
+            modalContent.classList.add('modal-exit');
+            setTimeout(() => {
+                modalElement.style.display = 'none';
+                if (modalContent) modalContent.classList.remove('modal-exit');
+                if (callback) callback();
+            }, 200);
+        } else {
+            modalElement.style.display = 'none';
+            if (callback) callback();
+        }
+    }
+    
+    function showModalWithAnimation(modalElement) {
+        modalElement.style.display = 'flex';
+        const modalContent = modalElement.querySelector('.modal');
+        if (modalContent) {
+            modalContent.style.animation = 'none';
+            modalContent.offsetHeight;
+            modalContent.style.animation = 'modalPopIn 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
+        }
+    }
+    
     function handleCustomAvatarUpload(file) {
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-            const newAvatar = ev.target.result;
-            tempAvatar = newAvatar;
-            document.getElementById('modalAvatarImg').src = newAvatar;
-            // закрываем модалку выбора, если вдруг открыта (но сейчас её нет)
-            // просто обновляем временный аватар
+            tempAvatar = ev.target.result;
+            document.getElementById('modalAvatarImg').src = tempAvatar;
         };
         reader.readAsDataURL(file);
     }
@@ -856,16 +982,17 @@
         txtDiv.innerHTML = `Nickname must be 3-20 characters (letters, numbers, _)`;
         const actionsDiv = document.getElementById('modal-actions');
         actionsDiv.innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
-        overlay.style.display = 'flex';
+        showModalWithAnimation(overlay);
         document.getElementById('errorOkBtn').onclick = () => {
-            overlay.style.display = 'none';
-            if (returnToModal === 'registration') {
-                document.getElementById('registrationModal').style.display = 'flex';
-                document.getElementById('regNickInput').value = '';
-                document.getElementById('regNickInput').focus();
-            } else if (returnToModal === 'profile') {
-                document.getElementById('profileModal').style.display = 'flex';
-            }
+            animateModalClose(overlay, () => {
+                if (returnToModal === 'registration') {
+                    showModalWithAnimation(document.getElementById('registrationModal'));
+                    document.getElementById('regNickInput').value = '';
+                    document.getElementById('regNickInput').focus();
+                } else if (returnToModal === 'profile') {
+                    showModalWithAnimation(document.getElementById('profileModal'));
+                }
+            });
         };
     }
     
@@ -876,22 +1003,23 @@
         txtDiv.innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Nickname already taken! Choose another one.</b>`;
         const actionsDiv = document.getElementById('modal-actions');
         actionsDiv.innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
-        overlay.style.display = 'flex';
+        showModalWithAnimation(overlay);
         document.getElementById('errorOkBtn').onclick = () => {
-            overlay.style.display = 'none';
-            if (returnToModal === 'registration') {
-                document.getElementById('registrationModal').style.display = 'flex';
-                document.getElementById('regNickInput').value = '';
-                document.getElementById('regNickInput').focus();
-            } else if (returnToModal === 'profile') {
-                document.getElementById('profileModal').style.display = 'flex';
-            }
+            animateModalClose(overlay, () => {
+                if (returnToModal === 'registration') {
+                    showModalWithAnimation(document.getElementById('registrationModal'));
+                    document.getElementById('regNickInput').value = '';
+                    document.getElementById('regNickInput').focus();
+                } else if (returnToModal === 'profile') {
+                    showModalWithAnimation(document.getElementById('profileModal'));
+                }
+            });
         };
     }
     
     function showRegistrationModal() {
         document.getElementById('regNickInput').value = '';
-        document.getElementById('registrationModal').style.display = 'flex';
+        showModalWithAnimation(document.getElementById('registrationModal'));
         setTimeout(() => document.getElementById('regNickInput').focus(), 100);
     }
     
@@ -952,8 +1080,9 @@
             updateStatus('ERROR', '#aa5555');
             if (err.type === 'unavailable-id') {
                 if (fromRegistration) {
-                    document.getElementById('registrationModal').style.display = 'none';
-                    showNicknameTakenError('registration');
+                    animateModalClose(document.getElementById('registrationModal'), () => {
+                        showNicknameTakenError('registration');
+                    });
                 }
             }
         });
@@ -1150,14 +1279,15 @@
         document.getElementById('modal-text').innerText = msg;
         const actionsDiv = document.getElementById('modal-actions');
         actionsDiv.innerHTML = `<button class="modal-btn" id="alertOkBtn">OK</button>`;
-        overlay.style.display = 'flex';
+        showModalWithAnimation(overlay);
         document.getElementById('alertOkBtn').onclick = () => {
-            overlay.style.display = 'none';
-            if (callback) callback();
+            animateModalClose(overlay, () => {
+                if (callback) callback();
+            });
         };
     }
     
-    function showRules() {
+    function showRules(fromRegistration = false) {
         const overlay = document.getElementById('modal-overlay');
         const txtDiv = document.getElementById('modal-text');
         txtDiv.style.textAlign = 'left';
@@ -1166,19 +1296,37 @@
         The developer does NOT store, monitor, or have access to your conversations. Therefore, the developer is NOT responsible for user behavior or content shared.<br><br>
         This tool was created for good purposes and privacy. Please use it responsibly.`;
         document.getElementById('modal-actions').innerHTML = `<button class="modal-btn" id="rulesOkBtn" style="width:100%">I UNDERSTAND</button>`;
-        overlay.style.display = 'flex';
-        document.getElementById('rulesOkBtn').onclick = () => { overlay.style.display = 'none'; };
+        showModalWithAnimation(overlay);
+        document.getElementById('rulesOkBtn').onclick = () => {
+            animateModalClose(overlay, () => {
+                if (fromRegistration) {
+                    showModalWithAnimation(document.getElementById('registrationModal'));
+                }
+            });
+        };
+    }
+    
+    function showRulesFromHome() {
+        showRules(false);
     }
     
     document.getElementById('regSubmitBtn').onclick = () => {
         const newNick = document.getElementById('regNickInput').value.trim();
         if (!isValidNick(newNick)) {
-            document.getElementById('registrationModal').style.display = 'none';
-            showValidationError('registration');
+            animateModalClose(document.getElementById('registrationModal'), () => {
+                showValidationError('registration');
+            });
             return;
         }
-        document.getElementById('registrationModal').style.display = 'none';
-        startWithNick(newNick, true);
+        animateModalClose(document.getElementById('registrationModal'), () => {
+            startWithNick(newNick, true);
+        });
+    };
+    
+    document.getElementById('regRulesBtn').onclick = () => {
+        animateModalClose(document.getElementById('registrationModal'), () => {
+            showRules(true);
+        });
     };
     
     let tempAvatar = myAvatar;
@@ -1192,15 +1340,13 @@
         document.getElementById('modalNickInput').value = myNick;
         document.getElementById('modalAvatarImg').src = myAvatar;
         document.getElementById('modalStatusSelect').value = myStatus;
-        document.getElementById('profileModal').style.display = 'flex';
+        showModalWithAnimation(document.getElementById('profileModal'));
     }
     
-    // Замена открытия выбора аватара на загрузку своего
     function openAvatarUploadFromProfile() {
         document.getElementById('customAvatarInput').click();
     }
     
-    // Обновление аватара после выбора файла
     window.handleCustomAvatarUpload = function(file) {
         if (!file) return;
         const reader = new FileReader();
@@ -1217,7 +1363,7 @@
         openAvatarUploadFromProfile(); 
     };
     
-    document.getElementById('cancelProfileBtn').onclick = () => { document.getElementById('profileModal').style.display = 'none'; };
+    document.getElementById('cancelProfileBtn').onclick = () => { animateModalClose(document.getElementById('profileModal')); };
     
     document.getElementById('saveProfileBtn').onclick = () => {
         let newNick = document.getElementById('modalNickInput').value.trim();
@@ -1231,17 +1377,18 @@
             localStorage.setItem('soc-status', myStatus);
             updateHomeUI();
             if (conn && conn.open) conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
-            document.getElementById('profileModal').style.display = 'none';
+            animateModalClose(document.getElementById('profileModal'));
             return;
         }
         
         if (!isValidNick(newNick)) {
-            document.getElementById('profileModal').style.display = 'none';
-            showValidationError('profile');
+            animateModalClose(document.getElementById('profileModal'), () => {
+                showValidationError('profile');
+            });
             return;
         }
         
-        document.getElementById('profileModal').style.display = 'none';
+        animateModalClose(document.getElementById('profileModal'));
         
         let oldNick = myNick;
         let oldAvatar = myAvatar;
@@ -1301,10 +1448,10 @@
             document.getElementById('peerModalAvatar').src = connectedAvatar || 'https://i.pravatar.cc/100';
             document.getElementById('peerModalNick').innerText = connectedNick;
             document.getElementById('peerModalStatus').innerText = connectedStatus || 'user';
-            document.getElementById('peerProfileModal').style.display = 'flex';
+            showModalWithAnimation(document.getElementById('peerProfileModal'));
         }
     }
-    document.getElementById('closePeerModal').onclick = () => document.getElementById('peerProfileModal').style.display = 'none';
+    document.getElementById('closePeerModal').onclick = () => { animateModalClose(document.getElementById('peerProfileModal')); };
     
     function switchToChatMode() {
         homeScreen.classList.add('chat-open');
@@ -1328,13 +1475,78 @@
         document.getElementById('modal-text').innerText = "Close chat?";
         const actionsDiv = document.getElementById('modal-actions');
         actionsDiv.innerHTML = `<button class="modal-btn" id="confirmNo">CANCEL</button><button class="modal-btn" id="confirmYes">CLOSE</button>`;
-        overlay.style.display = 'flex';
-        document.getElementById('confirmNo').onclick = () => overlay.style.display = 'none';
+        showModalWithAnimation(overlay);
+        document.getElementById('confirmNo').onclick = () => animateModalClose(overlay);
         document.getElementById('confirmYes').onclick = () => {
-            overlay.style.display = 'none';
-            fullCloseChat();
+            animateModalClose(overlay, () => {
+                fullCloseChat();
+            });
         };
     }
+    
+    // DRAG & DROP
+    const dropOverlay = document.getElementById('dropOverlay');
+    
+    window.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+    
+    window.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        if (chatScreen.classList.contains('chat-visible') && conn && conn.open) {
+            dropOverlay.classList.add('active');
+        }
+    });
+    
+    window.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        if (e.clientY <= 0 || e.clientX <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+            dropOverlay.classList.remove('active');
+        }
+    });
+    
+    window.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropOverlay.classList.remove('active');
+        if (!chatScreen.classList.contains('chat-visible') || !conn || !conn.open) return;
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.indexOf('image') !== -1) {
+            const file = files[0];
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                conn.send({ type: 'image', data: ev.target.result });
+                addMsg(ev.target.result, 'my', 'image', true);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    document.addEventListener('paste', (e) => {
+        if (!chatScreen.classList.contains('chat-visible') || !conn || !conn.open) return;
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for (let item of items) {
+            if (item.type.indexOf('image') !== -1) {
+                e.preventDefault();
+                const file = item.getAsFile();
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        conn.send({ type: 'image', data: ev.target.result });
+                        addMsg(ev.target.result, 'my', 'image', true);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                return;
+            }
+        }
+    });
+    
+    document.getElementById('peer-nick-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            connectToPeer();
+        }
+    });
     
     document.getElementById('backHomeBtn').addEventListener('click', switchToHomeMode);
     document.getElementById('closeChatFromHomeBtn').addEventListener('click', askCloseChat);
