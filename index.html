@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <link rel="icon" type="image/png" href="logo.jpg">
+    <link rel="icon" type="image/jpg" href="logo.jpg">
     <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -26,7 +26,6 @@
             color: #e5e5e5;
         }
 
-        /* --- СТИЛІ ДЛЯ ПРЕЛОАДЕРА (ЗАВАНТАЖЕННЯ) --- */
         .preloader {
             position: fixed;
             top: 0;
@@ -38,80 +37,71 @@
             align-items: center;
             justify-content: center;
             z-index: 2000;
-            backdrop-filter: blur(0px);
             transition: opacity 0.5s ease, visibility 0.5s ease;
             flex-direction: column;
             gap: 24px;
         }
-
-        .preloader.hide-preloader {
-            opacity: 0;
-            visibility: hidden;
-        }
-
+        .preloader.hide-preloader { opacity: 0; visibility: hidden; }
         .preloader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
             text-align: center;
-            width: 80%;
-            max-width: 280px;
         }
-
         .preloader-title {
             font-size: 2.2rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
             background: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            margin-bottom: 32px;
             animation: subtlePulse 1.8s infinite ease;
+            margin-bottom: 8px;
         }
-
         @keyframes subtlePulse {
-            0% { opacity: 0.7; letter-spacing: -0.5px; }
-            50% { opacity: 1; letter-spacing: -0.2px; }
-            100% { opacity: 0.7; letter-spacing: -0.5px; }
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
-
-        /* Контейнер лінії */
         .loader-line-wrapper {
-            width: 100%;
+            width: 80%;
+            max-width: 280px;
             height: 4px;
             background: #1a1a1a;
             border-radius: 4px;
             overflow: hidden;
-            position: relative;
-            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+            margin: 0 auto;
         }
-
         .loader-line {
-            width: 0%;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #e9e9e9, #bbbbbb, #b4b4b4);
-            border-radius: 4px;
-            animation: loadingProgress 2s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
-            position: relative;
-            box-shadow: 0 0 6px #707070;
+            background: linear-gradient(90deg, #e9e9e9, #bbbbbb);
+            animation: loadingProgress 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
-
         @keyframes loadingProgress {
             0% { width: 0%; }
-            20% { width: 25%; }
-            50% { width: 65%; }
-            80% { width: 88%; }
             100% { width: 100%; }
         }
-
         .preloader-sub {
             font-size: 0.7rem;
             color: #6a6a6a;
             letter-spacing: 1px;
             margin-top: 16px;
             text-transform: uppercase;
-            font-weight: 500;
+            text-align: center;
         }
 
-        /* Основний інтерфейс (спочатку невидимий) */
+        /* Контейнер для ПК-ліній та центрування всього інтерфейсу */
+        .app-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+        }
+        
         .app {
             display: flex;
             flex-direction: column;
@@ -121,38 +111,69 @@
             margin: 0 auto;
             background: #000000;
             padding-top: env(safe-area-inset-top);
-            padding-bottom: 0 !important;
             opacity: 0;
-            transition: opacity 0.4s ease-in-out;
+            transition: opacity 0.4s ease;
+            position: relative;
+            overflow-x: hidden;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05); /* Тонка лінія для візуального розділення, якщо потрібно */
+        }
+        .app.app-visible { opacity: 1; }
+
+        /* HOME SCREEN - всегда виден */
+        .home-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #000000;
+            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transform: translateX(0);
+            z-index: 10;
+        }
+        
+        /* ЧАТ - выезжает справа */
+        .chat-screen {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #000000;
+            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transform: translateX(100%);
+            z-index: 20;
+        }
+        
+        /* Когда чат открыт - он на месте, а домашний экран сдвигается влево */
+        .home-screen.chat-open {
+            transform: translateX(-30%);
+        }
+        
+        .chat-screen.chat-visible {
+            transform: translateX(0);
         }
 
-        .app.app-visible {
-            opacity: 1;
-        }
-
-        .header {
-            padding: 10px 16px;
+        .home-header {
+            padding: 12px 16px;
             background: #0a0a0a;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #222;
             flex-shrink: 0;
-            min-height: 56px;
         }
-        .header h1 {
-            margin: 0;
+        .home-header h1 {
             font-size: 1.35rem;
             font-weight: 600;
-            letter-spacing: -0.3px;
             background: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-        }
-        .header-actions {
-            display: flex;
-            gap: 8px;
         }
         #status {
             font-size: 0.65rem;
@@ -163,49 +184,93 @@
             color: #bbb;
             border: 0.5px solid #2c2c2c;
         }
-        .exit-btn {
-            background: #1c1c1c;
-            color: #e0e0e0;
-            border: none;
-            width: 36px;
-            height: 36px;
+
+        .home-scrollable {
+            flex: 1;
+            overflow-y: auto;
             display: flex;
+            flex-direction: column;
+        }
+
+        .main-profile-card {
+            margin: 30px 20px;
+            background: #0f0f0f;
+            border-radius: 32px;
+            border: 1px solid #2a2a2a;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .exit-btn:hover { background: #2e2e2e; transform: scale(0.96); }
-        .exit-btn:active { transform: scale(0.94); background: #3a3a3a; }
+        .main-profile-card:active { transform: scale(0.98); background: #151515; }
+        
+        .avatar-large {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #1e1e1e;
+            overflow: hidden;
+            border: 2px solid #3a3a3a;
+            margin-bottom: 12px;
+        }
+        .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+        .main-nick { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+        .main-status { font-size: 0.8rem; color: #9a9a9a; background: #1a1a1a; padding: 4px 14px; border-radius: 30px; }
 
-        .setup {
-            padding: 12px 14px;
-            background: #050505;
-            border-bottom: 1px solid #1c1c1c;
-            flex-shrink: 0;
-        }
-        .nick-box {
+        .active-chat-row {
+            margin: 10px 20px;
             background: #111111;
-            padding: 8px 12px;
-            border-radius: 20px;
-            text-align: center;
-            margin-bottom: 10px;
+            border-radius: 60px;
             border: 1px solid #2a2a2a;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px 8px 8px;
             cursor: pointer;
-            transition: background 0.2s;
         }
-        .nick-box:hover { background: #1a1a1a; border-color: #4a4a4a; }
-        #my-nick-display {
-            font-family: monospace;
-            font-weight: 600;
-            font-size: 0.9rem;
-            letter-spacing: 0.3px;
-            color: #f0f0f0;
+        .active-chat-row:active { background: #1a1a1a; }
+        .active-chat-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
         }
-        .nick-box small { color: #6a6a6a; font-size: 0.6rem; }
+        .active-chat-avatar { width: 48px; height: 48px; border-radius: 50%; background: #2a2a2a; overflow: hidden; flex-shrink: 0; }
+        .active-chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .active-chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .active-chat-nick { font-weight: 600; font-size: 1rem; color: #eee; margin-bottom: 4px; }
+        .active-chat-lastmsg {
+            font-size: 0.7rem;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .close-chat-icon {
+            background: #2a2a2a;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            color: #ff9e9e;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .close-chat-icon:hover {
+            transform: scale(0.92);
+            background: #3a2a2a;
+            color: #ff6b6b;
+        }
+
+        .connect-section { margin: 10px 20px; }
         .connect-row {
             display: flex;
             gap: 8px;
@@ -215,11 +280,12 @@
             flex: 1;
             background: #111;
             border: 1px solid #2c2c2c;
-            padding: 10px 14px;
+            padding: 12px 16px;
             border-radius: 40px;
             color: white;
             font-size: 0.85rem;
             outline: none;
+            transition: all 0.2s ease;
         }
         #peer-nick-input:focus { border-color: #6a6a6a; background: #181818; }
         .connect-btn {
@@ -227,49 +293,111 @@
             border: none;
             border-radius: 40px;
             padding: 0 18px;
-            height: 42px;
+            height: 46px;
             font-weight: 600;
             font-size: 0.75rem;
-            letter-spacing: 0.3px;
             color: #ddd;
             cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-        .connect-btn:hover { background: #333; color: white; transform: scale(0.97); }
-        .connect-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .connect-btn:hover {
+            transform: scale(0.96);
+            background: #2a2a2a;
+            color: #ffffff;
         }
 
-        #chat {
+        .not-connect-placeholder {
             flex: 1;
-            padding: 16px 14px;
-            overflow-y: auto;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background: #000000;
-            scroll-behavior: smooth;
-        }
-        
-        .not-connect {
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100%;
-            gap: 15px;
             color: #444;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 2px;
+            flex-direction: column;
+            gap: 15px;
+            min-height: 150px;
         }
-        .not-connect span:first-child {
-            font-size: 2rem;
-            opacity: 0.3;
+        .not-connect-placeholder span:first-child { font-size: 2rem; opacity: 0.3; }
+
+        .rules-bottom-btn {
+            margin: 20px;
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 60px;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-        
+        .rules-bottom-btn:hover {
+            transform: scale(0.97);
+            background: #151515;
+            color: #aaa;
+        }
+
+        /* Стили чата */
+        .chat-header {
+            padding: 10px 12px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .back-home-btn {
+            background: #1a1a1a;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .back-home-btn:hover {
+            transform: scale(0.9);
+            background: #2a2a2a;
+        }
+        .chat-peer-info-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .peer-info-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1a1a1a;
+            padding: 6px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .peer-info-button:hover {
+            transform: scale(0.96);
+            background: #2a2a2a;
+        }
+        .peer-info-avatar { width: 36px; height: 36px; border-radius: 50%; background: #2a2a2a; overflow: hidden; }
+        .peer-info-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .peer-info-nick { font-weight: 600; font-size: 0.95rem; color: #eee; }
+        .placeholder-right { width: 36px; visibility: hidden; }
+
+        #chatMessages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #000000;
+        }
         .msg {
             max-width: 80%;
             padding: 9px 14px;
@@ -283,34 +411,10 @@
             from { opacity: 0; transform: translateY(5px);}
             to { opacity: 1; transform: translateY(0);}
         }
-        .my {
-            align-self: flex-end;
-            background: #2c2c2c;
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-        .other {
-            align-self: flex-start;
-            background: #141414;
-            border: 0.5px solid #2b2b2b;
-            border-bottom-left-radius: 5px;
-            color: #efefef;
-        }
-        .msg img {
-            max-width: 100%;
-            border-radius: 16px;
-            display: block;
-            margin-top: 5px;
-            border: 1px solid #2e2e2e;
-        }
-        audio {
-            height: 38px;
-            width: 200px;
-            max-width: 100%;
-            margin-top: 5px;
-            border-radius: 30px;
-            filter: grayscale(0.2);
-        }
+        .my { align-self: flex-end; background: #2c2c2c; color: white; border-bottom-right-radius: 5px; }
+        .other { align-self: flex-start; background: #141414; border: 0.5px solid #2b2b2b; border-bottom-left-radius: 5px; color: #efefef; }
+        .msg img { max-width: 100%; border-radius: 16px; display: block; margin-top: 5px; }
+        audio { height: 38px; width: 180px; max-width: 180px; margin-top: 5px; border-radius: 30px; flex-shrink: 0; }
 
         .input-area {
             padding: 8px 12px;
@@ -328,58 +432,52 @@
             border-radius: 50%;
             border: none;
             background: #1a1a1a;
-            color: #ddd;
-            font-size: 1.25rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
             cursor: pointer;
-            transition: all 0.2s ease;
+            flex-shrink: 0;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
         .btn-icon:hover {
-            background: #2e2e2e;
-            transform: scale(0.94);
-            color: white;
-        }
-        .btn-icon:active {
             transform: scale(0.9);
+            background: #2a2a2a;
         }
-        .btn-red {
-            background: #3a2a2a !important;
-            color: #ffaaaa !important;
-        }
-        .btn-red:hover {
-            background: #522e2e !important;
-        }
+        .btn-red { background: #3a2a2a !important; }
+        .btn-red:hover { background: #4a3a3a !important; }
         #msgInput {
             flex: 1;
-            min-width: 0;
             background: #111;
             border: 1px solid #2a2a2a;
             padding: 10px 14px;
             border-radius: 32px;
-            color: #f0f0f0;
+            color: white;
             outline: none;
             font-size: 0.9rem;
+            transition: all 0.2s ease;
         }
-        #msgInput:focus {
-            border-color: #6a6a6a;
-            background: #1a1a1a;
+        #msgInput:focus { border-color: #6a6a6a; background: #181818; }
+        .send-btn { background: #202020; flex-shrink: 0; }
+        .send-btn:hover { background: #303030; }
+        .btn-img { width: 22px; height: 22px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.8; }
+        .date-divider {
+            align-self: center;
+            margin: 20px 0 10px;
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            background: #0a0a0a;
+            padding: 4px 12px;
+            border-radius: 10px;
         }
-        .send-btn {
-            background: #202020;
-            font-size: 1.1rem;
-        }
-        .send-btn:hover {
-            background: #3a3a3a;
-        }
-        .send-btn:disabled {
+        .msg-time {
+            font-size: 0.6rem;
             opacity: 0.5;
-            cursor: not-allowed;
+            margin-top: 4px;
+            align-self: flex-end;
         }
 
-        #modal-overlay {
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -398,22 +496,12 @@
             padding: 22px 18px;
             border-radius: 32px;
             width: 100%;
-            max-width: 280px;
+            max-width: 300px;
             text-align: center;
             border: 1px solid #333;
         }
-        .modal #modal-text {
-            font-size: 0.9rem;
-            margin-bottom: 18px;
-            font-weight: 400;
-            color: #ccc;
-            line-height: 1.4;
-        }
-        .modal-btns {
-            display: flex;
-            gap: 10px;
-            margin-top: 6px;
-        }
+        .modal #modal-text { font-size: 0.9rem; margin-bottom: 18px; color: #ccc; line-height: 1.4; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
         .modal-btn {
             flex: 1;
             padding: 10px 0;
@@ -421,26 +509,15 @@
             border-radius: 60px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.15s;
             font-size: 0.85rem;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-        .modal-btn:first-child {
-            background: #1f1f1f;
-            color: #ccc;
+        .modal-btn:hover {
+            transform: scale(0.96);
+            filter: brightness(0.9);
         }
-        .modal-btn:first-child:hover {
-            background: #2d2d2d;
-            color: white;
-        }
-        .modal-btn:last-child {
-            background: #222;
-            color: #ffa2a2;
-        }
-        .modal-btn:last-child:hover {
-            background: #3a1e1e;
-            color: #ffc5c5;
-        }
-        
+        .modal-btn:first-child { background: #1f1f1f; color: #ccc; }
+        .modal-btn:last-child { background: #222; color: #ffa2a2; }
         .nick-input-modal {
             background: #1a1a1a;
             border: 1px solid #3a3a3a;
@@ -453,186 +530,252 @@
             text-align: center;
             outline: none;
         }
-        .nick-input-modal:focus {
-            border-color: #6a6a6a;
+        .status-select {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 40px;
+            color: white;
+            font-size: 0.9rem;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            justify-items: center;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .avatar-option {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .avatar-option:hover { transform: scale(0.95); opacity: 0.8; }
+        .avatar-option.selected { border-color: #ffffff; }
+        .avatar-option img { width: 100%; height: 100%; object-fit: cover; }
+        .flex-btns { display: flex; gap: 10px; margin-top: 12px; }
+        .modal-avatar-container {
+            position: relative;
+            display: inline-block;
+            margin: 0 auto 15px;
+            cursor: pointer;
+        }
+        .modal-edit-icon {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: #2c2c2c;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #555;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        .main-profile-card:hover {
+            transform: scale(0.98);
+            background: #151515;
+        }
+        .active-chat-row:hover {
+            background: #181818;
+            border-color: #3a3a3a;
+        }
+        #recordBtn {
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        /* Стилі для бічних ліній на ПК */
+        @media (min-width: 801px) {
+            body, html {
+                background: #000000;
+            }
+            .app {
+                box-shadow: -2px 0 5px rgba(255,255,255,0.02), 2px 0 5px rgba(255,255,255,0.02);
+                border-left: 1px solid #1a1a1a;
+                border-right: 1px solid #1a1a1a;
+            }
+            /* Додатковий ефект для затемнення по боках */
+            .app-wrapper::before,
+            .app-wrapper::after {
+                content: '';
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                width: calc((100% - 800px) / 2);
+                background: #000000;
+                z-index: 5;
+                pointer-events: none;
+            }
+            .app-wrapper::before {
+                left: 0;
+            }
+            .app-wrapper::after {
+                right: 0;
+            }
         }
         
-        #chat::-webkit-scrollbar { width: 4px; }
-        #chat::-webkit-scrollbar-track { background: #0a0a0a; }
-        #chat::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-
-        @media (max-width: 420px) {
-            .btn-icon {
-                width: 38px;
-                height: 38px;
-                font-size: 1.1rem;
+        /* Для мобільних пристроїв ніяких зайвих ліній */
+        @media (max-width: 800px) {
+            .app-wrapper::before,
+            .app-wrapper::after {
+                display: none;
             }
-            .input-area {
-                gap: 6px;
-                padding: 6px 10px;
+            .app {
+                border-left: none;
+                border-right: none;
+                box-shadow: none;
             }
-            #msgInput {
-                padding: 8px 12px;
-                font-size: 0.85rem;
-            }
-            .connect-btn {
-                padding: 0 12px;
-                height: 38px;
-                font-size: 0.7rem;
-            }
-            #peer-nick-input {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-            }
-        }
-        @media (max-width: 360px) {
-            .btn-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 1rem;
-            }
-            .send-btn {
-                font-size: 1rem;
-            }
-        }
-        @media (min-width: 1200px) {
-            .app { max-width: 1000px; border-radius: 0px; box-shadow: 0 0 0 1px #2a2a2a; }
-            body { background: #050505; }
-        }
-
-        .date-divider {
-            align-self: center;
-            margin: 20px 0 10px;
-            font-size: 0.7rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: #0a0a0a;
-            padding: 4px 12px;
-            border-radius: 10px;
-        }
-
-        .msg {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .msg-time {
-            font-size: 0.6rem;
-            opacity: 0.5;
-            margin-top: 4px;
-            align-self: flex-end;
-        }
-
-        .btn-img {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
-            display: block;
-            filter: brightness(0) invert(1); 
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-
-        .btn-icon:hover .btn-img {
-            opacity: 1;
-        }
-
-        .btn-red .btn-img {
-            filter: none;
         }
     </style>
 </head>
 <body>
 <audio id="msgSound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
 
-<!-- ПРЕЛОАДЕР: напис SOC. + лінія завантаження на 2 секунди -->
 <div id="preloader" class="preloader">
     <div class="preloader-content">
         <div class="preloader-title">SOC.</div>
-        <div class="loader-line-wrapper">
-            <div class="loader-line"></div>
-        </div>
+        <div class="loader-line-wrapper"><div class="loader-line"></div></div>
         <div class="preloader-sub">initializing secure channel</div>
     </div>
 </div>
 
-<div class="app" id="mainApp">
-    <div class="header">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <h1>SOC.</h1>
-            <span id="status">OFFLINE</span>
+<div class="app-wrapper">
+    <div class="app" id="mainApp">
+        <div class="home-screen" id="homeScreen">
+            <div class="home-header">
+                <h1>SOC.</h1>
+                <span id="status">OFFLINE</span>
+            </div>
+            
+            <div class="home-scrollable">
+                <div class="main-profile-card" id="mainProfileBtn">
+                    <div class="avatar-large"><img id="homeAvatarImg" src="image/ava1.png"></div>
+                    <div class="main-nick" id="homeNick">---</div>
+                    <div class="main-status" id="homeStatus">online</div>
+                </div>
+                
+                <div id="activeChatRow" class="active-chat-row">
+                    <div class="active-chat-left" id="activeChatTap">
+                        <div class="active-chat-avatar"><img id="activeChatAvatar" src="image/ava1.png"></div>
+                        <div class="active-chat-info">
+                            <div class="active-chat-nick" id="activeChatNick">friend</div>
+                            <div class="active-chat-lastmsg" id="activeChatLastMsg">---</div>
+                        </div>
+                    </div>
+                    <button class="close-chat-icon" id="closeChatFromHomeBtn">✕</button>
+                </div>
+                
+                <div id="connectSection" class="connect-section">
+                    <div class="connect-row">
+                        <input type="text" id="peer-nick-input" placeholder="friend's nickname..." autocomplete="off">
+                        <button class="connect-btn" onclick="connectToPeer()">CONNECT</button>
+                    </div>
+                </div>
+                
+                <div id="notConnectedPlaceholder" class="not-connect-placeholder">
+                    <span>NOT CONNECTED</span>
+                </div>
+            </div>
+            
+            <div class="rules-bottom-btn" onclick="showRules()">RULES & DISCLAIMER</div>
         </div>
-        <div class="header-actions">
-            <button class="exit-btn" onclick="showRules()">ⅰ</button>
-            <button class="exit-btn" onclick="showConfirm()">✕</button>
+
+        <div class="chat-screen" id="chatScreen">
+            <div class="chat-header">
+                <button class="back-home-btn" id="backHomeBtn">⭠</button>
+                <div class="chat-peer-info-center">
+                    <div class="peer-info-button" id="peerInfoBtn">
+                        <div class="peer-info-avatar"><img id="peerAvatarImg" src="https://i.pravatar.cc/100?img=1"></div>
+                        <div class="peer-info-nick" id="peerNickChat">friend</div>
+                    </div>
+                </div>
+                <div class="placeholder-right"></div>
+            </div>
+            <div id="chatMessages"></div>
+            <div class="input-area">
+                <button class="btn-icon" onclick="document.getElementById('fileInput').click()"><img src="image/plus.png" alt="+" class="btn-img"></button>
+                <button class="btn-icon" id="recordBtn" onclick="toggleRecord()"><img src="image/mic.png" alt="V" class="btn-img" id="mic-icon"></button>
+                <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
+                <button class="btn-icon send-btn" onclick="sendText()"><img src="image/send.png" alt=">" class="btn-img"></button>
+            </div>
         </div>
-    </div>
-    <div class="setup" id="setup-ui">
-        <div class="nick-box" onclick="changeNickname()">
-            <div id="my-nick-display">---</div>
-            <small>TAP TO CHANGE NICKNAME</small>
-        </div>
-        <div class="connect-row">
-            <input type="text" id="peer-nick-input" placeholder="friend's nickname..." autocomplete="off" disabled>
-            <button class="connect-btn" onclick="connectToPeer()" disabled>CONNECT</button>
-        </div>
-    </div>
-    <div id="chat">
-        <div class="not-connect">
-            <span>NOT CONNECTED</span>
-        </div>
-    </div>
-    <div class="input-area">
-        <button class="btn-icon" id="attachBtn" onclick="document.getElementById('fileInput').click()" disabled>
-            <img src="plus.png" alt="+" class="btn-img">
-        </button>
-        
-        <button class="btn-icon" id="recordBtn" onclick="toggleRecord()" disabled>
-            <img src="mic.png" alt="V" class="btn-img" id="mic-icon">
-        </button>
-        
-        <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off" disabled>
-        
-        <button class="btn-icon send-btn" onclick="sendText()" disabled>
-            <img src="send.png" alt=">" class="btn-img">
-        </button>
     </div>
 </div>
 
-<div id="modal-overlay">
+<div id="modal-overlay" class="modal-overlay"><div class="modal"><div id="modal-text"></div><div class="modal-btns" id="modal-actions"></div></div></div>
+
+<!-- REGISTRATION MODAL -->
+<div id="registrationModal" class="modal-overlay">
     <div class="modal">
-        <div id="modal-text"></div>
-        <div class="modal-btns" id="modal-actions"></div>
+        <div style="font-weight:600; margin-bottom:8px;">ENTER YOUR NICKNAME</div>
+        <input type="text" id="regNickInput" class="nick-input-modal" placeholder="3-20 characters (a-z, 0-9, _)" maxlength="20">
+        <button class="modal-btn" id="regSubmitBtn" style="width:100%">REGISTRATION</button>
+    </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div id="profileModal" class="modal-overlay">
+    <div class="modal">
+        <div style="font-weight:600; margin-bottom:8px;">Edit Profile</div>
+        <div class="modal-avatar-container" id="modalAvatarClickArea">
+            <div class="avatar-large" style="width:80px; height:80px; margin:0;"><img id="modalAvatarImg"></div>
+            <div class="modal-edit-icon">✎</div>
+        </div>
+        <input type="text" id="modalNickInput" class="nick-input-modal" placeholder="Nickname (3-20 chars: a-z, 0-9, _)">
+        <select id="modalStatusSelect" class="status-select">
+            <option value="online">online</option>
+            <option value="away">away</option>
+            <option value="do not disturb">do not disturb</option>
+            <option value="offline">offline</option>
+            <option value="in game">in game</option>
+            <option value="studying">studying</option>
+        </select>
+        <div class="flex-btns">
+            <button class="modal-btn" id="cancelProfileBtn" style="background:#1f1f1f;">CANCEL</button>
+            <button class="modal-btn" id="saveProfileBtn">SAVE</button>
+        </div>
+    </div>
+</div>
+
+<div id="avatarSelectModal" class="modal-overlay">
+    <div class="modal">
+        <div style="font-weight:600; margin-bottom:10px;">Choose Avatar</div>
+        <div class="avatar-grid" id="avatarGrid"></div>
+        <div class="flex-btns">
+            <button class="modal-btn" id="cancelAvatarBtn" style="background:#1f1f1f;">CANCEL</button>
+            <button class="modal-btn" id="saveAvatarBtn">SAVE</button>
+        </div>
+    </div>
+</div>
+
+<div id="peerProfileModal" class="modal-overlay">
+    <div class="modal">
+        <div class="avatar-large" style="margin:0 auto 15px;"><img id="peerModalAvatar"></div>
+        <div style="font-size:1.3rem; font-weight:600;" id="peerModalNick"></div>
+        <div style="font-size:0.8rem; color:#aaa; margin:8px 0;" id="peerModalStatus"></div>
+        <button class="modal-btn" id="closePeerModal" style="width:100%; background:#2a2a2a;">CLOSE</button>
     </div>
 </div>
 
 <input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
-    // ---------- ЛОГІКА ПРЕЛОАДЕРА: приховати через 2 секунди та показати основний інтерфейс ----------
-    window.addEventListener('load', () => {
-        const preloader = document.getElementById('preloader');
-        const mainApp = document.getElementById('mainApp');
-        
-        // Через 2 секунди (як триває анімація лінії) ховаємо прелоадер і плавно показуємо додаток
-        setTimeout(() => {
-            if (preloader) {
-                preloader.classList.add('hide-preloader');
-                // Після зникнення прелоадера видаляємо його з DOM, щоб не заважав клікам
-                setTimeout(() => {
-                    if (preloader && preloader.parentNode) {
-                        preloader.style.display = 'none';
-                    }
-                }, 500);
-            }
-            // Робимо основний додаток видимим
-            mainApp.classList.add('app-visible');
-        }, 2000); // Точно 2 секунди, як лінія завантаження
-    });
-
     let myNick = localStorage.getItem('soc-nickname');
+    let myAvatar = localStorage.getItem('soc-avatar') || 'image/ava1.png';
+    let myStatus = localStorage.getItem('soc-status') || 'online';
     let peer = null;
     let conn = null;
     let mediaRecorder = null;
@@ -640,292 +783,286 @@
     let activeStream = null;
     let lastDateLabel = "";
     let connectedNick = null;
-    let isNickValid = false;
+    let connectedAvatar = null;
+    let connectedStatus = null;
+    let lastMessageText = "---";
+    
+    const homeScreen = document.getElementById('homeScreen');
+    const chatScreen = document.getElementById('chatScreen');
+    const homeNickSpan = document.getElementById('homeNick');
+    const homeStatusSpan = document.getElementById('homeStatus');
+    const homeAvatarImg = document.getElementById('homeAvatarImg');
+    const chatMessagesDiv = document.getElementById('chatMessages');
+    const peerNickChat = document.getElementById('peerNickChat');
+    const peerAvatarChat = document.getElementById('peerAvatarImg');
+    const activeChatRow = document.getElementById('activeChatRow');
+    const activeChatAvatar = document.getElementById('activeChatAvatar');
+    const activeChatNick = document.getElementById('activeChatNick');
+    const activeChatLastMsg = document.getElementById('activeChatLastMsg');
+    const connectSection = document.getElementById('connectSection');
+    const notConnectedPlaceholder = document.getElementById('notConnectedPlaceholder');
+    
+    const avatarList = ['image/ava1.png','image/ava2.jpg','image/ava3.png','image/ava4.png','image/ava5.jpeg','image/ava6.jpg','image/ava7.jpg','image/ava8.jpg','image/ava9.gif','image/ava10.gif'];
+    
+    function formatLastMessage(type, data) {
+        if (type === 'text') return data.length > 30 ? data.substring(0, 27) + '...' : data;
+        if (type === 'image') return '✿ Photo';
+        if (type === 'audio') return '♪ Voice message';
+        return '---';
+    }
+    
+    function updateLastMessage(type, data) {
+        lastMessageText = formatLastMessage(type, data);
+        if (activeChatLastMsg) activeChatLastMsg.innerText = lastMessageText;
+    }
+    
+    function updateHomeUI() {
+        homeNickSpan.innerText = myNick || '---';
+        homeStatusSpan.innerText = myStatus;
+        homeAvatarImg.src = myAvatar;
+    }
+    
+    function updateUIForConnectionState(hasActiveChat) {
+        if (hasActiveChat && connectedNick && conn && conn.open) {
+            activeChatRow.style.display = 'flex';
+            connectSection.style.display = 'none';
+            notConnectedPlaceholder.style.display = 'none';
+            activeChatNick.innerText = connectedNick;
+            activeChatAvatar.src = connectedAvatar || 'image/ava1.png';
+            activeChatLastMsg.innerText = lastMessageText;
+        } else {
+            activeChatRow.style.display = 'none';
+            connectSection.style.display = 'block';
+            notConnectedPlaceholder.style.display = 'flex';
+        }
+    }
+    
+    function updateChatHeader() {
+        peerNickChat.innerText = connectedNick || 'friend';
+        peerAvatarChat.src = connectedAvatar || 'image/ava1.png';
+    }
     
     function isValidNick(nick) {
         if (!nick || nick.length < 3) return false;
-        const validRegex = /^[a-zA-Z0-9_]{3,20}$/;
-        return validRegex.test(nick);
+        return /^[a-zA-Z0-9_]{3,20}$/.test(nick);
     }
     
-    function enableChatControls(enable) {
-        const peerInput = document.getElementById('peer-nick-input');
-        const connectBtn = document.querySelector('.connect-btn');
-        const attachBtn = document.getElementById('attachBtn');
-        const recordBtn = document.getElementById('recordBtn');
-        const msgInput = document.getElementById('msgInput');
-        const sendBtn = document.querySelector('.send-btn');
-        
-        if (enable) {
-            peerInput.disabled = false;
-            connectBtn.disabled = false;
-            attachBtn.disabled = false;
-            recordBtn.disabled = false;
-            msgInput.disabled = false;
-            sendBtn.disabled = false;
-        } else {
-            peerInput.disabled = true;
-            connectBtn.disabled = true;
-            attachBtn.disabled = true;
-            recordBtn.disabled = true;
-            msgInput.disabled = true;
-            sendBtn.disabled = true;
-        }
-    }
-    
-    function initOrChangeNick() {
-        if (myNick && isValidNick(myNick)) {
-            isNickValid = true;
-            startWithNick(myNick);
-            enableChatControls(true);
-        } else {
-            isNickValid = false;
-            enableChatControls(false);
-            showNicknameModal();
-        }
-    }
-    
-    function showNicknameModal() {
+    function showValidationError(returnToModal) {
         const overlay = document.getElementById('modal-overlay');
         const txtDiv = document.getElementById('modal-text');
         txtDiv.style.textAlign = 'center';
-        txtDiv.innerHTML = `
-            <b style="color:white; display:block; margin-bottom:10px;">ENTER YOUR NICKNAME</b>
-            <input type="text" id="nickInputModal" class="nick-input-modal" placeholder="3-20 characters (a-z, 0-9, _)" maxlength="20" autocomplete="off">
-            <div style="font-size:0.7rem; color:#666; margin-top:5px;">This will be your ID</div>
-        `;
-        
+        txtDiv.innerHTML = `Nickname must be 3-20 characters (letters, numbers, _)`;
         const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `<button class="modal-btn" id="nickSubmitBtn" style="width:100%">REGISTRATION</button>`;
+        actionsDiv.innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
         overlay.style.display = 'flex';
-        
-        const input = document.getElementById('nickInputModal');
-        input.focus();
-        
-        const submitBtn = document.getElementById('nickSubmitBtn');
-        
-        function submitNick() {
-            const newNick = input.value.trim();
-            if (!isValidNick(newNick)) {
-                showAlert('Nickname must be 3-20 characters (letters, numbers, _)', () => {
-                    input.value = '';
-                    input.focus();
-                });
-                return;
-            }
-            myNick = newNick;
-            localStorage.setItem('soc-nickname', myNick);
+        document.getElementById('errorOkBtn').onclick = () => {
             overlay.style.display = 'none';
-            isNickValid = true;
-            startWithNick(myNick);
-            enableChatControls(true);
-        }
-        
-        submitBtn.onclick = submitNick;
-        input.onkeypress = (e) => {
-            if (e.key === 'Enter') submitNick();
+            if (returnToModal === 'registration') {
+                document.getElementById('registrationModal').style.display = 'flex';
+                document.getElementById('regNickInput').value = '';
+                document.getElementById('regNickInput').focus();
+            } else if (returnToModal === 'profile') {
+                document.getElementById('profileModal').style.display = 'flex';
+            }
         };
     }
     
-    function changeNickname() {
+    function showNicknameTakenError(returnToModal) {
         const overlay = document.getElementById('modal-overlay');
         const txtDiv = document.getElementById('modal-text');
         txtDiv.style.textAlign = 'center';
-        txtDiv.innerHTML = `
-            <b style="color:white; display:block; margin-bottom:10px;">CHANGE NICKNAME</b>
-            <input type="text" id="nickInputModal" class="nick-input-modal" placeholder="3-20 characters (a-z, 0-9, _)" maxlength="20" autocomplete="off" value="${myNick || ''}">
-            <div style="font-size:0.7rem; color:#666; margin-top:5px;">This will be your ID</div>
-            <div style="font-size:0.7rem; color:#ff8888; margin-top:10px;">Changing nickname will restart connection</div>
-        `;
-        
+        txtDiv.innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Nickname already taken! Choose another one.</b>`;
         const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `
-            <button class="modal-btn" id="nickCancelBtn">CANCEL</button>
-            <button class="modal-btn" id="nickChangeBtn">CHANGE</button>
-        `;
+        actionsDiv.innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
         overlay.style.display = 'flex';
-        
-        const input = document.getElementById('nickInputModal');
-        input.focus();
-        
-        document.getElementById('nickCancelBtn').onclick = () => {
+        document.getElementById('errorOkBtn').onclick = () => {
             overlay.style.display = 'none';
-        };
-        
-        document.getElementById('nickChangeBtn').onclick = () => {
-            const newNick = input.value.trim();
-            if (!isValidNick(newNick)) {
-                showAlert('Nickname must be 3-20 characters (letters, numbers, _)');
-                return;
+            if (returnToModal === 'registration') {
+                document.getElementById('registrationModal').style.display = 'flex';
+                document.getElementById('regNickInput').value = '';
+                document.getElementById('regNickInput').focus();
+            } else if (returnToModal === 'profile') {
+                document.getElementById('profileModal').style.display = 'flex';
             }
-            myNick = newNick;
-            localStorage.setItem('soc-nickname', myNick);
-            overlay.style.display = 'none';
+        };
+    }
+    
+    function showRegistrationModal() {
+        document.getElementById('regNickInput').value = '';
+        document.getElementById('registrationModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('regNickInput').focus(), 100);
+    }
+    
+    function applyNicknameChange(newNick, newAvatar, newStatus, fromProfile = true) {
+        if (peer) peer.destroy();
+        myNick = newNick;
+        myAvatar = newAvatar;
+        myStatus = newStatus;
+        localStorage.setItem('soc-nickname', myNick);
+        localStorage.setItem('soc-avatar', myAvatar);
+        localStorage.setItem('soc-status', myStatus);
+        updateHomeUI();
+        
+        peer = new Peer(myNick, { debug: 2 });
+        peer.on('open', () => { 
+            updateStatus('ONLINE', '#da8f27');
             if (conn && conn.open) {
-                conn.close();
+                conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
             }
-            if (peer) {
-                peer.destroy();
-            }
-            startWithNick(myNick);
-            document.getElementById('chat').innerHTML = '<div class="not-connect"><span>NOT CONNECTED</span></div>';
-            connectedNick = null;
-            updateStatus('offline', '#bbb');
-            document.getElementById('setup-ui').style.display = 'block';
-            enableChatControls(true);
-        };
-    }
-    
-    function startWithNick(nick) {
-        const id = nick;
-        document.getElementById('my-nick-display').innerHTML = `${nick}`;
-        
-        if (peer) {
-            peer.destroy();
-        }
-        
-        peer = new Peer(id, { debug: 2 });
-        
-        peer.on('open', (peerId) => {
-            updateStatus('online', '#da8f27');
-            console.log('PeerJS opened with ID:', peerId);
         });
-        
-        peer.on('error', (err) => {
+        peer.on('error', (err) => { 
             console.warn(err);
-            updateStatus('error', '#aa5555');
+            updateStatus('ERROR', '#aa5555');
             if (err.type === 'unavailable-id') {
-                showAlert('This nickname is already taken! Choose another one.', () => {
-                    localStorage.removeItem('soc-nickname');
-                    location.reload();
-                });
+                if (fromProfile) {
+                    showNicknameTakenError('profile');
+                } else {
+                    showNicknameTakenError('registration');
+                }
+                myNick = localStorage.getItem('soc-nickname');
+                myAvatar = localStorage.getItem('soc-avatar') || 'image/ava1.png';
+                myStatus = localStorage.getItem('soc-status') || 'online';
+                updateHomeUI();
+                if (peer) peer.destroy();
+                peer = new Peer(myNick, { debug: 2 });
             }
         });
-        
         peer.on('connection', (incomingConn) => {
-            if (conn && (conn.open || conn.peerConnection)) {
-                incomingConn.close();
-                return;
-            }
+            if (conn && (conn.open || conn.peerConnection)) { incomingConn.close(); return; }
             conn = incomingConn;
             setupConnection();
         });
-        
-        updateStatus('online', '#da8f27');
+    }
+    
+    function startWithNick(nick, fromRegistration = true) {
+        if (peer) peer.destroy();
+        peer = new Peer(nick, { debug: 2 });
+        peer.on('open', () => { 
+            updateStatus('ONLINE', '#da8f27');
+            if (fromRegistration) {
+                myNick = nick;
+                localStorage.setItem('soc-nickname', myNick);
+                updateHomeUI();
+            }
+        });
+        peer.on('error', (err) => { 
+            console.warn(err);
+            updateStatus('ERROR', '#aa5555');
+            if (err.type === 'unavailable-id') {
+                if (fromRegistration) {
+                    document.getElementById('registrationModal').style.display = 'none';
+                    showNicknameTakenError('registration');
+                }
+            }
+        });
+        peer.on('connection', (incomingConn) => {
+            if (conn && (conn.open || conn.peerConnection)) { incomingConn.close(); return; }
+            conn = incomingConn;
+            setupConnection();
+        });
+        updateStatus('ONLINE', '#da8f27');
     }
     
     function setupConnection() {
         if (!conn) return;
-        
         conn.on('open', () => {
-            document.getElementById('setup-ui').style.display = 'none';
-            updateStatus(`chat with: ${connectedNick || 'friend'}`, '#559b61');
-            conn.send({ type: 'nick', data: myNick });
-            const chatDiv = document.getElementById('chat');
-            if (chatDiv.children.length === 1 && chatDiv.children[0].classList?.contains('not-connect')) {
-                chatDiv.innerHTML = '';
-                lastDateLabel = '';
-            }
+            conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
+            chatMessagesDiv.innerHTML = '';
+            lastDateLabel = '';
+            lastMessageText = "---";
+            updateUIForConnectionState(true);
+            updateStatus(`CHAT WITH: ${connectedNick || 'friend'}`, '#559b61');
+            switchToChatMode();
         });
-        
         conn.on('data', (payload) => {
             if (payload && payload.type) {
-                if (payload.type === 'clear') {
+                if (payload.type === 'profile') {
+                    connectedNick = payload.nick;
+                    connectedAvatar = payload.avatar;
+                    connectedStatus = payload.status || 'user';
+                    updateChatHeader();
+                    updateUIForConnectionState(true);
+                    updateStatus(`CHAT WITH: ${connectedNick}`, '#559b61');
+                } else if (payload.type === 'clear') {
                     localStorage.removeItem('soc-c-media-history');
-                    document.getElementById('chat').innerHTML = '';
-                    showAlert("Peer cleared the chat history");
-                } else if (payload.type === 'nick') {
-                    connectedNick = payload.data;
-                    updateStatus(`chat with: ${connectedNick}`, '#559b61');
-                } else if (payload.data) {
+                    chatMessagesDiv.innerHTML = '';
+                    lastDateLabel = '';
+                } else if (payload.type === 'peer_closed_chat') {
+                    showAlert(`${payload.nick || 'Friend'} closed the chat`);
+                    fullCloseChat();
+                } else if (payload.type === 'text' || payload.type === 'image' || payload.type === 'audio') {
+                    if (payload.type === 'text') updateLastMessage('text', payload.data);
+                    else if (payload.type === 'image') updateLastMessage('image', null);
+                    else if (payload.type === 'audio') updateLastMessage('audio', null);
                     addMsg(payload.data, 'other', payload.type, true);
                 }
             }
         });
-        
         conn.on('close', () => {
-            showAlert("Connection closed");
-            document.getElementById('setup-ui').style.display = 'block';
-            updateStatus('online', '#da8f27');
-            connectedNick = null;
-            const chatDiv = document.getElementById('chat');
-            chatDiv.innerHTML = '<div class="not-connect"><span>NOT CONNECTED</span></div>';
-            lastDateLabel = '';
+            fullCloseChat();
         });
     }
     
-    function connectToPeer() {
-        if (!peer) {
-            showAlert("Initializing...");
-            return;
+    function fullCloseChat() {
+        if (conn && conn.open) {
+            try { conn.send({ type: 'peer_closed_chat', nick: myNick }); } catch(e) {}
+            conn.close();
         }
+        conn = null;
+        connectedNick = null;
+        connectedAvatar = null;
+        connectedStatus = null;
+        lastMessageText = "---";
+        updateUIForConnectionState(false);
+        updateStatus('ONLINE', '#da8f27');
+        chatMessagesDiv.innerHTML = '';
+        lastDateLabel = '';
+        switchToHomeMode();
+    }
+    
+    function connectToPeer() {
+        if (!peer) { showAlert("Initializing..."); return; }
         const friendNick = document.getElementById('peer-nick-input').value.trim();
         if (!friendNick) { showAlert("Enter friend's nickname"); return; }
         if (friendNick === myNick) { showAlert("You cannot connect to yourself"); return; }
-        
+        if (conn && conn.open) { conn.close(); }
+        chatMessagesDiv.innerHTML = '';
+        lastDateLabel = '';
+        lastMessageText = "---";
+        updateStatus('CONNECTING...', '#b0b0b0');
         const newConn = peer.connect(friendNick);
         conn = newConn;
         setupConnection();
-        updateStatus('connecting...', '#b0b0b0');
     }
     
     function addMsg(data, side, type, saveToStorage = true, savedTime = null) {
-        const chatDiv = document.getElementById('chat');
-        
-        if (chatDiv.children.length === 1 && chatDiv.children[0].classList?.contains('not-connect')) {
-            chatDiv.innerHTML = '';
-            lastDateLabel = '';
+        const container = chatMessagesDiv;
+        if (!container) return;
+        if (side === 'my') {
+            if (type === 'text') updateLastMessage('text', data);
+            else if (type === 'image') updateLastMessage('image', null);
+            else if (type === 'audio') updateLastMessage('audio', null);
         }
-        
         const now = savedTime ? new Date(savedTime) : new Date();
-        
         const dateOptions = { day: 'numeric', month: 'long' };
-        const currentDateLabel = now.toLocaleDateString('uk-UA', dateOptions);
-
+        const currentDateLabel = now.toLocaleDateString('en-US', dateOptions);
         if (currentDateLabel !== lastDateLabel) {
-            const dateDiv = document.createElement('div');
-            dateDiv.className = 'date-divider';
-            dateDiv.innerText = currentDateLabel;
-            chatDiv.appendChild(dateDiv);
+            const dateDiv = document.createElement('div'); dateDiv.className = 'date-divider'; dateDiv.innerText = currentDateLabel;
+            container.appendChild(dateDiv);
             lastDateLabel = currentDateLabel;
         }
-
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
-        
+        const msgDiv = document.createElement('div'); msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
         const content = document.createElement('div');
-        if (type === 'text') {
-            content.innerText = data;
-        } else if (type === 'image') {
-            const img = document.createElement('img');
-            img.src = data;
-            content.appendChild(img);
-        } else if (type === 'audio') {
-            const audioEl = document.createElement('audio');
-            audioEl.controls = true;
-            audioEl.src = data;
-            content.appendChild(audioEl);
-        }
+        if (type === 'text') content.innerText = data;
+        else if (type === 'image') { const img = document.createElement('img'); img.src = data; content.appendChild(img); }
+        else if (type === 'audio') { const audioEl = document.createElement('audio'); audioEl.controls = true; audioEl.src = data; content.appendChild(audioEl); }
         msgDiv.appendChild(content);
-
-        const timeDiv = document.createElement('div');
-        timeDiv.className = 'msg-time';
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        timeDiv.innerText = `${hours}:${minutes}`;
+        const timeDiv = document.createElement('div'); timeDiv.className = 'msg-time';
+        timeDiv.innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
         msgDiv.appendChild(timeDiv);
-        
-        chatDiv.appendChild(msgDiv);
-        chatDiv.scrollTop = chatDiv.scrollHeight;
-        
-        if (side === 'other' && !savedTime) {
-            const sound = document.getElementById('msgSound');
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log("Sound blocked"));
-            }
-        }
-
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+        if (side === 'other' && !savedTime) { const sound = document.getElementById('msgSound'); if(sound) sound.play().catch(e=>{}); }
         if (saveToStorage) {
             const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
             history.push({ data, side, type, time: now.getTime() });
@@ -939,74 +1076,57 @@
         if (!raw) return;
         try {
             const history = JSON.parse(raw);
-            const chatDiv = document.getElementById('chat');
             if (history.length > 0) {
-                chatDiv.innerHTML = "";
+                chatMessagesDiv.innerHTML = "";
                 lastDateLabel = "";
-                history.forEach(item => {
-                    addMsg(item.data, item.side, item.type, false, item.time);
-                });
+                history.forEach(item => addMsg(item.data, item.side, item.type, false, item.time));
+                const lastMsg = history[history.length - 1];
+                if (lastMsg) updateLastMessage(lastMsg.type, lastMsg.data);
             }
         } catch(e) { console.error("History load error", e); }
     }
-
+    
     function updateStatus(text, colorHint) {
         const st = document.getElementById('status');
         st.innerText = text.toUpperCase();
         st.style.color = colorHint || '#bbb';
     }
-
-    // Запуск після прелоадера, але основні функції будуть доступні після того як юзер введе нік.
-    // Щоб уникнути конфліктів: ініціалізація відкладена до моменту появи інтерфейсу, але loadHistory та інше запустимо, коли додаток видимий.
-    // Проте, щоб все було стабільно, викликаємо ініціалізацію після прелоадера. 
-    // Але через setTimeout на завантаженні, прелоадер зникає через 2 секунди. Запустимо ініціалізацію після зникнення або одразу, але збережемо порядок.
-    // Просто викликаємо initOrChangeNick одразу після того, як DOM готовий, але контроли будуть заблоковані поки нік не валідний.
-    // Але елементи можуть бути заблоковані, поки не введений нік, що ідеально. Тому викликаємо:
-    window.onload = () => {
-        // Ініціалізація логіки ніка та пірів (вона спрацює або одразу, або через модалку)
-        initOrChangeNick();
-        loadHistory();
-        // Оскільки прелоадер показується 2 секунди, то за цей час нік може бути ще не заданий,
-        // але це нормально. Після введення ніка пір стартує.
-    };
     
-    function sendText() {
-        const input = document.getElementById('msgInput');
-        const text = input.value.trim();
-        if (conn && conn.open && text !== "") {
-            conn.send({ type: 'text', data: text });
-            addMsg(text, 'my', 'text', true);
-            input.value = '';
-        } else {
-            showAlert("No active connection");
-        }
+function sendText() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (text === "") return; // Якщо порожнє повідомлення - просто нічого не робимо
+    
+    if (conn && conn.open) {
+        conn.send({ type: 'text', data: text });
+        addMsg(text, 'my', 'text', true);
+        input.value = '';
     }
+    // Видалено showAlert("No active connection")
+}
 
-    function sendFile(file) {
-        if (!file || !conn || !conn.open) {
-            showAlert("Connect first");
-            return;
-        }
+function sendFile(file) {
+    if (!file) return; // Якщо немає файлу - нічого не робимо
+    
+    if (conn && conn.open) {
         const reader = new FileReader();
-        reader.onload = (ev) => {
-            const b64 = ev.target.result;
-            conn.send({ type: 'image', data: b64 });
-            addMsg(b64, 'my', 'image', true);
+        reader.onload = (ev) => { 
+            conn.send({ type: 'image', data: ev.target.result }); 
+            addMsg(ev.target.result, 'my', 'image', true); 
         };
         reader.readAsDataURL(file);
     }
-
+    // Видалено showAlert("Connect first")
+}
+    
     async function toggleRecord() {
         const btn = document.getElementById('recordBtn');
         const micImg = document.getElementById('mic-icon');
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
-            if (activeStream) {
-                activeStream.getTracks().forEach(track => track.stop());
-                activeStream = null;
-            }
+            if (activeStream) { activeStream.getTracks().forEach(track => track.stop()); activeStream = null; }
             btn.classList.remove('btn-red');
-            if (micImg) micImg.src = "mic.png"; 
+            if (micImg) micImg.src = "image/mic.png";
             return;
         }
         try {
@@ -1018,19 +1138,15 @@
             mediaRecorder.onstop = () => {
                 const blob = new Blob(audioChunks, { type: 'audio/webm' });
                 const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const audioUrl = ev.target.result;
-                    if (conn && conn.open) conn.send({ type: 'audio', data: audioUrl });
-                    addMsg(audioUrl, 'my', 'audio', true);
-                };
+                reader.onload = (ev) => { if (conn && conn.open) conn.send({ type: 'audio', data: ev.target.result }); addMsg(ev.target.result, 'my', 'audio', true); };
                 reader.readAsDataURL(blob);
             };
             mediaRecorder.start();
             btn.classList.add('btn-red');
-            if (micImg) micImg.src = "stop.png"; 
-        } catch (err) { showAlert("Mic access denied"); }
+            if (micImg) micImg.src = "image/stop.png";
+        } catch(err) { showAlert("Mic access denied"); }
     }
-
+    
     function showAlert(msg, callback) {
         const overlay = document.getElementById('modal-overlay');
         document.getElementById('modal-text').innerText = msg;
@@ -1042,41 +1158,222 @@
             if (callback) callback();
         };
     }
-
-    function showConfirm() {
-        const overlay = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerText = "Clear history and exit?";
-        const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `
-            <button class="modal-btn" id="confirmNo">CANCEL</button>
-            <button class="modal-btn" id="confirmYes">CLEAR & EXIT</button>
-        `;
-        overlay.style.display = 'flex';
-        document.getElementById('confirmNo').onclick = () => overlay.style.display = 'none';
-        document.getElementById('confirmYes').onclick = () => {
-            if (conn && conn.open) conn.send({ type: 'clear' });
-            localStorage.removeItem('soc-c-media-history');
-            location.reload();
-        };
-    }
-
+    
     function showRules() {
         const overlay = document.getElementById('modal-overlay');
         const txtDiv = document.getElementById('modal-text');
         txtDiv.style.textAlign = 'left';
-        txtDiv.innerHTML = `
-            <b style="color:white; display:block; margin-bottom:10px; font-size:1rem;">Legal Disclaimer</b>
-            This application uses P2P (Peer-to-Peer) technology. All data is transferred directly between devices.<br><br>
-            The developer does NOT store, monitor, or have access to your conversations. Therefore, the developer is NOT responsible for user behavior or content shared.<br><br>
-            This tool was created for good purposes and privacy. Please use it responsibly.
-        `;
+        txtDiv.innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Legal Disclaimer</b>
+        This application uses P2P (Peer-to-Peer) technology. All data is transferred directly between devices.<br><br>
+        The developer does NOT store, monitor, or have access to your conversations. Therefore, the developer is NOT responsible for user behavior or content shared.<br><br>
+        This tool was created for good purposes and privacy. Please use it responsibly.`;
         document.getElementById('modal-actions').innerHTML = `<button class="modal-btn" id="rulesOkBtn" style="width:100%">I UNDERSTAND</button>`;
         overlay.style.display = 'flex';
-        document.getElementById('rulesOkBtn').onclick = () => {
+        document.getElementById('rulesOkBtn').onclick = () => { overlay.style.display = 'none'; };
+    }
+    
+    // Registration
+    document.getElementById('regSubmitBtn').onclick = () => {
+        const newNick = document.getElementById('regNickInput').value.trim();
+        if (!isValidNick(newNick)) {
+            document.getElementById('registrationModal').style.display = 'none';
+            showValidationError('registration');
+            return;
+        }
+        document.getElementById('registrationModal').style.display = 'none';
+        startWithNick(newNick, true);
+    };
+    
+    // Edit Profile
+    let tempAvatar = myAvatar;
+    let tempStatus = myStatus;
+    let tempNick = myNick;
+    
+    function openProfileModal() {
+        tempNick = myNick;
+        tempAvatar = myAvatar;
+        tempStatus = myStatus;
+        document.getElementById('modalNickInput').value = myNick;
+        document.getElementById('modalAvatarImg').src = myAvatar;
+        document.getElementById('modalStatusSelect').value = myStatus;
+        document.getElementById('profileModal').style.display = 'flex';
+    }
+    
+    function openAvatarSelectionModal() {
+        selectedAvatarTemp = tempAvatar;
+        buildAvatarGridForSelection();
+        document.getElementById('avatarSelectModal').style.display = 'flex';
+    }
+    
+    let selectedAvatarTemp = myAvatar;
+    function buildAvatarGridForSelection() {
+        const grid = document.getElementById('avatarGrid');
+        grid.innerHTML = '';
+        avatarList.forEach(av => {
+            const div = document.createElement('div'); div.className = 'avatar-option';
+            if(selectedAvatarTemp === av) div.classList.add('selected');
+            const img = document.createElement('img'); img.src = av; div.appendChild(img);
+            div.onclick = () => {
+                document.querySelectorAll('#avatarGrid .avatar-option').forEach(opt => opt.classList.remove('selected'));
+                div.classList.add('selected');
+                selectedAvatarTemp = av;
+            };
+            grid.appendChild(div);
+        });
+    }
+    
+    document.getElementById('mainProfileBtn').addEventListener('click', openProfileModal);
+    document.getElementById('modalAvatarClickArea').onclick = (e) => { e.stopPropagation(); openAvatarSelectionModal(); };
+    
+    document.getElementById('saveAvatarBtn').onclick = () => {
+        tempAvatar = selectedAvatarTemp;
+        document.getElementById('modalAvatarImg').src = tempAvatar;
+        document.getElementById('avatarSelectModal').style.display = 'none';
+    };
+    document.getElementById('cancelAvatarBtn').onclick = () => {
+        selectedAvatarTemp = tempAvatar;
+        document.getElementById('avatarSelectModal').style.display = 'none';
+    };
+    document.getElementById('cancelProfileBtn').onclick = () => { document.getElementById('profileModal').style.display = 'none'; };
+    
+    document.getElementById('saveProfileBtn').onclick = () => {
+        let newNick = document.getElementById('modalNickInput').value.trim();
+        let newAvatar = tempAvatar;
+        let newStatus = document.getElementById('modalStatusSelect').value;
+        
+        if (newNick === myNick || newNick === "") {
+            myAvatar = newAvatar;
+            myStatus = newStatus;
+            localStorage.setItem('soc-avatar', myAvatar);
+            localStorage.setItem('soc-status', myStatus);
+            updateHomeUI();
+            if (conn && conn.open) conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
+            document.getElementById('profileModal').style.display = 'none';
+            return;
+        }
+        
+        if (!isValidNick(newNick)) {
+            document.getElementById('profileModal').style.display = 'none';
+            showValidationError('profile');
+            return;
+        }
+        
+        document.getElementById('profileModal').style.display = 'none';
+        
+        let oldNick = myNick;
+        let oldAvatar = myAvatar;
+        let oldStatus = myStatus;
+        let oldPeer = peer;
+        
+        myNick = newNick;
+        myAvatar = newAvatar;
+        myStatus = newStatus;
+        localStorage.setItem('soc-nickname', myNick);
+        localStorage.setItem('soc-avatar', myAvatar);
+        localStorage.setItem('soc-status', myStatus);
+        updateHomeUI();
+        
+        if (peer) peer.destroy();
+        peer = new Peer(myNick, { debug: 2 });
+        
+        peer.on('open', () => {
+            updateStatus('ONLINE', '#da8f27');
+            if (conn && conn.open) {
+                conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
+            }
+        });
+        
+        peer.on('error', (err) => {
+            console.warn(err);
+            if (err.type === 'unavailable-id') {
+                myNick = oldNick;
+                myAvatar = oldAvatar;
+                myStatus = oldStatus;
+                localStorage.setItem('soc-nickname', myNick);
+                localStorage.setItem('soc-avatar', myAvatar);
+                localStorage.setItem('soc-status', myStatus);
+                updateHomeUI();
+                if (peer) peer.destroy();
+                peer = oldPeer;
+                if (oldPeer) {
+                    oldPeer.on('connection', (incomingConn) => {
+                        if (conn && (conn.open || conn.peerConnection)) { incomingConn.close(); return; }
+                        conn = incomingConn;
+                        setupConnection();
+                    });
+                }
+                showNicknameTakenError('profile');
+            }
+        });
+        
+        peer.on('connection', (incomingConn) => {
+            if (conn && (conn.open || conn.peerConnection)) { incomingConn.close(); return; }
+            conn = incomingConn;
+            setupConnection();
+        });
+    };
+    
+    function openPeerProfile() {
+        if(connectedNick) {
+            document.getElementById('peerModalAvatar').src = connectedAvatar || 'https://i.pravatar.cc/100';
+            document.getElementById('peerModalNick').innerText = connectedNick;
+            document.getElementById('peerModalStatus').innerText = connectedStatus || 'user';
+            document.getElementById('peerProfileModal').style.display = 'flex';
+        }
+    }
+    document.getElementById('closePeerModal').onclick = () => document.getElementById('peerProfileModal').style.display = 'none';
+    
+    // Анимация выезжания чата
+    function switchToChatMode() {
+        homeScreen.classList.add('chat-open');
+        chatScreen.classList.add('chat-visible');
+        setTimeout(() => {
+            document.getElementById('msgInput').focus();
+        }, 200);
+    }
+    
+    function switchToHomeMode() {
+        homeScreen.classList.remove('chat-open');
+        chatScreen.classList.remove('chat-visible');
+        setTimeout(() => {
+            updateUIForConnectionState(!!(connectedNick && conn && conn.open));
+        }, 300);
+    }
+    
+    function askCloseChat() {
+        if(!conn || !conn.open) return;
+        const overlay = document.getElementById('modal-overlay');
+        document.getElementById('modal-text').innerText = "Close chat?";
+        const actionsDiv = document.getElementById('modal-actions');
+        actionsDiv.innerHTML = `<button class="modal-btn" id="confirmNo">CANCEL</button><button class="modal-btn" id="confirmYes">YES, CLOSE</button>`;
+        overlay.style.display = 'flex';
+        document.getElementById('confirmNo').onclick = () => overlay.style.display = 'none';
+        document.getElementById('confirmYes').onclick = () => {
             overlay.style.display = 'none';
-            txtDiv.style.textAlign = 'center';
+            fullCloseChat();
         };
     }
+    
+    document.getElementById('backHomeBtn').addEventListener('click', switchToHomeMode);
+    document.getElementById('closeChatFromHomeBtn').addEventListener('click', askCloseChat);
+    document.getElementById('activeChatTap').addEventListener('click', () => { if(connectedNick && conn && conn.open) switchToChatMode(); });
+    document.getElementById('peerInfoBtn').addEventListener('click', openPeerProfile);
+    
+    if(!myNick || !isValidNick(myNick)) {
+        showRegistrationModal();
+    } else {
+        startWithNick(myNick, false);
+        updateHomeUI();
+    }
+    loadHistory();
+    updateUIForConnectionState(false);
+    
+    setTimeout(() => {
+        document.getElementById('preloader').classList.add('hide-preloader');
+        document.getElementById('mainApp').classList.add('app-visible');
+    }, 2000);
+    
+    window.addEventListener('beforeunload', () => { if(conn && conn.open) conn.close(); if(peer) peer.destroy(); });
 </script>
 </body>
 </html>
