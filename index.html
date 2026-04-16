@@ -810,21 +810,21 @@
             
             <div class="home-scrollable">
                 <div class="main-profile-card" id="mainProfileBtn">
-                    <div class="avatar-large"><img id="homeAvatarImg" src="image/ava1.png"></div>
+                    <div class="avatar-large"><img id="homeAvatarImg" src="image/ava1.png" draggable="false"></div>
                     <div class="main-nick" id="homeNick">---</div>
                     <div class="main-status" id="homeStatus">online</div>
                 </div>
                 
                 <div id="activeChatRow" class="active-chat-row">
                     <div class="active-chat-left" id="activeChatTap">
-                        <div class="active-chat-avatar"><img id="activeChatAvatar" src="image/ava1.png"></div>
+                        <div class="active-chat-avatar"><img id="activeChatAvatar" src="image/ava1.png" draggable="false"></div>
                         <div class="active-chat-info">
                             <div class="active-chat-nick" id="activeChatNick">friend</div>
                             <div class="active-chat-lastmsg" id="activeChatLastMsg">---</div>
                         </div>
                     </div>
                     <button class="close-chat-icon" id="closeChatFromHomeBtn">
-                        <img src="image/close.png" alt="✕">
+                        <img src="image/close.png" alt="✕" draggable="false">
                     </button>
                 </div>
                 
@@ -846,11 +846,11 @@
         <div class="chat-screen" id="chatScreen">
             <div class="chat-header">
                 <button class="back-home-btn" id="backHomeBtn">
-                    <img src="image/back.png" alt="←">
+                    <img src="image/back.png" alt="←" draggable="false">
                 </button>
                 <div class="chat-peer-info-center">
                     <div class="peer-info-button" id="peerInfoBtn">
-                        <div class="peer-info-avatar"><img id="peerAvatarImg" src="image/ava1.png"></div>
+                        <div class="peer-info-avatar"><img id="peerAvatarImg" src="image/ava1.png" draggable="false"></div>
                         <div class="peer-info-nick" id="peerNickChat">friend</div>
                     </div>
                 </div>
@@ -858,10 +858,10 @@
             </div>
             <div id="chatMessages"></div>
             <div class="input-area">
-                <button class="btn-icon" onclick="document.getElementById('fileInput').click()"><img src="image/plus.png" alt="+" class="btn-img"></button>
-                <button class="btn-icon" id="recordBtn" onclick="toggleRecord()"><img src="image/mic.png" alt="V" class="btn-img" id="mic-icon"></button>
+                <button class="btn-icon" onclick="document.getElementById('fileInput').click()"><img src="image/plus.png" alt="+" class="btn-img" draggable="false"></button>
+                <button class="btn-icon" id="recordBtn" onclick="toggleRecord()"><img src="image/mic.png" alt="V" class="btn-img" id="mic-icon" draggable="false"></button>
                 <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
-                <button class="btn-icon send-btn" onclick="sendText()"><img src="image/send.png" alt=">" class="btn-img"></button>
+                <button class="btn-icon send-btn" onclick="sendText()"><img src="image/send.png" alt=">" class="btn-img" draggable="false"></button>
             </div>
         </div>
     </div>
@@ -1120,7 +1120,7 @@ function showReactionPicker(msgElement, msgId, isMyMessage) {
         }
     } else {
         // Сообщение собеседника
-        left = rect.right - 24;
+        left = rect.right - 28;
         if (left + pickerWidth > viewportWidth) {
             left = rect.left - pickerWidth - 2;
         }
