@@ -421,6 +421,9 @@
             line-height: 1.35;
             word-wrap: break-word;
             animation: fadeSlide 0.18s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
         @keyframes fadeSlide {
             from { opacity: 0; transform: translateY(5px);}
@@ -430,6 +433,70 @@
         .other { align-self: flex-start; background: #141414; border: 0.5px solid #2b2b2b; border-bottom-left-radius: 5px; color: #efefef; }
         .msg img { max-width: 100%; border-radius: 16px; display: block; margin-top: 5px; }
         audio { height: 38px; width: 180px; max-width: 180px; margin-top: 5px; border-radius: 30px; flex-shrink: 0; }
+
+        .reactions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .my .reactions-container {
+            justify-content: flex-end;
+        }
+        .other .reactions-container {
+            justify-content: flex-start;
+        }
+        .reaction-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.75rem;
+            background: rgba(30, 30, 35, 0.95);
+            border-radius: 30px;
+            padding: 2px 8px;
+            color: #f0f0f0;
+            border: 0.5px solid rgba(100, 100, 120, 0.5);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .reaction-badge:hover {
+            transform: scale(1.05);
+        }
+        .reaction-badge.my-reaction {
+            background: rgba(70, 60, 110, 0.95);
+            border-color: #a0a0c0;
+        }
+        .reaction-count {
+            font-size: 0.7rem;
+            opacity: 0.9;
+        }
+        .reaction-picker {
+            display: flex;
+            gap: 8px;
+            background: #1a1a1a;
+            padding: 6px 10px;
+            border-radius: 40px;
+            position: fixed;
+            z-index: 1000;
+            border: 1px solid #444;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .reaction-emoji {
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            padding: 2px;
+        }
+        .reaction-emoji:hover {
+            transform: scale(1.2);
+        }
+        .msg-time {
+            font-size: 0.6rem;
+            opacity: 0.5;
+            margin-top: 4px;
+            text-align: right;
+        }
 
         .input-area {
             padding: 8px 12px;
@@ -485,12 +552,6 @@
             padding: 4px 12px;
             border-radius: 10px;
         }
-        .msg-time {
-            font-size: 0.6rem;
-            opacity: 0.5;
-            margin-top: 4px;
-            align-self: flex-end;
-        }
 
         .modal-overlay {
             position: fixed;
@@ -530,7 +591,7 @@
         @keyframes modalPopOut {
             from {
                 opacity: 1;
-                transform: scale(1);
+                transform: scale(0.85);
             }
             to {
                 opacity: 0;
@@ -655,7 +716,6 @@
             letter-spacing: 1px;
             margin-bottom: 16px;
         }
-        /* КНОПКА РЕГИСТРАЦИИ КАК В EDIT PROFILE — убрано подчеркивание, стиль как у modal-btn */
         .reg-primary-btn {
             background: #222;
             border: none;
@@ -680,7 +740,6 @@
             font-size: 0.7rem;
             margin-top: 12px;
             cursor: pointer;
-            /* убираем подчеркивание */
             text-decoration: none;
             padding: 8px;
             transition: color 0.2s;
@@ -791,7 +850,7 @@
                 </button>
                 <div class="chat-peer-info-center">
                     <div class="peer-info-button" id="peerInfoBtn">
-                        <div class="peer-info-avatar"><img id="peerAvatarImg" src="https://i.pravatar.cc/100?img=1"></div>
+                        <div class="peer-info-avatar"><img id="peerAvatarImg" src="image/ava1.png"></div>
                         <div class="peer-info-nick" id="peerNickChat">friend</div>
                     </div>
                 </div>
@@ -814,7 +873,6 @@
 
 <div id="modal-overlay" class="modal-overlay"><div class="modal"><div id="modal-text"></div><div class="modal-btns" id="modal-actions"></div></div></div>
 
-<!-- Модалка регистрации: только WELCOME!, кнопка как в профиле, убрано подчеркивание у правил -->
 <div id="registrationModal" class="modal-overlay">
     <div class="modal">
         <div class="welcome-title">SOC.</div>
@@ -876,6 +934,10 @@
     let connectedStatus = null;
     let lastMessageText = "---";
     
+    // Хранилище реакций: { msgId: { my: emoji или null, peer: emoji или null } }
+    let reactionsStore = new Map();
+    let activeReactionPicker = null;
+    
     const homeScreen = document.getElementById('homeScreen');
     const chatScreen = document.getElementById('chatScreen');
     const homeNickSpan = document.getElementById('homeNick');
@@ -890,8 +952,6 @@
     const activeChatLastMsg = document.getElementById('activeChatLastMsg');
     const connectSection = document.getElementById('connectSection');
     const notConnectedPlaceholder = document.getElementById('notConnectedPlaceholder');
-    
-    let pendingReturnToReg = false;
     
     function animateModalClose(modalElement, callback) {
         const modalContent = modalElement.querySelector('.modal');
@@ -926,10 +986,6 @@
             document.getElementById('modalAvatarImg').src = tempAvatar;
         };
         reader.readAsDataURL(file);
-    }
-    
-    function openAvatarUpload() {
-        document.getElementById('customAvatarInput').click();
     }
     
     function formatLastMessage(type, data) {
@@ -1023,6 +1079,162 @@
         setTimeout(() => document.getElementById('regNickInput').focus(), 100);
     }
     
+    // ========== ФУНКЦИИ РЕАКЦИЙ ==========
+function showReactionPicker(msgElement, msgId, isMyMessage) {
+    if (activeReactionPicker) {
+        activeReactionPicker.remove();
+        activeReactionPicker = null;
+    }
+    const picker = document.createElement('div');
+    picker.className = 'reaction-picker';
+    const reactions = ['❤️', '👍', '👎', '😂', '❗', '❓'];
+    reactions.forEach(emoji => {
+        const span = document.createElement('span');
+        span.innerText = emoji;
+        span.className = 'reaction-emoji';
+        span.onclick = (e) => {
+            e.stopPropagation();
+            sendReactionToggle(msgId, emoji);
+            picker.remove();
+            activeReactionPicker = null;
+        };
+        picker.appendChild(span);
+    });
+    
+    const rect = msgElement.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const pickerWidth = 190;
+    
+    let top = rect.top - 50;
+    if (top < 10) top = rect.bottom + 10;
+    if (top + 60 > viewportHeight) top = viewportHeight - 70;
+    if (top < 0) top = 5;
+    
+    let left;
+    if (isMyMessage) {
+        // Своё сообщение
+        left = rect.left - pickerWidth - 8;
+        if (left < 5) {
+            left = rect.right + 2;
+        }
+    } else {
+        // Сообщение собеседника
+        left = rect.right - 24;
+        if (left + pickerWidth > viewportWidth) {
+            left = rect.left - pickerWidth - 2;
+        }
+    }
+    if (left < 5) left = 5;
+    if (left + pickerWidth > viewportWidth) left = viewportWidth - pickerWidth - 5;
+    
+    picker.style.position = 'fixed';
+    picker.style.top = top + 'px';
+    picker.style.left = left + 'px';
+    
+    document.body.appendChild(picker);
+    activeReactionPicker = picker;
+    
+    const closePicker = (e) => {
+        if (picker && !picker.contains(e.target)) {
+            picker.remove();
+            activeReactionPicker = null;
+            document.removeEventListener('click', closePicker);
+        }
+    };
+    setTimeout(() => document.addEventListener('click', closePicker), 10);
+}
+    
+    function sendReactionToggle(msgId, emoji) {
+        if (!conn || !conn.open) return;
+        conn.send({ type: 'reaction_toggle', msgId: msgId, emoji: emoji });
+        toggleLocalReaction(msgId, emoji);
+    }
+    
+    function toggleLocalReaction(msgId, emoji) {
+        if (!reactionsStore.has(msgId)) {
+            reactionsStore.set(msgId, { my: null, peer: null });
+        }
+        const store = reactionsStore.get(msgId);
+        
+        if (store.my === emoji) {
+            store.my = null;
+        } else {
+            store.my = emoji;
+        }
+        updateReactionsUI(msgId);
+    }
+    
+    function handlePeerReaction(msgId, emoji) {
+        if (!reactionsStore.has(msgId)) {
+            reactionsStore.set(msgId, { my: null, peer: null });
+        }
+        const store = reactionsStore.get(msgId);
+        
+        if (store.peer === emoji) {
+            store.peer = null;
+        } else {
+            store.peer = emoji;
+        }
+        updateReactionsUI(msgId);
+    }
+    
+    function updateReactionsUI(msgId) {
+        const targetMsg = document.querySelector(`.msg[data-msg-id="${msgId}"]`);
+        if (!targetMsg) return;
+        
+        let reactionsContainer = targetMsg.querySelector('.reactions-container');
+        if (reactionsContainer) reactionsContainer.remove();
+        
+        const store = reactionsStore.get(msgId);
+        if (!store) return;
+        
+        reactionsContainer = document.createElement('div');
+        reactionsContainer.className = 'reactions-container';
+        
+        const hasMy = store.my !== null;
+        const hasPeer = store.peer !== null;
+        const sameEmoji = hasMy && hasPeer && store.my === store.peer;
+        
+        if (sameEmoji) {
+            // Оба поставили одинаковую реакцию — показываем x2
+            const badge = document.createElement('div');
+            badge.className = 'reaction-badge my-reaction';
+            badge.innerHTML = `${store.my} <span class="reaction-count">2</span>`;
+            badge.onclick = (e) => {
+                e.stopPropagation();
+                sendReactionToggle(msgId, store.my);
+            };
+            reactionsContainer.appendChild(badge);
+        } else {
+            if (store.my) {
+                const badge = document.createElement('div');
+                badge.className = 'reaction-badge my-reaction';
+                badge.innerHTML = store.my;
+                badge.onclick = (e) => {
+                    e.stopPropagation();
+                    sendReactionToggle(msgId, store.my);
+                };
+                reactionsContainer.appendChild(badge);
+            }
+            if (store.peer) {
+                const badge = document.createElement('div');
+                badge.className = 'reaction-badge';
+                badge.innerHTML = store.peer;
+                // Клик на реакцию собеседника — ставим такую же себе
+                badge.onclick = (e) => {
+                    e.stopPropagation();
+                    sendReactionToggle(msgId, store.peer);
+                };
+                reactionsContainer.appendChild(badge);
+            }
+        }
+        
+        if (reactionsContainer.children.length > 0) {
+            targetMsg.appendChild(reactionsContainer);
+        }
+    }
+    
     function applyNicknameChange(newNick, newAvatar, newStatus, fromProfile = true) {
         if (peer) peer.destroy();
         myNick = newNick;
@@ -1101,6 +1313,7 @@
             chatMessagesDiv.innerHTML = '';
             lastDateLabel = '';
             lastMessageText = "---";
+            reactionsStore.clear();
             updateUIForConnectionState(true);
             updateStatus(`CHAT WITH: ${connectedNick || 'friend'}`, '#559b61');
             switchToChatMode();
@@ -1118,6 +1331,7 @@
                     localStorage.removeItem('soc-c-media-history');
                     chatMessagesDiv.innerHTML = '';
                     lastDateLabel = '';
+                    reactionsStore.clear();
                 } else if (payload.type === 'peer_closed_chat') {
                     showAlert(`${payload.nick || 'Friend'} closed the chat`);
                     fullCloseChat();
@@ -1125,7 +1339,9 @@
                     if (payload.type === 'text') updateLastMessage('text', payload.data);
                     else if (payload.type === 'image') updateLastMessage('image', null);
                     else if (payload.type === 'audio') updateLastMessage('audio', null);
-                    addMsg(payload.data, 'other', payload.type, true);
+                    addMsg(payload.data, 'other', payload.type, true, null, payload.msgId);
+                } else if (payload.type === 'reaction_toggle') {
+                    handlePeerReaction(payload.msgId, payload.emoji);
                 }
             }
         });
@@ -1144,6 +1360,7 @@
         connectedAvatar = null;
         connectedStatus = null;
         lastMessageText = "---";
+        reactionsStore.clear();
         updateUIForConnectionState(false);
         updateStatus('ONLINE', '#da8f27');
         chatMessagesDiv.innerHTML = '';
@@ -1160,13 +1377,14 @@
         chatMessagesDiv.innerHTML = '';
         lastDateLabel = '';
         lastMessageText = "---";
+        reactionsStore.clear();
         updateStatus('CONNECTING...', '#b0b0b0');
         const newConn = peer.connect(friendNick);
         conn = newConn;
         setupConnection();
     }
     
-    function addMsg(data, side, type, saveToStorage = true, savedTime = null) {
+    function addMsg(data, side, type, saveToStorage = true, savedTime = null, existingMsgId = null) {
         const container = chatMessagesDiv;
         if (!container) return;
         if (side === 'my') {
@@ -1182,24 +1400,53 @@
             container.appendChild(dateDiv);
             lastDateLabel = currentDateLabel;
         }
-        const msgDiv = document.createElement('div'); msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
+        const msgId = existingMsgId || `msg_${Date.now()}_${Math.random()}`;
+        const msgDiv = document.createElement('div'); 
+        msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
+        msgDiv.setAttribute('data-msg-id', msgId);
+        
         const content = document.createElement('div');
         if (type === 'text') content.innerText = data;
         else if (type === 'image') { const img = document.createElement('img'); img.src = data; content.appendChild(img); }
         else if (type === 'audio') { const audioEl = document.createElement('audio'); audioEl.controls = true; audioEl.src = data; content.appendChild(audioEl); }
         msgDiv.appendChild(content);
+        
         const timeDiv = document.createElement('div'); timeDiv.className = 'msg-time';
         timeDiv.innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
         msgDiv.appendChild(timeDiv);
+        
         container.appendChild(msgDiv);
         container.scrollTop = container.scrollHeight;
+        
+        if (!reactionsStore.has(msgId)) {
+            reactionsStore.set(msgId, { my: null, peer: null });
+        }
+        
+        const isMyMessage = (side === 'my');
+        msgDiv.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showReactionPicker(msgDiv, msgId, isMyMessage);
+            return false;
+        });
+        let touchTimer = null;
+        msgDiv.addEventListener('touchstart', (e) => {
+            touchTimer = setTimeout(() => {
+                showReactionPicker(msgDiv, msgId, isMyMessage);
+                e.preventDefault();
+            }, 500);
+        });
+        msgDiv.addEventListener('touchend', () => { if (touchTimer) clearTimeout(touchTimer); });
+        msgDiv.addEventListener('touchmove', () => { if (touchTimer) clearTimeout(touchTimer); });
+        
         if (side === 'other' && !savedTime) { const sound = document.getElementById('msgSound'); if(sound) sound.play().catch(e=>{}); }
+        
         if (saveToStorage) {
             const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
-            history.push({ data, side, type, time: now.getTime() });
+            history.push({ data, side, type, time: now.getTime(), msgId: msgId });
             if (history.length > 50) history.shift();
             localStorage.setItem('soc-c-media-history', JSON.stringify(history));
         }
+        return msgId;
     }
     
     function loadHistory() {
@@ -1210,7 +1457,10 @@
             if (history.length > 0) {
                 chatMessagesDiv.innerHTML = "";
                 lastDateLabel = "";
-                history.forEach(item => addMsg(item.data, item.side, item.type, false, item.time));
+                reactionsStore.clear();
+                history.forEach(item => {
+                    addMsg(item.data, item.side, item.type, false, item.time, item.msgId);
+                });
                 const lastMsg = history[history.length - 1];
                 if (lastMsg) updateLastMessage(lastMsg.type, lastMsg.data);
             }
@@ -1228,8 +1478,9 @@
         const text = input.value.trim();
         if (text === "") return;
         if (conn && conn.open) {
-            conn.send({ type: 'text', data: text });
-            addMsg(text, 'my', 'text', true);
+            const msgId = `msg_${Date.now()}_${Math.random()}`;
+            conn.send({ type: 'text', data: text, msgId: msgId });
+            addMsg(text, 'my', 'text', true, null, msgId);
             input.value = '';
         }
     }
@@ -1239,8 +1490,9 @@
         if (conn && conn.open) {
             const reader = new FileReader();
             reader.onload = (ev) => { 
-                conn.send({ type: 'image', data: ev.target.result }); 
-                addMsg(ev.target.result, 'my', 'image', true); 
+                const msgId = `msg_${Date.now()}_${Math.random()}`;
+                conn.send({ type: 'image', data: ev.target.result, msgId: msgId }); 
+                addMsg(ev.target.result, 'my', 'image', true, null, msgId); 
             };
             reader.readAsDataURL(file);
         }
@@ -1265,7 +1517,13 @@
             mediaRecorder.onstop = () => {
                 const blob = new Blob(audioChunks, { type: 'audio/webm' });
                 const reader = new FileReader();
-                reader.onload = (ev) => { if (conn && conn.open) conn.send({ type: 'audio', data: ev.target.result }); addMsg(ev.target.result, 'my', 'audio', true); };
+                reader.onload = (ev) => { 
+                    if (conn && conn.open) {
+                        const msgId = `msg_${Date.now()}_${Math.random()}`;
+                        conn.send({ type: 'audio', data: ev.target.result, msgId: msgId }); 
+                        addMsg(ev.target.result, 'my', 'audio', true, null, msgId); 
+                    }
+                };
                 reader.readAsDataURL(blob);
             };
             mediaRecorder.start();
@@ -1445,7 +1703,7 @@
     
     function openPeerProfile() {
         if(connectedNick) {
-            document.getElementById('peerModalAvatar').src = connectedAvatar || 'https://i.pravatar.cc/100';
+            document.getElementById('peerModalAvatar').src = connectedAvatar || 'image/ava1.png';
             document.getElementById('peerModalNick').innerText = connectedNick;
             document.getElementById('peerModalStatus').innerText = connectedStatus || 'user';
             showModalWithAnimation(document.getElementById('peerProfileModal'));
@@ -1484,27 +1742,21 @@
         };
     }
     
-    // DRAG & DROP
     const dropOverlay = document.getElementById('dropOverlay');
     
-    window.addEventListener('dragover', (e) => {
-        e.preventDefault();
-    });
-    
+    window.addEventListener('dragover', (e) => { e.preventDefault(); });
     window.addEventListener('dragenter', (e) => {
         e.preventDefault();
         if (chatScreen.classList.contains('chat-visible') && conn && conn.open) {
             dropOverlay.classList.add('active');
         }
     });
-    
     window.addEventListener('dragleave', (e) => {
         e.preventDefault();
         if (e.clientY <= 0 || e.clientX <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
             dropOverlay.classList.remove('active');
         }
     });
-    
     window.addEventListener('drop', (e) => {
         e.preventDefault();
         dropOverlay.classList.remove('active');
@@ -1514,8 +1766,9 @@
             const file = files[0];
             const reader = new FileReader();
             reader.onload = (ev) => {
-                conn.send({ type: 'image', data: ev.target.result });
-                addMsg(ev.target.result, 'my', 'image', true);
+                const msgId = `msg_${Date.now()}_${Math.random()}`;
+                conn.send({ type: 'image', data: ev.target.result, msgId: msgId });
+                addMsg(ev.target.result, 'my', 'image', true, null, msgId);
             };
             reader.readAsDataURL(file);
         }
@@ -1531,8 +1784,9 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = (ev) => {
-                        conn.send({ type: 'image', data: ev.target.result });
-                        addMsg(ev.target.result, 'my', 'image', true);
+                        const msgId = `msg_${Date.now()}_${Math.random()}`;
+                        conn.send({ type: 'image', data: ev.target.result, msgId: msgId });
+                        addMsg(ev.target.result, 'my', 'image', true, null, msgId);
                     };
                     reader.readAsDataURL(file);
                 }
