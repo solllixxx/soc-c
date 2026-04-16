@@ -1422,21 +1422,23 @@ function showReactionPicker(msgElement, msgId, isMyMessage) {
             reactionsStore.set(msgId, { my: null, peer: null });
         }
         
-        const isMyMessage = (side === 'my');
-        msgDiv.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showReactionPicker(msgDiv, msgId, isMyMessage);
-            return false;
-        });
-        let touchTimer = null;
-        msgDiv.addEventListener('touchstart', (e) => {
-            touchTimer = setTimeout(() => {
-                showReactionPicker(msgDiv, msgId, isMyMessage);
-                e.preventDefault();
-            }, 500);
-        });
-        msgDiv.addEventListener('touchend', () => { if (touchTimer) clearTimeout(touchTimer); });
-        msgDiv.addEventListener('touchmove', () => { if (touchTimer) clearTimeout(touchTimer); });
+const isMyMessage = (side === 'my');
+msgDiv.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    showReactionPicker(msgDiv, msgId, isMyMessage);
+    return false;
+});
+// Для телефона - двойное касание
+let lastTap = 0;
+msgDiv.addEventListener('touchstart', (e) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    if (tapLength < 300 && tapLength > 0) {
+        e.preventDefault();
+        showReactionPicker(msgDiv, msgId, isMyMessage);
+    }
+    lastTap = currentTime;
+});
         
         if (side === 'other' && !savedTime) { const sound = document.getElementById('msgSound'); if(sound) sound.play().catch(e=>{}); }
         
