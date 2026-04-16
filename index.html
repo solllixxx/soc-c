@@ -208,12 +208,12 @@
             border-radius: 50%;
             background: #1e1e1e;
             overflow: hidden;
-            border: 2px solid #3a3a3a;
+            border: 1px solid #3a3a3a;
             margin-bottom: 12px;
         }
         .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
         .main-nick { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
-        .main-status { font-size: 0.8rem; color: #9a9a9a; background: #1a1a1a; padding: 4px 14px; border-radius: 30px; }
+        .main-status { font-size: 0.8rem; color: #9a9a9a; background: #1a1a1a; padding: 4px 14px; border-radius: 30px; border: 1px solid #3a3a3a;}
 
         .active-chat-row {
             margin: 10px 20px;
@@ -225,6 +225,7 @@
             justify-content: space-between;
             padding: 8px 12px 8px 8px;
             cursor: pointer;
+            position: relative;
         }
         .active-chat-row:active { background: #1a1a1a; }
         .active-chat-left {
@@ -250,7 +251,7 @@
         }
         .close-chat-icon {
             background: #2a2a2a;
-            border: none;
+            border: 1px solid #3a3a3a;
             width: 36px;
             height: 36px;
             border-radius: 30px;
@@ -269,11 +270,31 @@
         }
         .close-chat-icon:hover {
             transform: scale(0.92);
-            background: #3a2a2a;
+            background: #3a3a3a;
         }
         .close-chat-icon:hover img {
             opacity: 1;
         }
+        
+/* Бейдж с количеством непрочитанных сообщений */
+.unread-badge {
+    position: absolute;
+    top: -12px;
+    right: 0px;
+    background: #ffffff;
+    color: rgb(0, 0, 0);
+    border-radius: 20px;
+    min-width: 25px;
+    height: 25px;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    z-index: 5;
+}
 
         .connect-section { margin: 10px 20px; }
         .connect-row {
@@ -294,11 +315,11 @@
         }
         #peer-nick-input:focus { border-color: #6a6a6a; background: #181818; }
         .connect-btn {
-            background: #222;
-            border: none;
+            background: #151515;
+            border: 1px solid #3a3a3a;
             border-radius: 40px;
             padding: 0 18px;
-            height: 46px;
+            height: 42px;
             font-weight: 600;
             font-size: 0.75rem;
             color: #ddd;
@@ -307,7 +328,7 @@
         }
         .connect-btn:hover {
             transform: scale(0.96);
-            background: #2a2a2a;
+            background: #222;
             color: #ffffff;
         }
 
@@ -328,8 +349,8 @@
 
         .rules-bottom-btn {
             margin: 20px;
-            background: #0a0a0a;
-            border: 1px solid #222;
+            background: #151515;
+            border: 1px solid #3a3a3a;
             border-radius: 60px;
             padding: 12px;
             text-align: center;
@@ -341,7 +362,7 @@
         }
         .rules-bottom-btn:hover {
             transform: scale(0.97);
-            background: #151515;
+            background: #222;
             color: #aaa;
         }
 
@@ -356,7 +377,7 @@
         }
         .back-home-btn {
             background: #1a1a1a;
-            border: none;
+            border: 1px solid #3a3a3a;
             width: 42px;
             height: 42px;
             border-radius: 30px;
@@ -394,6 +415,7 @@
             border-radius: 40px;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid #3a3a3a;
         }
         .peer-info-button:hover {
             transform: scale(0.96);
@@ -455,7 +477,7 @@
             border-radius: 30px;
             padding: 2px 8px;
             color: #f0f0f0;
-            border: 0.5px solid rgba(100, 100, 120, 0.5);
+            border: 1px solid #3a3a3a;
             cursor: pointer;
             transition: transform 0.1s ease;
         }
@@ -507,12 +529,13 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            position: relative;
         }
         .btn-icon {
             width: 42px;
             height: 42px;
             border-radius: 50%;
-            border: none;
+            border: 1px solid #3a3a3a;
             background: #1a1a1a;
             display: inline-flex;
             align-items: center;
@@ -553,6 +576,38 @@
             border-radius: 10px;
         }
 
+        /* Кнопка прокрутки вниз */
+        .scroll-down-btn {
+            position: absolute;
+            right: 16px;
+            bottom: 70px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 30;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .scroll-down-btn:hover {
+            transform: scale(0.92);
+            background: #2a2a2a;
+        }
+        .scroll-down-btn img {
+            width: 22px;
+            height: 22px;
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+        }
+        .scroll-down-btn.visible {
+            display: flex;
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -567,40 +622,45 @@
             z-index: 1000;
             padding: 24px;
         }
-        .modal {
-            background: #111111;
-            padding: 22px 18px;
-            border-radius: 32px;
-            width: 100%;
-            max-width: 300px;
-            text-align: center;
-            border: 1px solid #333;
-            animation: modalPopIn 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            transform-origin: center;
-        }
-        @keyframes modalPopIn {
-            from {
-                opacity: 0;
-                transform: scale(0.85);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        @keyframes modalPopOut {
-            from {
-                opacity: 1;
-                transform: scale(0.85);
-            }
-            to {
-                opacity: 0;
-                transform: scale(0.85);
-            }
-        }
-        .modal-exit {
-            animation: modalPopOut 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
-        }
+.modal {
+    background: #111111;
+    padding: 22px 18px;
+    border-radius: 32px;
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+    border: 1px solid #333;
+    animation: modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    transform-origin: center;
+    will-change: transform, opacity; /* Добавить - оптимизация */
+    backface-visibility: hidden; /* Добавить - убирает мерцание */
+}
+
+@keyframes modalPopIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes modalPopOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+.modal-exit {
+    animation: modalPopOut 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
         .modal #modal-text { font-size: 0.9rem; margin-bottom: 18px; color: #ccc; line-height: 1.4; }
         .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
         .modal-btn {
@@ -612,13 +672,14 @@
             cursor: pointer;
             font-size: 0.85rem;
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid #3a3a3a;
         }
         .modal-btn:hover {
             transform: scale(0.96);
             filter: brightness(0.9);
         }
         .modal-btn:first-child { background: #1f1f1f; color: #ccc; }
-        .modal-btn:last-child { background: #222; color: #ffa2a2; }
+        .modal-btn:last-child { background: #222; color: #ccc; }
         .nick-input-modal {
             background: #1a1a1a;
             border: 1px solid #3a3a3a;
@@ -648,6 +709,8 @@
             display: inline-block;
             margin: 0 auto 15px;
             cursor: pointer;
+            border: 3px solid #3a3a3a;
+            border-radius: 100%;
         }
         .modal-edit-icon {
             position: absolute;
@@ -718,7 +781,7 @@
         }
         .reg-primary-btn {
             background: #222;
-            border: none;
+            border: 1px solid #3a3a3a;
             border-radius: 60px;
             padding: 12px 0;
             font-weight: 600;
@@ -726,7 +789,7 @@
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             width: 100%;
-            color: #ffa2a2;
+            color: #ccc;
             margin-top: 8px;
         }
         .reg-primary-btn:hover {
@@ -787,6 +850,71 @@
                 box-shadow: none;
             }
         }
+
+        /* Кастомный скроллбар как на iPhone */
+#chatMessages::-webkit-scrollbar {
+    width: 3px;
+}
+
+#chatMessages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#chatMessages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+#chatMessages::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Для Firefox */
+#chatMessages {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Запрещаем выделение всего текста на сайте */
+* {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Разрешаем выделение ТОЛЬКО в сообщениях чата */
+.msg, .msg * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
+
+/* Разрешаем выделение в полях ввода */
+#peer-nick-input, #msgInput, #regNickInput, #modalNickInput, .status-select {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
+
+/* Разрешаем выделение текста в модалках (правила) */
+.modal #modal-text, .modal #modal-text * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
+
+/* Явно запрещаем выделение для статуса, ника на главной и ника друга на кнопке */
+.main-nick, .main-status, .active-chat-nick, .peer-info-nick, .home-header h1, .status-text, .peer-info-nick, #homeNick, #homeStatus, #activeChatNick {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
     </style>
 </head>
 <body>
@@ -826,6 +954,7 @@
                     <button class="close-chat-icon" id="closeChatFromHomeBtn">
                         <img src="image/close.png" alt="✕" draggable="false">
                     </button>
+                    <div id="unreadBadge" class="unread-badge" style="display: none;">0</div>
                 </div>
                 
                 <div id="connectSection" class="connect-section">
@@ -863,6 +992,9 @@
                 <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
                 <button class="btn-icon send-btn" onclick="sendText()"><img src="image/send.png" alt=">" class="btn-img" draggable="false"></button>
             </div>
+            <button id="scrollDownBtn" class="scroll-down-btn">
+                <img src="image/down.png" alt="↓" draggable="false">
+            </button>
         </div>
     </div>
 </div>
@@ -934,6 +1066,10 @@
     let connectedStatus = null;
     let lastMessageText = "---";
     
+    // Переменные для непрочитанных сообщений
+    let unreadCount = 0;
+    let isChatOpen = false;
+    
     // Хранилище реакций: { msgId: { my: emoji или null, peer: emoji или null } }
     let reactionsStore = new Map();
     let activeReactionPicker = null;
@@ -952,31 +1088,102 @@
     const activeChatLastMsg = document.getElementById('activeChatLastMsg');
     const connectSection = document.getElementById('connectSection');
     const notConnectedPlaceholder = document.getElementById('notConnectedPlaceholder');
+    const unreadBadge = document.getElementById('unreadBadge');
     
-    function animateModalClose(modalElement, callback) {
-        const modalContent = modalElement.querySelector('.modal');
-        if (modalContent) {
-            modalContent.classList.add('modal-exit');
-            setTimeout(() => {
-                modalElement.style.display = 'none';
-                if (modalContent) modalContent.classList.remove('modal-exit');
-                if (callback) callback();
-            }, 200);
+    // Элементы для кнопки прокрутки
+    const scrollDownBtn = document.getElementById('scrollDownBtn');
+    let isUserScrolling = false;
+    let scrollTimeout = null;
+    
+    function updateUnreadBadge() {
+        if (unreadBadge) {
+            if (unreadCount > 0 && !isChatOpen) {
+                unreadBadge.style.display = 'flex';
+                unreadBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            } else {
+                unreadBadge.style.display = 'none';
+            }
+        }
+    }
+    
+    function resetUnreadCount() {
+        if (isChatOpen) {
+            unreadCount = 0;
+            updateUnreadBadge();
+        }
+    }
+    
+    function incrementUnreadCount() {
+        if (!isChatOpen) {
+            unreadCount++;
+            updateUnreadBadge();
+        }
+    }
+    
+    // Функции для кнопки прокрутки вниз
+    function checkScrollPosition() {
+        if (!chatMessagesDiv) return;
+        const isNearBottom = chatMessagesDiv.scrollHeight - chatMessagesDiv.scrollTop - chatMessagesDiv.clientHeight < 100;
+        
+        if (!isNearBottom && !isUserScrolling) {
+            scrollDownBtn.classList.add('visible');
         } else {
-            modalElement.style.display = 'none';
-            if (callback) callback();
+            scrollDownBtn.classList.remove('visible');
         }
     }
     
-    function showModalWithAnimation(modalElement) {
-        modalElement.style.display = 'flex';
-        const modalContent = modalElement.querySelector('.modal');
-        if (modalContent) {
-            modalContent.style.animation = 'none';
-            modalContent.offsetHeight;
-            modalContent.style.animation = 'modalPopIn 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
-        }
+    function scrollToBottom() {
+        if (!chatMessagesDiv) return;
+        chatMessagesDiv.scrollTo({
+            top: chatMessagesDiv.scrollHeight,
+            behavior: 'smooth'
+        });
+        scrollDownBtn.classList.remove('visible');
+        isUserScrolling = false;
     }
+    
+    function onChatScroll() {
+        isUserScrolling = true;
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            isUserScrolling = false;
+            checkScrollPosition();
+        }, 150);
+        checkScrollPosition();
+    }
+    
+function animateModalClose(modalElement, callback) {
+    const modalContent = modalElement.querySelector('.modal');
+    if (modalContent) {
+        // Убираем предыдущую анимацию
+        modalContent.classList.remove('modal-exit');
+        // Принудительная перерисовка
+        void modalContent.offsetWidth;
+        // Добавляем анимацию закрытия
+        modalContent.classList.add('modal-exit');
+        
+        setTimeout(() => {
+            modalElement.style.display = 'none';
+            modalContent.classList.remove('modal-exit');
+            if (callback) callback();
+        }, 150); // Уменьшил до 150ms для отзывчивости
+    } else {
+        modalElement.style.display = 'none';
+        if (callback) callback();
+    }
+}
+
+function showModalWithAnimation(modalElement) {
+    modalElement.style.display = 'flex';
+    const modalContent = modalElement.querySelector('.modal');
+    if (modalContent) {
+        modalContent.classList.remove('modal-exit');
+        void modalContent.offsetWidth;
+        modalContent.style.animation = 'none';
+        void modalContent.offsetWidth;
+        modalContent.style.animation = 'modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
+    }
+}
     
     function handleCustomAvatarUpload(file) {
         if (!file) return;
@@ -1018,6 +1225,8 @@
             activeChatRow.style.display = 'none';
             connectSection.style.display = 'block';
             notConnectedPlaceholder.style.display = 'flex';
+            unreadCount = 0;
+            updateUnreadBadge();
         }
     }
     
@@ -1079,71 +1288,69 @@
         setTimeout(() => document.getElementById('regNickInput').focus(), 100);
     }
     
-    // ========== ФУНКЦИИ РЕАКЦИЙ ==========
-function showReactionPicker(msgElement, msgId, isMyMessage) {
-    if (activeReactionPicker) {
-        activeReactionPicker.remove();
-        activeReactionPicker = null;
-    }
-    const picker = document.createElement('div');
-    picker.className = 'reaction-picker';
-    const reactions = ['❤️', '👍', '👎', '😂', '❗', '❓'];
-    reactions.forEach(emoji => {
-        const span = document.createElement('span');
-        span.innerText = emoji;
-        span.className = 'reaction-emoji';
-        span.onclick = (e) => {
-            e.stopPropagation();
-            sendReactionToggle(msgId, emoji);
-            picker.remove();
+    // Функции реакций
+    function showReactionPicker(msgElement, msgId, isMyMessage) {
+        if (activeReactionPicker) {
+            activeReactionPicker.remove();
             activeReactionPicker = null;
+        }
+        const picker = document.createElement('div');
+        picker.className = 'reaction-picker';
+        const reactions = ['❤️', '👍', '👎', '😂', '❗', '❓'];
+        reactions.forEach(emoji => {
+            const span = document.createElement('span');
+            span.innerText = emoji;
+            span.className = 'reaction-emoji';
+            span.onclick = (e) => {
+                e.stopPropagation();
+                sendReactionToggle(msgId, emoji);
+                picker.remove();
+                activeReactionPicker = null;
+            };
+            picker.appendChild(span);
+        });
+        
+        const rect = msgElement.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const pickerWidth = 190;
+        
+        let top = rect.top - 50;
+        if (top < 10) top = rect.bottom + 10;
+        if (top + 60 > viewportHeight) top = viewportHeight - 70;
+        if (top < 0) top = 5;
+        
+        let left;
+        if (isMyMessage) {
+            left = rect.left - pickerWidth - 8;
+            if (left < 5) {
+                left = rect.right + 2;
+            }
+        } else {
+            left = rect.right - 28;
+            if (left + pickerWidth > viewportWidth) {
+                left = rect.left - pickerWidth - 2;
+            }
+        }
+        if (left < 5) left = 5;
+        if (left + pickerWidth > viewportWidth) left = viewportWidth - pickerWidth - 5;
+        
+        picker.style.position = 'fixed';
+        picker.style.top = top + 'px';
+        picker.style.left = left + 'px';
+        
+        document.body.appendChild(picker);
+        activeReactionPicker = picker;
+        
+        const closePicker = (e) => {
+            if (picker && !picker.contains(e.target)) {
+                picker.remove();
+                activeReactionPicker = null;
+                document.removeEventListener('click', closePicker);
+            }
         };
-        picker.appendChild(span);
-    });
-    
-    const rect = msgElement.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    const viewportWidth = window.innerWidth;
-    const pickerWidth = 190;
-    
-    let top = rect.top - 50;
-    if (top < 10) top = rect.bottom + 10;
-    if (top + 60 > viewportHeight) top = viewportHeight - 70;
-    if (top < 0) top = 5;
-    
-    let left;
-    if (isMyMessage) {
-        // Своё сообщение
-        left = rect.left - pickerWidth - 8;
-        if (left < 5) {
-            left = rect.right + 2;
-        }
-    } else {
-        // Сообщение собеседника
-        left = rect.right - 28;
-        if (left + pickerWidth > viewportWidth) {
-            left = rect.left - pickerWidth - 2;
-        }
+        setTimeout(() => document.addEventListener('click', closePicker), 10);
     }
-    if (left < 5) left = 5;
-    if (left + pickerWidth > viewportWidth) left = viewportWidth - pickerWidth - 5;
-    
-    picker.style.position = 'fixed';
-    picker.style.top = top + 'px';
-    picker.style.left = left + 'px';
-    
-    document.body.appendChild(picker);
-    activeReactionPicker = picker;
-    
-    const closePicker = (e) => {
-        if (picker && !picker.contains(e.target)) {
-            picker.remove();
-            activeReactionPicker = null;
-            document.removeEventListener('click', closePicker);
-        }
-    };
-    setTimeout(() => document.addEventListener('click', closePicker), 10);
-}
     
     function sendReactionToggle(msgId, emoji) {
         if (!conn || !conn.open) return;
@@ -1197,7 +1404,6 @@ function showReactionPicker(msgElement, msgId, isMyMessage) {
         const sameEmoji = hasMy && hasPeer && store.my === store.peer;
         
         if (sameEmoji) {
-            // Оба поставили одинаковую реакцию — показываем x2
             const badge = document.createElement('div');
             badge.className = 'reaction-badge my-reaction';
             badge.innerHTML = `${store.my} <span class="reaction-count">2</span>`;
@@ -1221,7 +1427,6 @@ function showReactionPicker(msgElement, msgId, isMyMessage) {
                 const badge = document.createElement('div');
                 badge.className = 'reaction-badge';
                 badge.innerHTML = store.peer;
-                // Клик на реакцию собеседника — ставим такую же себе
                 badge.onclick = (e) => {
                     e.stopPropagation();
                     sendReactionToggle(msgId, store.peer);
@@ -1340,6 +1545,7 @@ function showReactionPicker(msgElement, msgId, isMyMessage) {
                     else if (payload.type === 'image') updateLastMessage('image', null);
                     else if (payload.type === 'audio') updateLastMessage('audio', null);
                     addMsg(payload.data, 'other', payload.type, true, null, payload.msgId);
+                    incrementUnreadCount();
                 } else if (payload.type === 'reaction_toggle') {
                     handlePeerReaction(payload.msgId, payload.emoji);
                 }
@@ -1366,6 +1572,8 @@ function showReactionPicker(msgElement, msgId, isMyMessage) {
         chatMessagesDiv.innerHTML = '';
         lastDateLabel = '';
         switchToHomeMode();
+        unreadCount = 0;
+        updateUnreadBadge();
     }
     
     function connectToPeer() {
@@ -1416,31 +1624,37 @@ function showReactionPicker(msgElement, msgId, isMyMessage) {
         msgDiv.appendChild(timeDiv);
         
         container.appendChild(msgDiv);
-        container.scrollTop = container.scrollHeight;
+        
+        const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+        if (side === 'my' || wasNearBottom) {
+            container.scrollTop = container.scrollHeight;
+        }
         
         if (!reactionsStore.has(msgId)) {
             reactionsStore.set(msgId, { my: null, peer: null });
         }
         
-const isMyMessage = (side === 'my');
-msgDiv.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    showReactionPicker(msgDiv, msgId, isMyMessage);
-    return false;
-});
-// Для телефона - двойное касание
-let lastTap = 0;
-msgDiv.addEventListener('touchstart', (e) => {
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-    if (tapLength < 300 && tapLength > 0) {
-        e.preventDefault();
-        showReactionPicker(msgDiv, msgId, isMyMessage);
-    }
-    lastTap = currentTime;
-});
+        const isMyMessage = (side === 'my');
+        msgDiv.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showReactionPicker(msgDiv, msgId, isMyMessage);
+            return false;
+        });
+        let lastTap = 0;
+        msgDiv.addEventListener('touchstart', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                e.preventDefault();
+                showReactionPicker(msgDiv, msgId, isMyMessage);
+            }
+            lastTap = currentTime;
+        });
         
-        if (side === 'other' && !savedTime) { const sound = document.getElementById('msgSound'); if(sound) sound.play().catch(e=>{}); }
+        if (side === 'other' && !savedTime) { 
+            const sound = document.getElementById('msgSound'); 
+            if(sound) sound.play().catch(e=>{}); 
+        }
         
         if (saveToStorage) {
             const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
@@ -1448,6 +1662,8 @@ msgDiv.addEventListener('touchstart', (e) => {
             if (history.length > 50) history.shift();
             localStorage.setItem('soc-c-media-history', JSON.stringify(history));
         }
+        
+        setTimeout(() => checkScrollPosition(), 50);
         return msgId;
     }
     
@@ -1465,6 +1681,9 @@ msgDiv.addEventListener('touchstart', (e) => {
                 });
                 const lastMsg = history[history.length - 1];
                 if (lastMsg) updateLastMessage(lastMsg.type, lastMsg.data);
+                setTimeout(() => {
+                    if (chatMessagesDiv) chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+                }, 100);
             }
         } catch(e) { console.error("History load error", e); }
     }
@@ -1714,14 +1933,21 @@ msgDiv.addEventListener('touchstart', (e) => {
     document.getElementById('closePeerModal').onclick = () => { animateModalClose(document.getElementById('peerProfileModal')); };
     
     function switchToChatMode() {
+        isChatOpen = true;
+        resetUnreadCount();
         homeScreen.classList.add('chat-open');
         chatScreen.classList.add('chat-visible');
         setTimeout(() => {
             document.getElementById('msgInput').focus();
+            if (chatMessagesDiv) {
+                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+                setTimeout(() => checkScrollPosition(), 100);
+            }
         }, 200);
     }
     
     function switchToHomeMode() {
+        isChatOpen = false;
         homeScreen.classList.remove('chat-open');
         chatScreen.classList.remove('chat-visible');
         setTimeout(() => {
@@ -1808,6 +2034,14 @@ msgDiv.addEventListener('touchstart', (e) => {
     document.getElementById('closeChatFromHomeBtn').addEventListener('click', askCloseChat);
     document.getElementById('activeChatTap').addEventListener('click', () => { if(connectedNick && conn && conn.open) switchToChatMode(); });
     document.getElementById('peerInfoBtn').addEventListener('click', openPeerProfile);
+    
+    // Обработчики для кнопки прокрутки
+    if (scrollDownBtn) {
+        scrollDownBtn.addEventListener('click', scrollToBottom);
+    }
+    if (chatMessagesDiv) {
+        chatMessagesDiv.addEventListener('scroll', onChatScroll);
+    }
     
     if(!myNick || !isValidNick(myNick)) {
         showRegistrationModal();
