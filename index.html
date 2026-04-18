@@ -226,6 +226,13 @@
             padding: 8px 12px 8px 8px;
             cursor: pointer;
             position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .active-chat-row:hover {
+            transform: scale(0.96);
+            background: #222;
+            color: #ffffff;
         }
         .active-chat-row:active { background: #1a1a1a; }
         .active-chat-left {
@@ -311,7 +318,13 @@
             color: white;
             font-size: 0.85rem;
             outline: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+        }
+
+        #peer-nick-input:hover {
+            transform: scale(0.96);
+            background: #222;
+            color: #ffffff;
         }
         #peer-nick-input:focus { border-color: #6a6a6a; background: #181818; }
         .connect-btn {
@@ -636,6 +649,21 @@
     backface-visibility: hidden; /* Добавить - убирает мерцание */
 }
 
+/* Текст во всех модалках по центру */
+.modal, .modal * {
+    text-align: center !important;
+}
+
+/* Но выпадающий список статуса - по левому краю */
+.modal .status-select {
+    text-align: left !important;
+}
+
+/* Чтобы стрелка выпадающего списка тоже была слева (опционально) */
+.modal .status-select option {
+    text-align: left !important;
+}
+
 @keyframes modalPopIn {
     0% {
         opacity: 0;
@@ -684,14 +712,22 @@
             background: #1a1a1a;
             border: 1px solid #3a3a3a;
             padding: 10px;
-            border-radius: 12px;
+            border-radius: 40px;
             color: white;
             width: 100%;
             margin: 15px 0;
             font-size: 1rem;
             text-align: center;
             outline: none;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
+
+        .nick-input-modal:hover {
+            transform: scale(0.96);
+            background: #222;
+            color: #ffffff;
+        }
+
         .status-select {
             width: 100%;
             padding: 12px;
@@ -702,7 +738,15 @@
             font-size: 0.9rem;
             margin: 15px 0;
             cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
+
+        .status-select:hover {
+            transform: scale(0.96);
+            background: #222;
+            color: #ffffff;
+        }
+        
         .flex-btns { display: flex; gap: 10px; margin-top: 12px; }
         .modal-avatar-container {
             position: relative;
@@ -711,6 +755,13 @@
             cursor: pointer;
             border: 3px solid #3a3a3a;
             border-radius: 100%;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .modal-avatar-container:hover {
+            transform: scale(0.96);
+            background: #222;
+            color: #ffffff;
         }
         .modal-edit-icon {
             position: absolute;
