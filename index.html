@@ -5,10 +5,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="png" href="logo.png">
-    <link rel="apple-touch-icon" href="logo.png">
-    <meta name="theme-color" content="#000000">
+    <link rel="icon" type="image/png" href="logo.png">
     <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -20,40 +17,13 @@
         }
 
         body, html {
-            height: 100%;
+            height: 100dvh;
             width: 100%;
             background: #000000;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
             overflow: hidden;
             position: fixed;
             color: #e5e5e5;
-        }
-
-        /* Исправление для PWA на телефоне — отступы сверху и снизу через safe-area */
-        .app {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            background: #000000;
-            /* Отступы для безопасной зоны (notch, home indicator) */
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            position: relative;
-            overflow-x: hidden;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
-        }
-        
-        /* Для старых браузеров, которые не поддерживают env() */
-        @supports not (padding-top: env(safe-area-inset-top)) {
-            .app {
-                padding-top: 0;
-                padding-bottom: 0;
-            }
         }
 
         .preloader {
@@ -131,6 +101,21 @@
             background: #000000;
         }
         
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #000000;
+            padding-top: env(safe-area-inset-top);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            position: relative;
+            overflow-x: hidden;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+        }
         .app.app-visible { opacity: 1; }
 
         .home-screen {
@@ -298,24 +283,25 @@
             opacity: 1;
         }
         
-        .unread-badge {
-            position: absolute;
-            top: -12px;
-            right: 0px;
-            background: #ffffff;
-            color: rgb(0, 0, 0);
-            border-radius: 20px;
-            min-width: 25px;
-            height: 25px;
-            font-size: 11px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 6px;
-            box-shadow: 0 0 4px rgba(0,0,0,0.5);
-            z-index: 5;
-        }
+/* Бейдж с количеством непрочитанных сообщений */
+.unread-badge {
+    position: absolute;
+    top: -12px;
+    right: 0px;
+    background: #ffffff;
+    color: rgb(0, 0, 0);
+    border-radius: 20px;
+    min-width: 25px;
+    height: 25px;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    z-index: 5;
+}
 
         .connect-section { margin: 10px 20px; }
         .connect-row {
@@ -603,6 +589,7 @@
             border-radius: 10px;
         }
 
+        /* Кнопка прокрутки вниз */
         .scroll-down-btn {
             position: absolute;
             right: 16px;
@@ -648,57 +635,60 @@
             z-index: 1000;
             padding: 24px;
         }
-        .modal {
-            background: #111111;
-            padding: 22px 18px;
-            border-radius: 32px;
-            width: 100%;
-            max-width: 300px;
-            text-align: center;
-            border: 1px solid #333;
-            animation: modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            transform-origin: center;
-            will-change: transform, opacity;
-            backface-visibility: hidden;
-        }
+.modal {
+    background: #111111;
+    padding: 22px 18px;
+    border-radius: 32px;
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+    border: 1px solid #333;
+    animation: modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    transform-origin: center;
+    will-change: transform, opacity; /* Добавить - оптимизация */
+    backface-visibility: hidden; /* Добавить - убирает мерцание */
+}
 
-        .modal, .modal * {
-            text-align: center !important;
-        }
+/* Текст во всех модалках по центру */
+.modal, .modal * {
+    text-align: center !important;
+}
 
-        .modal .status-select {
-            text-align: left !important;
-        }
+/* Но выпадающий список статуса - по левому краю */
+.modal .status-select {
+    text-align: left !important;
+}
 
-        .modal .status-select option {
-            text-align: left !important;
-        }
+/* Чтобы стрелка выпадающего списка тоже была слева (опционально) */
+.modal .status-select option {
+    text-align: left !important;
+}
 
-        @keyframes modalPopIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
+@keyframes modalPopIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
 
-        @keyframes modalPopOut {
-            0% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-        }
+@keyframes modalPopOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
 
-        .modal-exit {
-            animation: modalPopOut 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
-        }
+.modal-exit {
+    animation: modalPopOut 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
         .modal #modal-text { font-size: 0.9rem; margin-bottom: 18px; color: #ccc; line-height: 1.4; }
         .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
         .modal-btn {
@@ -912,63 +902,70 @@
             }
         }
 
-        #chatMessages::-webkit-scrollbar {
-            width: 3px;
-        }
+        /* Кастомный скроллбар как на iPhone */
+#chatMessages::-webkit-scrollbar {
+    width: 3px;
+}
 
-        #chatMessages::-webkit-scrollbar-track {
-            background: transparent;
-        }
+#chatMessages::-webkit-scrollbar-track {
+    background: transparent;
+}
 
-        #chatMessages::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-        }
+#chatMessages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
 
-        #chatMessages::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
+#chatMessages::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
 
-        #chatMessages {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-        }
+/* Для Firefox */
+#chatMessages {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
 
-        * {
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
+/* Запрещаем выделение всего текста на сайте */
+* {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
 
-        .msg, .msg * {
-            user-select: text !important;
-            -webkit-user-select: text !important;
-            -moz-user-select: text !important;
-            -ms-user-select: text !important;
-        }
+/* Разрешаем выделение ТОЛЬКО в сообщениях чата */
+.msg, .msg * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
 
-        #peer-nick-input, #msgInput, #regNickInput, #modalNickInput, .status-select {
-            user-select: text !important;
-            -webkit-user-select: text !important;
-            -moz-user-select: text !important;
-            -ms-user-select: text !important;
-        }
+/* Разрешаем выделение в полях ввода */
+#peer-nick-input, #msgInput, #regNickInput, #modalNickInput, .status-select {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
 
-        .modal #modal-text, .modal #modal-text * {
-            user-select: text !important;
-            -webkit-user-select: text !important;
-            -moz-user-select: text !important;
-            -ms-user-select: text !important;
-        }
+/* Разрешаем выделение текста в модалках (правила) */
+.modal #modal-text, .modal #modal-text * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
 
-        .main-nick, .main-status, .active-chat-nick, .peer-info-nick, .home-header h1, .status-text, .peer-info-nick, #homeNick, #homeStatus, #activeChatNick {
-            user-select: none !important;
-            -webkit-user-select: none !important;
-            -moz-user-select: none !important;
-            -ms-user-select: none !important;
-        }
+/* Явно запрещаем выделение для статуса, ника на главной и ника друга на кнопке */
+.main-nick, .main-status, .active-chat-nick, .peer-info-nick, .home-header h1, .status-text, .peer-info-nick, #homeNick, #homeStatus, #activeChatNick {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
     </style>
 </head>
 <body>
@@ -1120,9 +1117,11 @@
     let connectedStatus = null;
     let lastMessageText = "---";
     
+    // Переменные для непрочитанных сообщений
     let unreadCount = 0;
     let isChatOpen = false;
     
+    // Хранилище реакций: { msgId: { my: emoji или null, peer: emoji или null } }
     let reactionsStore = new Map();
     let activeReactionPicker = null;
     
@@ -1142,6 +1141,7 @@
     const notConnectedPlaceholder = document.getElementById('notConnectedPlaceholder');
     const unreadBadge = document.getElementById('unreadBadge');
     
+    // Элементы для кнопки прокрутки
     const scrollDownBtn = document.getElementById('scrollDownBtn');
     let isUserScrolling = false;
     let scrollTimeout = null;
@@ -1171,6 +1171,7 @@
         }
     }
     
+    // Функции для кнопки прокрутки вниз
     function checkScrollPosition() {
         if (!chatMessagesDiv) return;
         const isNearBottom = chatMessagesDiv.scrollHeight - chatMessagesDiv.scrollTop - chatMessagesDiv.clientHeight < 100;
@@ -1202,35 +1203,38 @@
         checkScrollPosition();
     }
     
-    function animateModalClose(modalElement, callback) {
-        const modalContent = modalElement.querySelector('.modal');
-        if (modalContent) {
-            modalContent.classList.remove('modal-exit');
-            void modalContent.offsetWidth;
-            modalContent.classList.add('modal-exit');
-            
-            setTimeout(() => {
-                modalElement.style.display = 'none';
-                modalContent.classList.remove('modal-exit');
-                if (callback) callback();
-            }, 150);
-        } else {
+function animateModalClose(modalElement, callback) {
+    const modalContent = modalElement.querySelector('.modal');
+    if (modalContent) {
+        // Убираем предыдущую анимацию
+        modalContent.classList.remove('modal-exit');
+        // Принудительная перерисовка
+        void modalContent.offsetWidth;
+        // Добавляем анимацию закрытия
+        modalContent.classList.add('modal-exit');
+        
+        setTimeout(() => {
             modalElement.style.display = 'none';
-            if (callback) callback();
-        }
-    }
-
-    function showModalWithAnimation(modalElement) {
-        modalElement.style.display = 'flex';
-        const modalContent = modalElement.querySelector('.modal');
-        if (modalContent) {
             modalContent.classList.remove('modal-exit');
-            void modalContent.offsetWidth;
-            modalContent.style.animation = 'none';
-            void modalContent.offsetWidth;
-            modalContent.style.animation = 'modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
-        }
+            if (callback) callback();
+        }, 150); // Уменьшил до 150ms для отзывчивости
+    } else {
+        modalElement.style.display = 'none';
+        if (callback) callback();
     }
+}
+
+function showModalWithAnimation(modalElement) {
+    modalElement.style.display = 'flex';
+    const modalContent = modalElement.querySelector('.modal');
+    if (modalContent) {
+        modalContent.classList.remove('modal-exit');
+        void modalContent.offsetWidth;
+        modalContent.style.animation = 'none';
+        void modalContent.offsetWidth;
+        modalContent.style.animation = 'modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
+    }
+}
     
     function handleCustomAvatarUpload(file) {
         if (!file) return;
@@ -1335,6 +1339,7 @@
         setTimeout(() => document.getElementById('regNickInput').focus(), 100);
     }
     
+    // Функции реакций
     function showReactionPicker(msgElement, msgId, isMyMessage) {
         if (activeReactionPicker) {
             activeReactionPicker.remove();
@@ -2081,6 +2086,7 @@
     document.getElementById('activeChatTap').addEventListener('click', () => { if(connectedNick && conn && conn.open) switchToChatMode(); });
     document.getElementById('peerInfoBtn').addEventListener('click', openPeerProfile);
     
+    // Обработчики для кнопки прокрутки
     if (scrollDownBtn) {
         scrollDownBtn.addEventListener('click', scrollToBottom);
     }
@@ -2103,15 +2109,6 @@
     }, 2000);
     
     window.addEventListener('beforeunload', () => { if(conn && conn.open) conn.close(); if(peer) peer.destroy(); });
-    
-    // Регистрация Service Worker для PWA
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('Service Worker registered:', reg))
-                .catch(err => console.error('Service Worker registration failed:', err));
-        });
-    }
 </script>
 </body>
 </html>
