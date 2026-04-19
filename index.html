@@ -5,7 +5,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <link rel="icon" type="image/jpg" href="image/logo.PNG">
+    <link rel="icon" type="image/jpg" href="image/logo.png">
     <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -966,75 +966,6 @@
     -moz-user-select: none !important;
     -ms-user-select: none !important;
 }
-
-/* === ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА ОТ ВЫРЕЗОВ === */
-/* Для устройств с Dynamic Island / Notch */
-.has-notch .home-header,
-.has-notch .chat-header {
-    padding-top: max(12px, env(safe-area-inset-top));
-    background: #0a0a0a;
-    position: relative;
-    z-index: 100;
-}
-
-/* Защита для статус-бара на Android с вырезом */
-@media (display-cutout: none) {
-    body {
-        padding-top: env(safe-area-inset-top);
-    }
-}
-
-/* Специально для iOS с Dynamic Island */
-@supports (padding-top: env(safe-area-inset-top)) {
-    .app {
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-}
-
-/* Для экранов с вырезом — увеличиваем отступ сверху */
-@media (min-aspect-ratio: 13/9) and (max-aspect-ratio: 20/9) {
-    .home-header, .chat-header {
-        padding-top: max(20px, env(safe-area-inset-top));
-    }
-}
-
-/* === SAFE AREA FIX — вставить в начало CSS === */
-:root {
-    --sat: env(safe-area-inset-top);
-    --sab: env(safe-area-inset-bottom);
-    --sal: env(safe-area-inset-left);
-    --sar: env(safe-area-inset-right);
-}
-
-.app {
-    padding-top: var(--sat);
-    padding-bottom: var(--sab);
-    padding-left: var(--sal);
-    padding-right: var(--sar);
-}
-
-.home-header, .chat-header {
-    padding-top: max(12px, var(--sat));
-    padding-left: max(16px, var(--sal));
-    padding-right: max(16px, var(--sar));
-}
-
-.input-area {
-    padding-bottom: max(8px, var(--sab));
-}
-
-.main-profile-card {
-    margin-top: max(20px, var(--sat));
-}
-
-.scroll-down-btn {
-    bottom: calc(70px + var(--sab));
-}
-
-.modal-overlay {
-    padding: var(--sat) var(--sar) var(--sab) var(--sal);
-}
     </style>
 </head>
 <body>
@@ -1172,14 +1103,6 @@
 <input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('SW registered:', reg))
-            .catch(err => console.error('SW error:', err));
-    }
-});
-
     let myNick = localStorage.getItem('soc-nickname');
     let myAvatar = localStorage.getItem('soc-avatar') || 'image/ava1.png';
     let myStatus = localStorage.getItem('soc-status') || 'online';
@@ -2186,64 +2109,6 @@ function showModalWithAnimation(modalElement) {
     }, 2000);
     
     window.addEventListener('beforeunload', () => { if(conn && conn.open) conn.close(); if(peer) peer.destroy(); });
-
-    // ===== ПОЛНОЕ ОПРЕДЕЛЕНИЕ ВЫРЕЗОВ =====
-function getDeviceNotchInfo() {
-    const info = {
-        hasNotch: false,
-        hasDynamicIsland: false,
-        hasHomeIndicator: false,
-        topInset: 0,
-        bottomInset: 0,
-        deviceType: 'unknown'
-    };
-    
-    // Получаем safe-area insets
-    const topInset = parseInt(getComputedStyle(document.documentElement)
-        .getPropertyValue('env(safe-area-inset-top)')) || 0;
-    const bottomInset = parseInt(getComputedStyle(document.documentElement)
-        .getPropertyValue('env(safe-area-inset-bottom)')) || 0;
-    
-    info.topInset = topInset;
-    info.bottomInset = bottomInset;
-    info.hasHomeIndicator = bottomInset > 0;
-    
-    // Определяем наличие выреза
-    if (topInset > 20) {
-        info.hasNotch = true;
-        
-        // Определяем Dynamic Island (iPhone 14 Pro и новее)
-        // Dynamic Island обычно дает inset около 59px
-        if (topInset >= 50 && topInset <= 65) {
-            info.hasDynamicIsland = true;
-            info.deviceType = 'iPhone with Dynamic Island';
-        } else if (topInset >= 40 && topInset <= 50) {
-            info.deviceType = 'iPhone with Notch';
-        } else {
-            info.deviceType = 'Android with Notch/Punch-hole';
-        }
-    } else {
-        info.deviceType = 'Standard device (no notch)';
-    }
-    
-    // Добавляем классы на body
-    if (info.hasNotch) document.body.classList.add('has-notch');
-    if (info.hasDynamicIsland) document.body.classList.add('has-dynamic-island');
-    if (info.hasHomeIndicator) document.body.classList.add('has-home-indicator');
-    
-    // Сохраняем в data-атрибуты
-    document.body.dataset.notchType = info.deviceType;
-    document.body.dataset.topInset = info.topInset;
-    document.body.dataset.bottomInset = info.bottomInset;
-    
-    console.log('📱 Device info:', info);
-    
-    return info;
-}
-
-// Вызываем при загрузке и изменении размера
-window.addEventListener('DOMContentLoaded', getDeviceNotchInfo);
-window.addEventListener('resize', () => setTimeout(getDeviceNotchInfo, 100));
 </script>
 </body>
 </html>
