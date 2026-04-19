@@ -2,7 +2,7 @@ const CACHE_NAME = 'soc-messenger-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/image/logo.png',
+  '/logo.png',
   '/image/ava1.png',
   '/image/plus.png',
   '/image/mic.png',
