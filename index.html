@@ -1,17 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="image/logo.PNG">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SOC.">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#000000">
-<meta name="msapplication-TileColor" content="#000000">
-<meta name="msapplication-config" content="none">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
@@ -978,61 +967,6 @@
     -ms-user-select: none !important;
 }
 
-/* ===== SAFE AREA FIXES ===== */
-:root {
-    --sat: env(safe-area-inset-top);
-    --sab: env(safe-area-inset-bottom);
-    --sal: env(safe-area-inset-left);
-    --sar: env(safe-area-inset-right);
-}
-
-body, html, .app-wrapper, .app {
-    position: relative;
-    background: #000000;
-}
-
-.app {
-    padding-top: var(--sat);
-    padding-bottom: var(--sab);
-    padding-left: var(--sal);
-    padding-right: var(--sar);
-}
-
-/* Заголовки не должны залезать под статус-бар */
-.home-header, .chat-header {
-    padding-top: max(12px, var(--sat));
-    padding-left: max(16px, var(--sal));
-    padding-right: max(16px, var(--sar));
-}
-
-/* Нижняя панель ввода — отступ под home indicator */
-.input-area {
-    padding-bottom: max(8px, var(--sab));
-}
-
-/* Главная карточка профиля — не подрезается сверху */
-.main-profile-card {
-    margin-top: max(20px, var(--sat));
-}
-
-/* Кнопка прокрутки — не наезжает на нижнюю панель */
-.scroll-down-btn {
-    bottom: calc(70px + var(--sab));
-}
-
-/* Модальные окна — полный safe-area */
-.modal-overlay {
-    padding: var(--sat) var(--sar) var(--sab) var(--sal);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Сообщения чата — не обрезаются */
-#chatMessages {
-    padding-bottom: 8px;
-}
-
 /* === ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА ОТ ВЫРЕЗОВ === */
 /* Для устройств с Dynamic Island / Notch */
 .has-notch .home-header,
@@ -1063,6 +997,43 @@ body, html, .app-wrapper, .app {
     .home-header, .chat-header {
         padding-top: max(20px, env(safe-area-inset-top));
     }
+}
+
+/* === SAFE AREA FIX — вставить в начало CSS === */
+:root {
+    --sat: env(safe-area-inset-top);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+    --sar: env(safe-area-inset-right);
+}
+
+.app {
+    padding-top: var(--sat);
+    padding-bottom: var(--sab);
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+}
+
+.home-header, .chat-header {
+    padding-top: max(12px, var(--sat));
+    padding-left: max(16px, var(--sal));
+    padding-right: max(16px, var(--sar));
+}
+
+.input-area {
+    padding-bottom: max(8px, var(--sab));
+}
+
+.main-profile-card {
+    margin-top: max(20px, var(--sat));
+}
+
+.scroll-down-btn {
+    bottom: calc(70px + var(--sab));
+}
+
+.modal-overlay {
+    padding: var(--sat) var(--sar) var(--sab) var(--sal);
 }
     </style>
 </head>
@@ -1201,7 +1172,7 @@ body, html, .app-wrapper, .app {
 <input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
             .then(reg => console.log('SW registered:', reg))
@@ -2216,7 +2187,7 @@ function showModalWithAnimation(modalElement) {
     
     window.addEventListener('beforeunload', () => { if(conn && conn.open) conn.close(); if(peer) peer.destroy(); });
 
-// ===== ПОЛНОЕ ОПРЕДЕЛЕНИЕ ВЫРЕЗОВ =====
+    // ===== ПОЛНОЕ ОПРЕДЕЛЕНИЕ ВЫРЕЗОВ =====
 function getDeviceNotchInfo() {
     const info = {
         hasNotch: false,
