@@ -971,6 +971,15 @@
 .chat-screen .input-area {
     transform: none !important;
 }
+
+.main-profile-card {
+    flex-shrink: 0;
+    margin: 20px 20px 10px 20px;
+}
+
+.connect-section {
+    flex-shrink: 0;
+}
     </style>
 </head>
 <body>
@@ -997,12 +1006,14 @@
                     <button class="connect-btn" onclick="connectToPeer()">CONNECT</button>
                 </div>
             </div>
-            <div class="home-scrollable">
-                <div class="main-profile-card" id="mainProfileBtn">
+
+                            <div class="main-profile-card" id="mainProfileBtn">
                     <div class="avatar-large"><img id="homeAvatarImg" src="image/ava1.png" draggable="false"></div>
                     <div class="main-nick" id="homeNick">---</div>
                     <div class="main-status" id="homeStatus">online</div>
                 </div>
+            <div class="home-scrollable">
+
                 <div id="chatsListContainer" style="margin: 10px 20px; display: flex; flex-direction: column; gap: 8px;"></div>
                 <div id="notConnectedPlaceholder" class="not-connect-placeholder"> 
                     <span>NO ACTIVE CHATS</span>
