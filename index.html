@@ -220,7 +220,7 @@
             background: #111111;
             border-radius: 60px;
             border: 1px solid #2a2a2a;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 8px 12px 8px 8px;
@@ -228,6 +228,7 @@
             position: relative;
             transition: all 0.3s ease;
         }
+        .active-chat-row.hidden { display: none; }
 
         .active-chat-row:hover {
             transform: scale(0.96);
@@ -242,7 +243,7 @@
             flex: 1;
             min-width: 0;
         }
-        .active-chat-avatar { width: 48px; height: 48px; border-radius: 50%; background: #2a2a2a; overflow: hidden; flex-shrink: 0; }
+        .active-chat-avatar { width: 48px; height: 48px; border-radius: 50%; background: #2a2a2a; overflow: hidden; flex-shrink: 0; position: relative; }
         .active-chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .active-chat-info {
             flex: 1;
@@ -283,27 +284,23 @@
             opacity: 1;
         }
         
-/* Бейдж с количеством непрочитанных сообщений */
-.unread-badge {
-    position: absolute;
-    top: -12px;
-    right: 0px;
-    background: #ffffff;
-    color: rgb(0, 0, 0);
-    border-radius: 20px;
-    min-width: 25px;
-    height: 25px;
-    font-size: 11px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 6px;
-    box-shadow: 0 0 4px rgba(0,0,0,0.5);
-    z-index: 5;
-}
+        .unread-badge {
+            background: #ffffff;
+            color: rgb(0, 0, 0);
+            border-radius: 20px;
+            min-width: 25px;
+            height: 25px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
 
-        .connect-section { margin: 10px 20px; }
+        .connect-section { margin: 20px 20px; margin-bottom: -10px; }
         .connect-row {
             display: flex;
             gap: 8px;
@@ -434,7 +431,7 @@
             transform: scale(0.96);
             background: #2a2a2a;
         }
-        .peer-info-avatar { width: 36px; height: 36px; border-radius: 50%; background: #2a2a2a; overflow: hidden; }
+        .peer-info-avatar { width: 36px; height: 36px; border-radius: 50%; background: #2a2a2a; overflow: hidden; position: relative; }
         .peer-info-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .peer-info-nick { font-weight: 600; font-size: 0.95rem; color: #eee; }
         .placeholder-right { width: 36px; visibility: hidden; }
@@ -589,7 +586,6 @@
             border-radius: 10px;
         }
 
-        /* Кнопка прокрутки вниз */
         .scroll-down-btn {
             position: absolute;
             right: 16px;
@@ -635,60 +631,32 @@
             z-index: 1000;
             padding: 24px;
         }
-.modal {
-    background: #111111;
-    padding: 22px 18px;
-    border-radius: 32px;
-    width: 100%;
-    max-width: 300px;
-    text-align: center;
-    border: 1px solid #333;
-    animation: modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    transform-origin: center;
-    will-change: transform, opacity; /* Добавить - оптимизация */
-    backface-visibility: hidden; /* Добавить - убирает мерцание */
-}
+        .modal {
+            background: #111111;
+            padding: 22px 18px;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            border: 1px solid #333;
+            animation: modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transform-origin: center;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+        .modal, .modal * { text-align: center !important; }
+        .modal .status-select { text-align: left !important; }
+        .modal .status-select option { text-align: left !important; }
 
-/* Текст во всех модалках по центру */
-.modal, .modal * {
-    text-align: center !important;
-}
-
-/* Но выпадающий список статуса - по левому краю */
-.modal .status-select {
-    text-align: left !important;
-}
-
-/* Чтобы стрелка выпадающего списка тоже была слева (опционально) */
-.modal .status-select option {
-    text-align: left !important;
-}
-
-@keyframes modalPopIn {
-    0% {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes modalPopOut {
-    0% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-}
-
-.modal-exit {
-    animation: modalPopOut 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
-}
+        @keyframes modalPopIn {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes modalPopOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.95); }
+        }
+        .modal-exit { animation: modalPopOut 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards !important; }
         .modal #modal-text { font-size: 0.9rem; margin-bottom: 18px; color: #ccc; line-height: 1.4; }
         .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
         .modal-btn {
@@ -721,13 +689,11 @@
             outline: none;
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-
         .nick-input-modal:hover {
             transform: scale(0.96);
             background: #222;
             color: #ffffff;
         }
-
         .status-select {
             width: 100%;
             padding: 12px;
@@ -740,13 +706,11 @@
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-
         .status-select:hover {
             transform: scale(0.96);
             background: #222;
             color: #ffffff;
         }
-        
         .flex-btns { display: flex; gap: 10px; margin-top: 12px; }
         .modal-avatar-container {
             position: relative;
@@ -757,7 +721,6 @@
             border-radius: 100%;
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-
         .modal-avatar-container:hover {
             transform: scale(0.96);
             background: #222;
@@ -778,17 +741,9 @@
             font-size: 14px;
             pointer-events: none;
         }
-        .main-profile-card:hover {
-            transform: scale(0.98);
-            background: #151515;
-        }
-        .active-chat-row:hover {
-            background: #181818;
-            border-color: #3a3a3a;
-        }
-        #recordBtn {
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
+        .main-profile-card:hover { transform: scale(0.98); background: #151515; }
+        .active-chat-row:hover { background: #181818; border-color: #3a3a3a; }
+        #recordBtn { transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
 
         .drop-overlay {
             position: fixed;
@@ -804,9 +759,7 @@
             justify-content: center;
             pointer-events: none;
         }
-        .drop-overlay.active {
-            display: flex;
-        }
+        .drop-overlay.active { display: flex; }
         .drop-hint {
             background: transparent;
             padding: 20px 32px;
@@ -858,21 +811,16 @@
             padding: 8px;
             transition: color 0.2s;
         }
-        .reg-rules-btn:hover {
-            color: #ffffff;
-        }
+        .reg-rules-btn:hover { color: #ffffff; }
 
         @media (min-width: 801px) {
-            body, html {
-                background: #000000;
-            }
+            body, html { background: #000000; }
             .app {
                 box-shadow: -2px 0 5px rgba(255,255,255,0.02), 2px 0 5px rgba(255,255,255,0.02);
                 border-left: 1px solid #1a1a1a;
                 border-right: 1px solid #1a1a1a;
             }
-            .app-wrapper::before,
-            .app-wrapper::after {
+            .app-wrapper::before, .app-wrapper::after {
                 content: '';
                 position: fixed;
                 top: 0;
@@ -882,89 +830,125 @@
                 z-index: 5;
                 pointer-events: none;
             }
-            .app-wrapper::before {
-                left: 0;
-            }
-            .app-wrapper::after {
-                right: 0;
-            }
+            .app-wrapper::before { left: 0; }
+            .app-wrapper::after { right: 0; }
         }
-        
         @media (max-width: 800px) {
-            .app-wrapper::before,
-            .app-wrapper::after {
-                display: none;
-            }
-            .app {
-                border-left: none;
-                border-right: none;
-                box-shadow: none;
-            }
+            .app-wrapper::before, .app-wrapper::after { display: none; }
+            .app { border-left: none; border-right: none; box-shadow: none; }
         }
 
-        /* Кастомный скроллбар как на iPhone */
-#chatMessages::-webkit-scrollbar {
-    width: 3px;
+        #chatMessages::-webkit-scrollbar { width: 3px; }
+        #chatMessages::-webkit-scrollbar-track { background: transparent; }
+        #chatMessages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
+        #chatMessages::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.5); }
+        #chatMessages { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.3) transparent; }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .msg, .msg * { user-select: text !important; -webkit-user-select: text !important; }
+        #peer-nick-input, #msgInput, #regNickInput, #modalNickInput, .status-select { user-select: text !important; -webkit-user-select: text !important; }
+        .modal #modal-text, .modal #modal-text * { user-select: text !important; -webkit-user-select: text !important; }
+        .main-nick, .main-status, .active-chat-nick, .peer-info-nick, .home-header h1, .status-text, #homeNick, #homeStatus, #activeChatNick { user-select: none !important; -webkit-user-select: none !important; }
+
+        .status-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #000000;
+            background: #555;
+        }
+        .status-dot.online { background: #2ecc2e; }
+        .status-dot.offline { background: #e74c3c; }
+        .status-dot.away { background: #f39c12; }
+        .status-dot.dnd { background: #8e44ad; }
+
+        /* Чтобы точка не обрезалась */
+.active-chat-avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    overflow: visible !important;
 }
 
-#chatMessages::-webkit-scrollbar-track {
-    background: transparent;
+.active-chat-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
-#chatMessages::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
+.active-chat-avatar .status-dot,
+.active-chat-avatar > span.status-dot {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #000000;
+    z-index: 10;
 }
 
-#chatMessages::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+.peer-info-avatar {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    overflow: visible !important;
 }
 
-/* Для Firefox */
-#chatMessages {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+.peer-info-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
-/* Запрещаем выделение всего текста на сайте */
-* {
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+.peer-info-avatar .status-dot,
+.peer-info-avatar > span.status-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #0a0a0a;
+    z-index: 10;
 }
 
-/* Разрешаем выделение ТОЛЬКО в сообщениях чата */
-.msg, .msg * {
-    user-select: text !important;
-    -webkit-user-select: text !important;
-    -moz-user-select: text !important;
-    -ms-user-select: text !important;
-}
+.status-dot.online { background: #2ecc2e; }
+.status-dot.offline { background: #e74c3c; }
+.status-dot.away { background: #f39c12; }
+.status-dot.connecting { background: #f1c40f; }
 
-/* Разрешаем выделение в полях ввода */
-#peer-nick-input, #msgInput, #regNickInput, #modalNickInput, .status-select {
-    user-select: text !important;
-    -webkit-user-select: text !important;
-    -moz-user-select: text !important;
-    -ms-user-select: text !important;
-}
-
-/* Разрешаем выделение текста в модалках (правила) */
-.modal #modal-text, .modal #modal-text * {
-    user-select: text !important;
-    -webkit-user-select: text !important;
-    -moz-user-select: text !important;
-    -ms-user-select: text !important;
-}
-
-/* Явно запрещаем выделение для статуса, ника на главной и ника друга на кнопке */
-.main-nick, .main-status, .active-chat-nick, .peer-info-nick, .home-header h1, .status-text, .peer-info-nick, #homeNick, #homeStatus, #activeChatNick {
-    user-select: none !important;
-    -webkit-user-select: none !important;
-    -moz-user-select: none !important;
-    -ms-user-select: none !important;
+@media (max-width: 480px) {
+    .input-area {
+        gap: 8px;
+        padding: 8px 12px;
+    }
+    
+    .input-area .btn-icon {
+        width: 42px;
+        height: 42px;
+    }
+    
+    .btn-img {
+        width: 22px;
+        height: 22px;
+    }
+    
+    #msgInput {
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
 }
     </style>
 </head>
@@ -986,40 +970,23 @@
                 <h1>SOC.</h1>
                 <span id="status">OFFLINE</span>
             </div>
-            
+            <div id="connectSection" class="connect-section">
+                <div class="connect-row">
+                    <input type="text" id="peer-nick-input" placeholder="friend's nickname..." autocomplete="off">
+                    <button class="connect-btn" onclick="connectToPeer()">CONNECT</button>
+                </div>
+            </div>
             <div class="home-scrollable">
                 <div class="main-profile-card" id="mainProfileBtn">
                     <div class="avatar-large"><img id="homeAvatarImg" src="image/ava1.png" draggable="false"></div>
                     <div class="main-nick" id="homeNick">---</div>
                     <div class="main-status" id="homeStatus">online</div>
                 </div>
-                
-                <div id="activeChatRow" class="active-chat-row">
-                    <div class="active-chat-left" id="activeChatTap">
-                        <div class="active-chat-avatar"><img id="activeChatAvatar" src="image/ava1.png" draggable="false"></div>
-                        <div class="active-chat-info">
-                            <div class="active-chat-nick" id="activeChatNick">friend</div>
-                            <div class="active-chat-lastmsg" id="activeChatLastMsg">---</div>
-                        </div>
-                    </div>
-                    <button class="close-chat-icon" id="closeChatFromHomeBtn">
-                        <img src="image/close.png" alt="✕" draggable="false">
-                    </button>
-                    <div id="unreadBadge" class="unread-badge" style="display: none;">0</div>
-                </div>
-                
-                <div id="connectSection" class="connect-section">
-                    <div class="connect-row">
-                        <input type="text" id="peer-nick-input" placeholder="friend's nickname..." autocomplete="off">
-                        <button class="connect-btn" onclick="connectToPeer()">CONNECT</button>
-                    </div>
-                </div>
-                
-                <div id="notConnectedPlaceholder" class="not-connect-placeholder">
-                    <span>NOT CONNECTED</span>
+                <div id="chatsListContainer" style="margin: 10px 20px; display: flex; flex-direction: column; gap: 8px;"></div>
+                <div id="notConnectedPlaceholder" class="not-connect-placeholder"> 
+                    <span>NO ACTIVE CHATS</span>
                 </div>
             </div>
-            
             <div class="rules-bottom-btn" onclick="showRulesFromHome()">RULES & DISCLAIMER</div>
         </div>
 
@@ -1030,7 +997,10 @@
                 </button>
                 <div class="chat-peer-info-center">
                     <div class="peer-info-button" id="peerInfoBtn">
-                        <div class="peer-info-avatar"><img id="peerAvatarImg" src="image/ava1.png" draggable="false"></div>
+                        <div class="peer-info-avatar" style="position:relative;">
+                            <img id="peerAvatarImg" src="image/ava1.png" draggable="false">
+                            <span class="status-dot" id="peerStatusDot"></span>
+                        </div>
                         <div class="peer-info-nick" id="peerNickChat">friend</div>
                     </div>
                 </div>
@@ -1055,7 +1025,6 @@
 </div>
 
 <div id="modal-overlay" class="modal-overlay"><div class="modal"><div id="modal-text"></div><div class="modal-btns" id="modal-actions"></div></div></div>
-
 <div id="registrationModal" class="modal-overlay">
     <div class="modal">
         <div class="welcome-title">SOC.</div>
@@ -1065,7 +1034,6 @@
         <button class="reg-rules-btn" id="regRulesBtn">RULES & DISCLAIMER</button>
     </div>
 </div>
-
 <div id="profileModal" class="modal-overlay">
     <div class="modal">
         <div style="font-weight:600; margin-bottom:8px;">Edit Profile</div>
@@ -1088,18 +1056,20 @@
         </div>
     </div>
 </div>
-
 <input type="file" id="customAvatarInput" hidden accept="image/*" onchange="handleCustomAvatarUpload(this.files[0])">
-
 <div id="peerProfileModal" class="modal-overlay">
     <div class="modal">
         <div class="avatar-large" style="margin:0 auto 15px;"><img id="peerModalAvatar"></div>
-        <div style="font-size:1.3rem; font-weight:600;" id="peerModalNick"></div>
-        <div style="font-size:0.8rem; color:#aaa; margin:8px 0;" id="peerModalStatus"></div>
-        <button class="modal-btn" id="closePeerModal" style="width:100%; background:#2a2a2a;">CLOSE</button>
+        <input type="text" id="editPeerDisplayName" class="nick-input-modal" 
+               placeholder="Display name" 
+               style="margin:5px 0 0 0; text-align:center;">
+        <div style="font-size:0.85rem; color:#b9b9b9; margin-top:10px; margin-bottom:20px;" id="realNickDisplay"></div>
+        <div class="flex-btns" style="margin-top:5px;">
+            <button class="modal-btn" id="cancelPeerEdit" style="background:#1f1f1f;">CANCEL</button>
+            <button class="modal-btn" id="savePeerDisplayNameBtn" style="background:#1f1f1f;">SAVE</button>
+        </div>
     </div>
 </div>
-
 <input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
@@ -1107,24 +1077,19 @@
     let myAvatar = localStorage.getItem('soc-avatar') || 'image/ava1.png';
     let myStatus = localStorage.getItem('soc-status') || 'online';
     let peer = null;
-    let conn = null;
+    let currentConn = null;
     let mediaRecorder = null;
     let audioChunks = [];
     let activeStream = null;
-    let lastDateLabel = "";
-    let connectedNick = null;
-    let connectedAvatar = null;
-    let connectedStatus = null;
+    let activeChats = new Map();
+    let currentChatPeer = null;
     let lastMessageText = "---";
-    
-    // Переменные для непрочитанных сообщений
-    let unreadCount = 0;
+    let unreadGlobalCount = 0;
     let isChatOpen = false;
-    
-    // Хранилище реакций: { msgId: { my: emoji или null, peer: emoji или null } }
     let reactionsStore = new Map();
     let activeReactionPicker = null;
     
+    // DOM элементы
     const homeScreen = document.getElementById('homeScreen');
     const chatScreen = document.getElementById('chatScreen');
     const homeNickSpan = document.getElementById('homeNick');
@@ -1133,129 +1098,47 @@
     const chatMessagesDiv = document.getElementById('chatMessages');
     const peerNickChat = document.getElementById('peerNickChat');
     const peerAvatarChat = document.getElementById('peerAvatarImg');
-    const activeChatRow = document.getElementById('activeChatRow');
-    const activeChatAvatar = document.getElementById('activeChatAvatar');
-    const activeChatNick = document.getElementById('activeChatNick');
-    const activeChatLastMsg = document.getElementById('activeChatLastMsg');
     const connectSection = document.getElementById('connectSection');
     const notConnectedPlaceholder = document.getElementById('notConnectedPlaceholder');
-    const unreadBadge = document.getElementById('unreadBadge');
-    
-    // Элементы для кнопки прокрутки
     const scrollDownBtn = document.getElementById('scrollDownBtn');
+    let lastDateLabel = "";
     let isUserScrolling = false;
     let scrollTimeout = null;
     
-    function updateUnreadBadge() {
-        if (unreadBadge) {
-            if (unreadCount > 0 && !isChatOpen) {
-                unreadBadge.style.display = 'flex';
-                unreadBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-            } else {
-                unreadBadge.style.display = 'none';
-            }
-        }
-    }
+    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     
-    function resetUnreadCount() {
-        if (isChatOpen) {
-            unreadCount = 0;
-            updateUnreadBadge();
-        }
-    }
-    
-    function incrementUnreadCount() {
-        if (!isChatOpen) {
-            unreadCount++;
-            updateUnreadBadge();
-        }
-    }
-    
-    // Функции для кнопки прокрутки вниз
-    function checkScrollPosition() {
-        if (!chatMessagesDiv) return;
-        const isNearBottom = chatMessagesDiv.scrollHeight - chatMessagesDiv.scrollTop - chatMessagesDiv.clientHeight < 100;
-        
-        if (!isNearBottom && !isUserScrolling) {
-            scrollDownBtn.classList.add('visible');
-        } else {
-            scrollDownBtn.classList.remove('visible');
-        }
-    }
-    
-    function scrollToBottom() {
-        if (!chatMessagesDiv) return;
-        chatMessagesDiv.scrollTo({
-            top: chatMessagesDiv.scrollHeight,
-            behavior: 'smooth'
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
         });
-        scrollDownBtn.classList.remove('visible');
-        isUserScrolling = false;
     }
     
-    function onChatScroll() {
-        isUserScrolling = true;
-        if (scrollTimeout) clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            isUserScrolling = false;
-            checkScrollPosition();
-        }, 150);
-        checkScrollPosition();
+    function updateStatus(text, colorHint) {
+        const st = document.getElementById('status');
+        st.innerText = text.toUpperCase();
+        st.style.color = colorHint || '#bbb';
     }
     
-function animateModalClose(modalElement, callback) {
-    const modalContent = modalElement.querySelector('.modal');
-    if (modalContent) {
-        // Убираем предыдущую анимацию
-        modalContent.classList.remove('modal-exit');
-        // Принудительная перерисовка
-        void modalContent.offsetWidth;
-        // Добавляем анимацию закрытия
-        modalContent.classList.add('modal-exit');
-        
-        setTimeout(() => {
-            modalElement.style.display = 'none';
-            modalContent.classList.remove('modal-exit');
-            if (callback) callback();
-        }, 150); // Уменьшил до 150ms для отзывчивости
-    } else {
-        modalElement.style.display = 'none';
-        if (callback) callback();
-    }
-}
-
-function showModalWithAnimation(modalElement) {
-    modalElement.style.display = 'flex';
-    const modalContent = modalElement.querySelector('.modal');
-    if (modalContent) {
-        modalContent.classList.remove('modal-exit');
-        void modalContent.offsetWidth;
-        modalContent.style.animation = 'none';
-        void modalContent.offsetWidth;
-        modalContent.style.animation = 'modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
-    }
-}
-    
-    function handleCustomAvatarUpload(file) {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            tempAvatar = ev.target.result;
-            document.getElementById('modalAvatarImg').src = tempAvatar;
+    function showAlert(msg, callback) {
+        const overlay = document.getElementById('modal-overlay');
+        document.getElementById('modal-text').innerText = msg;
+        const actionsDiv = document.getElementById('modal-actions');
+        actionsDiv.innerHTML = `<button class="modal-btn" id="alertOkBtn">OK</button>`;
+        showModalWithAnimation(overlay);
+        document.getElementById('alertOkBtn').onclick = () => {
+            animateModalClose(overlay, () => { if (callback) callback(); });
         };
-        reader.readAsDataURL(file);
     }
     
     function formatLastMessage(type, data) {
         if (type === 'text') return data.length > 30 ? data.substring(0, 27) + '...' : data;
         if (type === 'image') return '✿ Photo';
-        if (type === 'audio') return '♪ Voice message';
+        if (type === 'audio') return '♪ Voice';
         return '---';
-    }
-    
-    function updateLastMessage(type, data) {
-        lastMessageText = formatLastMessage(type, data);
-        if (activeChatLastMsg) activeChatLastMsg.innerText = lastMessageText;
     }
     
     function updateHomeUI() {
@@ -1264,401 +1147,135 @@ function showModalWithAnimation(modalElement) {
         homeAvatarImg.src = myAvatar;
     }
     
-    function updateUIForConnectionState(hasActiveChat) {
-        if (hasActiveChat && connectedNick && conn && conn.open) {
-            activeChatRow.style.display = 'flex';
-            connectSection.style.display = 'none';
-            notConnectedPlaceholder.style.display = 'none';
-            activeChatNick.innerText = connectedNick;
-            activeChatAvatar.src = connectedAvatar || 'image/ava1.png';
-            activeChatLastMsg.innerText = lastMessageText;
-        } else {
-            activeChatRow.style.display = 'none';
-            connectSection.style.display = 'block';
-            notConnectedPlaceholder.style.display = 'flex';
-            unreadCount = 0;
-            updateUnreadBadge();
-        }
-    }
-    
-    function updateChatHeader() {
-        peerNickChat.innerText = connectedNick || 'friend';
-        peerAvatarChat.src = connectedAvatar || 'image/ava1.png';
-    }
-    
     function isValidNick(nick) {
         if (!nick || nick.length < 3) return false;
         return /^[a-zA-Z0-9_]{3,20}$/.test(nick);
     }
     
-    function showValidationError(returnToModal) {
-        const overlay = document.getElementById('modal-overlay');
-        const txtDiv = document.getElementById('modal-text');
-        txtDiv.style.textAlign = 'center';
-        txtDiv.innerHTML = `Nickname must be 3-20 characters (letters, numbers, _)`;
-        const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
-        showModalWithAnimation(overlay);
-        document.getElementById('errorOkBtn').onclick = () => {
-            animateModalClose(overlay, () => {
-                if (returnToModal === 'registration') {
-                    showModalWithAnimation(document.getElementById('registrationModal'));
-                    document.getElementById('regNickInput').value = '';
-                    document.getElementById('regNickInput').focus();
-                } else if (returnToModal === 'profile') {
-                    showModalWithAnimation(document.getElementById('profileModal'));
-                }
-            });
-        };
-    }
-    
-    function showNicknameTakenError(returnToModal) {
-        const overlay = document.getElementById('modal-overlay');
-        const txtDiv = document.getElementById('modal-text');
-        txtDiv.style.textAlign = 'center';
-        txtDiv.innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Nickname already taken! Choose another one.</b>`;
-        const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
-        showModalWithAnimation(overlay);
-        document.getElementById('errorOkBtn').onclick = () => {
-            animateModalClose(overlay, () => {
-                if (returnToModal === 'registration') {
-                    showModalWithAnimation(document.getElementById('registrationModal'));
-                    document.getElementById('regNickInput').value = '';
-                    document.getElementById('regNickInput').focus();
-                } else if (returnToModal === 'profile') {
-                    showModalWithAnimation(document.getElementById('profileModal'));
-                }
-            });
-        };
-    }
-    
-    function showRegistrationModal() {
-        document.getElementById('regNickInput').value = '';
-        showModalWithAnimation(document.getElementById('registrationModal'));
-        setTimeout(() => document.getElementById('regNickInput').focus(), 100);
-    }
-    
-    // Функции реакций
-    function showReactionPicker(msgElement, msgId, isMyMessage) {
-        if (activeReactionPicker) {
-            activeReactionPicker.remove();
-            activeReactionPicker = null;
-        }
-        const picker = document.createElement('div');
-        picker.className = 'reaction-picker';
-        const reactions = ['❤️', '👍', '👎', '😂', '❗', '❓'];
-        reactions.forEach(emoji => {
-            const span = document.createElement('span');
-            span.innerText = emoji;
-            span.className = 'reaction-emoji';
-            span.onclick = (e) => {
-                e.stopPropagation();
-                sendReactionToggle(msgId, emoji);
-                picker.remove();
-                activeReactionPicker = null;
+    function saveAllChats() {
+        const toSave = {};
+        for (const [peerId, chat] of activeChats.entries()) {
+            toSave[peerId] = {
+                nick: chat.nick,
+                avatar: chat.avatar,
+                status: chat.status,
+                displayName: chat.displayName,
+                unreadCount: chat.unreadCount,
+                lastMessage: chat.lastMessage,
+                history: chat.history || []
             };
-            picker.appendChild(span);
-        });
-        
-        const rect = msgElement.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
-        const pickerWidth = 190;
-        
-        let top = rect.top - 50;
-        if (top < 10) top = rect.bottom + 10;
-        if (top + 60 > viewportHeight) top = viewportHeight - 70;
-        if (top < 0) top = 5;
-        
-        let left;
-        if (isMyMessage) {
-            left = rect.left - pickerWidth - 8;
-            if (left < 5) {
-                left = rect.right + 2;
-            }
-        } else {
-            left = rect.right - 28;
-            if (left + pickerWidth > viewportWidth) {
-                left = rect.left - pickerWidth - 2;
-            }
         }
-        if (left < 5) left = 5;
-        if (left + pickerWidth > viewportWidth) left = viewportWidth - pickerWidth - 5;
-        
-        picker.style.position = 'fixed';
-        picker.style.top = top + 'px';
-        picker.style.left = left + 'px';
-        
-        document.body.appendChild(picker);
-        activeReactionPicker = picker;
-        
-        const closePicker = (e) => {
-            if (picker && !picker.contains(e.target)) {
-                picker.remove();
-                activeReactionPicker = null;
-                document.removeEventListener('click', closePicker);
-            }
-        };
-        setTimeout(() => document.addEventListener('click', closePicker), 10);
+        localStorage.setItem('soc-active-chats', JSON.stringify(toSave));
     }
     
-    function sendReactionToggle(msgId, emoji) {
-        if (!conn || !conn.open) return;
-        conn.send({ type: 'reaction_toggle', msgId: msgId, emoji: emoji });
-        toggleLocalReaction(msgId, emoji);
-    }
-    
-    function toggleLocalReaction(msgId, emoji) {
-        if (!reactionsStore.has(msgId)) {
-            reactionsStore.set(msgId, { my: null, peer: null });
-        }
-        const store = reactionsStore.get(msgId);
-        
-        if (store.my === emoji) {
-            store.my = null;
-        } else {
-            store.my = emoji;
-        }
-        updateReactionsUI(msgId);
-    }
-    
-    function handlePeerReaction(msgId, emoji) {
-        if (!reactionsStore.has(msgId)) {
-            reactionsStore.set(msgId, { my: null, peer: null });
-        }
-        const store = reactionsStore.get(msgId);
-        
-        if (store.peer === emoji) {
-            store.peer = null;
-        } else {
-            store.peer = emoji;
-        }
-        updateReactionsUI(msgId);
-    }
-    
-    function updateReactionsUI(msgId) {
-        const targetMsg = document.querySelector(`.msg[data-msg-id="${msgId}"]`);
-        if (!targetMsg) return;
-        
-        let reactionsContainer = targetMsg.querySelector('.reactions-container');
-        if (reactionsContainer) reactionsContainer.remove();
-        
-        const store = reactionsStore.get(msgId);
-        if (!store) return;
-        
-        reactionsContainer = document.createElement('div');
-        reactionsContainer.className = 'reactions-container';
-        
-        const hasMy = store.my !== null;
-        const hasPeer = store.peer !== null;
-        const sameEmoji = hasMy && hasPeer && store.my === store.peer;
-        
-        if (sameEmoji) {
-            const badge = document.createElement('div');
-            badge.className = 'reaction-badge my-reaction';
-            badge.innerHTML = `${store.my} <span class="reaction-count">2</span>`;
-            badge.onclick = (e) => {
-                e.stopPropagation();
-                sendReactionToggle(msgId, store.my);
-            };
-            reactionsContainer.appendChild(badge);
-        } else {
-            if (store.my) {
-                const badge = document.createElement('div');
-                badge.className = 'reaction-badge my-reaction';
-                badge.innerHTML = store.my;
-                badge.onclick = (e) => {
-                    e.stopPropagation();
-                    sendReactionToggle(msgId, store.my);
-                };
-                reactionsContainer.appendChild(badge);
-            }
-            if (store.peer) {
-                const badge = document.createElement('div');
-                badge.className = 'reaction-badge';
-                badge.innerHTML = store.peer;
-                badge.onclick = (e) => {
-                    e.stopPropagation();
-                    sendReactionToggle(msgId, store.peer);
-                };
-                reactionsContainer.appendChild(badge);
-            }
-        }
-        
-        if (reactionsContainer.children.length > 0) {
-            targetMsg.appendChild(reactionsContainer);
-        }
-    }
-    
-    function applyNicknameChange(newNick, newAvatar, newStatus, fromProfile = true) {
-        if (peer) peer.destroy();
-        myNick = newNick;
-        myAvatar = newAvatar;
-        myStatus = newStatus;
-        localStorage.setItem('soc-nickname', myNick);
-        localStorage.setItem('soc-avatar', myAvatar);
-        localStorage.setItem('soc-status', myStatus);
-        updateHomeUI();
-        
-        peer = new Peer(myNick, { debug: 2 });
-        peer.on('open', () => { 
-            updateStatus('ONLINE', '#da8f27');
-            if (conn && conn.open) {
-                conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
-            }
-        });
-        peer.on('error', (err) => { 
-            console.warn(err);
-            updateStatus('ERROR', '#aa5555');
-            if (err.type === 'unavailable-id') {
-                if (fromProfile) {
-                    showNicknameTakenError('profile');
-                } else {
-                    showNicknameTakenError('registration');
+    function loadSavedChats() {
+        const saved = localStorage.getItem('soc-active-chats');
+        if (saved) {
+            try {
+                const chats = JSON.parse(saved);
+                for (const [peerId, data] of Object.entries(chats)) {
+                    if (data.nick) {
+                        activeChats.set(peerId, {
+                            conn: null,
+                            nick: data.nick,
+                            avatar: data.avatar || 'image/ava1.png',
+                            status: data.status || 'offline',
+                            displayName: data.displayName || data.nick,
+                            unreadCount: data.unreadCount || 0,
+                            lastMessage: data.lastMessage || '---',
+                            history: data.history || []
+                        });
+                    }
                 }
-                myNick = localStorage.getItem('soc-nickname');
-                myAvatar = localStorage.getItem('soc-avatar') || 'image/ava1.png';
-                myStatus = localStorage.getItem('soc-status') || 'online';
-                updateHomeUI();
-                if (peer) peer.destroy();
-                peer = new Peer(myNick, { debug: 2 });
-            }
-        });
-        peer.on('connection', (incomingConn) => {
-            if (conn && (conn.open || conn.peerConnection)) { incomingConn.close(); return; }
-            conn = incomingConn;
-            setupConnection();
-        });
-    }
-    
-    function startWithNick(nick, fromRegistration = true) {
-        if (peer) peer.destroy();
-        peer = new Peer(nick, { debug: 2 });
-        peer.on('open', () => { 
-            updateStatus('ONLINE', '#da8f27');
-            if (fromRegistration) {
-                myNick = nick;
-                localStorage.setItem('soc-nickname', myNick);
-                updateHomeUI();
-            }
-        });
-        peer.on('error', (err) => { 
-            console.warn(err);
-            updateStatus('ERROR', '#aa5555');
-            if (err.type === 'unavailable-id') {
-                if (fromRegistration) {
-                    animateModalClose(document.getElementById('registrationModal'), () => {
-                        showNicknameTakenError('registration');
-                    });
-                }
-            }
-        });
-        peer.on('connection', (incomingConn) => {
-            if (conn && (conn.open || conn.peerConnection)) { incomingConn.close(); return; }
-            conn = incomingConn;
-            setupConnection();
-        });
-        updateStatus('ONLINE', '#da8f27');
-    }
-    
-    function setupConnection() {
-        if (!conn) return;
-        conn.on('open', () => {
-            conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
-            chatMessagesDiv.innerHTML = '';
-            lastDateLabel = '';
-            lastMessageText = "---";
-            reactionsStore.clear();
-            updateUIForConnectionState(true);
-            updateStatus(`CHAT WITH: ${connectedNick || 'friend'}`, '#559b61');
-            switchToChatMode();
-        });
-        conn.on('data', (payload) => {
-            if (payload && payload.type) {
-                if (payload.type === 'profile') {
-                    connectedNick = payload.nick;
-                    connectedAvatar = payload.avatar;
-                    connectedStatus = payload.status || 'user';
-                    updateChatHeader();
-                    updateUIForConnectionState(true);
-                    updateStatus(`CHAT WITH: ${connectedNick}`, '#559b61');
-                } else if (payload.type === 'clear') {
-                    localStorage.removeItem('soc-c-media-history');
-                    chatMessagesDiv.innerHTML = '';
-                    lastDateLabel = '';
-                    reactionsStore.clear();
-                } else if (payload.type === 'peer_closed_chat') {
-                    showAlert(`${payload.nick || 'Friend'} closed the chat`);
-                    fullCloseChat();
-                } else if (payload.type === 'text' || payload.type === 'image' || payload.type === 'audio') {
-                    if (payload.type === 'text') updateLastMessage('text', payload.data);
-                    else if (payload.type === 'image') updateLastMessage('image', null);
-                    else if (payload.type === 'audio') updateLastMessage('audio', null);
-                    addMsg(payload.data, 'other', payload.type, true, null, payload.msgId);
-                    incrementUnreadCount();
-                } else if (payload.type === 'reaction_toggle') {
-                    handlePeerReaction(payload.msgId, payload.emoji);
-                }
-            }
-        });
-        conn.on('close', () => {
-            fullCloseChat();
-        });
-    }
-    
-    function fullCloseChat() {
-        if (conn && conn.open) {
-            try { conn.send({ type: 'peer_closed_chat', nick: myNick }); } catch(e) {}
-            conn.close();
+            } catch(e) { console.error(e); }
         }
-        conn = null;
-        connectedNick = null;
-        connectedAvatar = null;
-        connectedStatus = null;
-        lastMessageText = "---";
-        reactionsStore.clear();
-        updateUIForConnectionState(false);
-        updateStatus('ONLINE', '#da8f27');
+    }
+    
+    function updateChatsListUI() {
+        let container = document.getElementById('chatsListContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        let hasChats = false;
+        for (const [peerId, chat] of activeChats.entries()) {
+            hasChats = true;
+            const chatRow = document.createElement('div');
+            chatRow.className = 'active-chat-row';
+            chatRow.style.margin = '0';
+            chatRow.style.marginBottom = '8px';
+            
+            const displayName = chat.displayName || chat.nick;
+            const statusClass = chat.status === 'online' ? 'online' : (chat.status === 'offline' ? 'offline' : 'away');
+            const isActive = (currentChatPeer === peerId);
+            
+            if (isActive) {
+                chatRow.style.border = '1px solid #888';
+                chatRow.style.background = '#1f1f1f';
+            }
+            
+            chatRow.innerHTML = `
+                <div class="active-chat-left" data-peer="${peerId}">
+                    <div class="active-chat-avatar" style="position:relative;">
+                        <img src="${chat.avatar || 'image/ava1.png'}" draggable="false">
+                        <span class="status-dot ${statusClass}" id="status-dot-${peerId}"></span>
+                    </div>
+                    <div class="active-chat-info">
+                        <div class="active-chat-nick">${escapeHtml(displayName)}</div>
+                        <div class="active-chat-lastmsg">${escapeHtml(chat.lastMessage || '---')}</div>
+                    </div>
+                    ${chat.unreadCount > 0 ? `<div class="unread-badge" style="position:relative; top:0; right:0;">${chat.unreadCount}</div>` : ''}
+                </div>
+                <button class="close-chat-icon" data-peer="${peerId}" onclick="event.stopPropagation(); removeChat('${peerId}')">
+                    <img src="image/close.png" alt="✕" draggable="false">
+                </button>
+            `;
+            
+            const chatLeft = chatRow.querySelector('.active-chat-left');
+            chatLeft.addEventListener('click', (function(id) {
+                return function() { openChat(id); };
+            })(peerId));
+            
+            container.appendChild(chatRow);
+        }
+        
+        if (hasChats) {
+            notConnectedPlaceholder.style.display = 'none';
+        } else {
+            notConnectedPlaceholder.style.display = 'flex';
+        }
+    }
+    
+    function loadChatHistoryForPeer(peerId) {
+        const chat = activeChats.get(peerId);
+        if (!chat || !chatMessagesDiv) return;
         chatMessagesDiv.innerHTML = '';
         lastDateLabel = '';
-        switchToHomeMode();
-        unreadCount = 0;
-        updateUnreadBadge();
-    }
-    
-    function connectToPeer() {
-        if (!peer) { showAlert("Initializing..."); return; }
-        const friendNick = document.getElementById('peer-nick-input').value.trim();
-        if (!friendNick) { showAlert("Enter friend's nickname"); return; }
-        if (friendNick === myNick) { showAlert("You cannot connect to yourself"); return; }
-        if (conn && conn.open) { conn.close(); }
-        chatMessagesDiv.innerHTML = '';
-        lastDateLabel = '';
-        lastMessageText = "---";
         reactionsStore.clear();
-        updateStatus('CONNECTING...', '#b0b0b0');
-        const newConn = peer.connect(friendNick);
-        conn = newConn;
-        setupConnection();
+        if (chat.history && chat.history.length) {
+            chat.history.forEach(item => {
+                addMsgToChat(item.data, item.side, item.type, item.time, item.msgId);
+            });
+        }
+        setTimeout(() => {
+            if (chatMessagesDiv) chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+        }, 100);
     }
     
-    function addMsg(data, side, type, saveToStorage = true, savedTime = null, existingMsgId = null) {
+    function addMsgToChat(data, side, type, savedTime = null, existingMsgId = null) {
         const container = chatMessagesDiv;
         if (!container) return;
-        if (side === 'my') {
-            if (type === 'text') updateLastMessage('text', data);
-            else if (type === 'image') updateLastMessage('image', null);
-            else if (type === 'audio') updateLastMessage('audio', null);
-        }
+        
         const now = savedTime ? new Date(savedTime) : new Date();
         const dateOptions = { day: 'numeric', month: 'long' };
         const currentDateLabel = now.toLocaleDateString('en-US', dateOptions);
         if (currentDateLabel !== lastDateLabel) {
-            const dateDiv = document.createElement('div'); dateDiv.className = 'date-divider'; dateDiv.innerText = currentDateLabel;
+            const dateDiv = document.createElement('div'); 
+            dateDiv.className = 'date-divider'; 
+            dateDiv.innerText = currentDateLabel;
             container.appendChild(dateDiv);
             lastDateLabel = currentDateLabel;
         }
+        
         const msgId = existingMsgId || `msg_${Date.now()}_${Math.random()}`;
         const msgDiv = document.createElement('div'); 
         msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
@@ -1670,20 +1287,17 @@ function showModalWithAnimation(modalElement) {
         else if (type === 'audio') { const audioEl = document.createElement('audio'); audioEl.controls = true; audioEl.src = data; content.appendChild(audioEl); }
         msgDiv.appendChild(content);
         
-        const timeDiv = document.createElement('div'); timeDiv.className = 'msg-time';
+        const timeDiv = document.createElement('div'); 
+        timeDiv.className = 'msg-time';
         timeDiv.innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
         msgDiv.appendChild(timeDiv);
         
         container.appendChild(msgDiv);
         
         const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
-        if (side === 'my' || wasNearBottom) {
-            container.scrollTop = container.scrollHeight;
-        }
+        if (side === 'my' || wasNearBottom) container.scrollTop = container.scrollHeight;
         
-        if (!reactionsStore.has(msgId)) {
-            reactionsStore.set(msgId, { my: null, peer: null });
-        }
+        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
         
         const isMyMessage = (side === 'my');
         msgDiv.addEventListener('contextmenu', (e) => {
@@ -1707,64 +1321,358 @@ function showModalWithAnimation(modalElement) {
             if(sound) sound.play().catch(e=>{}); 
         }
         
-        if (saveToStorage) {
-            const history = JSON.parse(localStorage.getItem('soc-c-media-history') || '[]');
-            history.push({ data, side, type, time: now.getTime(), msgId: msgId });
-            if (history.length > 50) history.shift();
-            localStorage.setItem('soc-c-media-history', JSON.stringify(history));
+        setTimeout(() => checkScrollPosition(), 50);
+    }
+    
+    // ========== ФУНКЦИИ РЕАКЦИЙ ==========
+    
+    function showReactionPicker(msgElement, msgId, isMyMessage) {
+        if (activeReactionPicker) { activeReactionPicker.remove(); activeReactionPicker = null; }
+        const picker = document.createElement('div');
+        picker.className = 'reaction-picker';
+        const reactions = ['❤️', '👍', '👎', '😂', '❗', '❓'];
+        reactions.forEach(emoji => {
+            const span = document.createElement('span');
+            span.innerText = emoji;
+            span.className = 'reaction-emoji';
+            span.onclick = (e) => {
+                e.stopPropagation();
+                sendReactionToggle(msgId, emoji);
+                picker.remove();
+                activeReactionPicker = null;
+            };
+            picker.appendChild(span);
+        });
+        
+        const rect = msgElement.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        let top = rect.top - 50;
+        if (top < 10) top = rect.bottom + 10;
+        if (top + 60 > viewportHeight) top = viewportHeight - 70;
+        if (top < 0) top = 5;
+        
+        let left;
+        if (isMyMessage) {
+            left = rect.left - 190 - 8;
+            if (left < 5) left = rect.right + 2;
+        } else {
+            left = rect.right - 28;
+            if (left + 190 > viewportWidth) left = rect.left - 190 - 2;
+        }
+        if (left < 5) left = 5;
+        if (left + 190 > viewportWidth) left = viewportWidth - 195;
+        
+        picker.style.cssText = `position:fixed; top:${top}px; left:${left}px; z-index:1000;`;
+        document.body.appendChild(picker);
+        activeReactionPicker = picker;
+        
+        const closePicker = (e) => {
+            if (picker && !picker.contains(e.target)) {
+                picker.remove();
+                activeReactionPicker = null;
+                document.removeEventListener('click', closePicker);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', closePicker), 10);
+    }
+    
+    function sendReactionToggle(msgId, emoji) {
+        if (!currentConn || !currentConn.open) return;
+        currentConn.send({ type: 'reaction_toggle', msgId: msgId, emoji: emoji });
+        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
+        const store = reactionsStore.get(msgId);
+        store.my = (store.my === emoji) ? null : emoji;
+        updateReactionsUI(msgId);
+    }
+    
+    function handlePeerReaction(msgId, emoji) {
+        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
+        const store = reactionsStore.get(msgId);
+        store.peer = (store.peer === emoji) ? null : emoji;
+        updateReactionsUI(msgId);
+    }
+    
+    function updateReactionsUI(msgId) {
+        const targetMsg = document.querySelector(`.msg[data-msg-id="${msgId}"]`);
+        if (!targetMsg) return;
+        let reactionsContainer = targetMsg.querySelector('.reactions-container');
+        if (reactionsContainer) reactionsContainer.remove();
+        const store = reactionsStore.get(msgId);
+        if (!store) return;
+        reactionsContainer = document.createElement('div');
+        reactionsContainer.className = 'reactions-container';
+        if (store.my && store.peer && store.my === store.peer) {
+            const badge = document.createElement('div');
+            badge.className = 'reaction-badge my-reaction';
+            badge.innerHTML = `${store.my} <span class="reaction-count">2</span>`;
+            badge.onclick = (e) => { e.stopPropagation(); sendReactionToggle(msgId, store.my); };
+            reactionsContainer.appendChild(badge);
+        } else {
+            if (store.my) {
+                const badge = document.createElement('div');
+                badge.className = 'reaction-badge my-reaction';
+                badge.innerHTML = store.my;
+                badge.onclick = (e) => { e.stopPropagation(); sendReactionToggle(msgId, store.my); };
+                reactionsContainer.appendChild(badge);
+            }
+            if (store.peer) {
+                const badge = document.createElement('div');
+                badge.className = 'reaction-badge';
+                badge.innerHTML = store.peer;
+                reactionsContainer.appendChild(badge);
+            }
+        }
+        if (reactionsContainer.children.length > 0) targetMsg.appendChild(reactionsContainer);
+    }
+    
+    // ========== ОСНОВНЫЕ ФУНКЦИИ ЧАТА ==========
+    
+    function switchToChatMode() {
+        isChatOpen = true;
+        homeScreen.classList.add('chat-open');
+        chatScreen.classList.add('chat-visible');
+        setTimeout(() => {
+            document.getElementById('msgInput').focus();
+            if (chatMessagesDiv) {
+                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+                setTimeout(() => checkScrollPosition(), 100);
+            }
+        }, 200);
+    }
+    
+    function switchToHomeMode() {
+        isChatOpen = false;
+        homeScreen.classList.remove('chat-open');
+        chatScreen.classList.remove('chat-visible');
+        updateChatsListUI();
+    }
+    
+    function checkScrollPosition() {
+        if (!chatMessagesDiv) return;
+        const isNearBottom = chatMessagesDiv.scrollHeight - chatMessagesDiv.scrollTop - chatMessagesDiv.clientHeight < 100;
+        if (!isNearBottom && !isUserScrolling) scrollDownBtn.classList.add('visible');
+        else scrollDownBtn.classList.remove('visible');
+    }
+    
+    function scrollToBottom() {
+        if (!chatMessagesDiv) return;
+        chatMessagesDiv.scrollTo({ top: chatMessagesDiv.scrollHeight, behavior: 'smooth' });
+        scrollDownBtn.classList.remove('visible');
+        isUserScrolling = false;
+    }
+    
+    function onChatScroll() {
+        isUserScrolling = true;
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => { isUserScrolling = false; checkScrollPosition(); }, 150);
+        checkScrollPosition();
+    }
+    
+    function setupConnectionForPeer(peerId, connection) {
+        const chat = activeChats.get(peerId);
+        if (!chat) return;
+        chat.conn = connection;
+        
+        connection.on('open', () => {
+            connection.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
+            if (currentChatPeer === peerId) {
+                currentConn = connection;
+                updateStatus(`CHAT WITH: ${chat.nick}`, '#559b61');
+            }
+        });
+        
+        connection.on('data', (payload) => {
+            const chatData = activeChats.get(peerId);
+            if (!chatData) return;
+            
+            if (payload.type === 'profile') {
+                chatData.nick = payload.nick;
+                chatData.avatar = payload.avatar;
+                chatData.status = payload.status || 'online';
+                const savedDisplay = localStorage.getItem(`display_name_${peerId}`);
+                chatData.displayName = savedDisplay || chatData.nick;
+                saveAllChats();
+                updatePeerStatusUI(peerId, chatData.status);
+                if (currentChatPeer === peerId) {
+                    peerNickChat.innerText = chatData.displayName;
+                    peerAvatarChat.src = chatData.avatar;
+                    const statusDot = document.getElementById('peerStatusDot');
+                    if (statusDot) statusDot.className = `status-dot ${chatData.status === 'online' ? 'online' : 'offline'}`;
+                }
+                updateChatsListUI();
+            } else if (payload.type === 'text' || payload.type === 'image' || payload.type === 'audio') {
+                chatData.lastMessage = payload.type === 'text' ? 
+                    (payload.data.length > 30 ? payload.data.substring(0,27)+'...' : payload.data) : 
+                    (payload.type === 'image' ? '✿ Photo' : '♪ Voice');
+                if (currentChatPeer !== peerId) chatData.unreadCount = (chatData.unreadCount || 0) + 1;
+                if (!chatData.history) chatData.history = [];
+                chatData.history.push({ data: payload.data, side: 'other', type: payload.type, time: Date.now(), msgId: payload.msgId });
+                if (chatData.history.length > 50) chatData.history.shift();
+                saveAllChats();
+                if (currentChatPeer === peerId) {
+                    addMsgToChat(payload.data, 'other', payload.type, null, payload.msgId);
+                    const sound = document.getElementById('msgSound');
+                    if(sound) sound.play().catch(e=>{});
+                } else {
+                    updateChatsListUI();
+                }
+            } else if (payload.type === 'reaction_toggle') {
+                if (currentChatPeer === peerId) handlePeerReaction(payload.msgId, payload.emoji);
+            } else if (payload.type === 'peer_closed_chat') {
+                removeChat(peerId);
+            }
+        });
+        
+        connection.on('close', () => {
+            const chatData = activeChats.get(peerId);
+            if (chatData) {
+                chatData.status = 'offline';
+                updatePeerStatusUI(peerId, 'offline');
+                saveAllChats();
+                updateChatsListUI();
+                if (currentChatPeer === peerId) updateStatus('OFFLINE', '#aa5555');
+            }
+        });
+    }
+    
+    function updatePeerStatusUI(peerId, status) {
+        const dot = document.getElementById(`status-dot-${peerId}`);
+        if (dot) dot.className = `status-dot ${status === 'online' ? 'online' : 'offline'}`;
+        if (currentChatPeer === peerId) {
+            const chatDot = document.getElementById('peerStatusDot');
+            if (chatDot) chatDot.className = `status-dot ${status === 'online' ? 'online' : 'offline'}`;
+        }
+    }
+    
+    function openChat(peerId) {
+        const chat = activeChats.get(peerId);
+        if (!chat) return;
+        
+        currentChatPeer = peerId;
+        currentConn = chat.conn;
+        
+        if (!chat.conn || !chat.conn.open) {
+            if (peer) {
+                const newConn = peer.connect(peerId);
+                chat.conn = newConn;
+                setupConnectionForPeer(peerId, newConn);
+                currentConn = newConn;
+            }
         }
         
-        setTimeout(() => checkScrollPosition(), 50);
-        return msgId;
+        chat.unreadCount = 0;
+        loadChatHistoryForPeer(peerId);
+        
+        peerNickChat.innerText = chat.displayName || chat.nick;
+        peerAvatarChat.src = chat.avatar || 'image/ava1.png';
+        const statusDot = document.getElementById('peerStatusDot');
+        if (statusDot) statusDot.className = `status-dot ${chat.status === 'online' ? 'online' : 'offline'}`;
+        
+        updateStatus(`CHAT WITH: ${chat.nick}`, '#559b61');
+        updateChatsListUI();
+        switchToChatMode();
     }
     
-    function loadHistory() {
-        const raw = localStorage.getItem('soc-c-media-history');
-        if (!raw) return;
-        try {
-            const history = JSON.parse(raw);
-            if (history.length > 0) {
-                chatMessagesDiv.innerHTML = "";
-                lastDateLabel = "";
-                reactionsStore.clear();
-                history.forEach(item => {
-                    addMsg(item.data, item.side, item.type, false, item.time, item.msgId);
-                });
-                const lastMsg = history[history.length - 1];
-                if (lastMsg) updateLastMessage(lastMsg.type, lastMsg.data);
-                setTimeout(() => {
-                    if (chatMessagesDiv) chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-                }, 100);
+function removeChat(peerId) {
+    // Показываем подтверждение
+    const overlay = document.getElementById('modal-overlay');
+    document.getElementById('modal-text').innerHTML = `Close chat with ${escapeHtml(activeChats.get(peerId)?.displayName || peerId)}?<br><small style="color:#888;">All messages will be deleted</small>`;
+    const actionsDiv = document.getElementById('modal-actions');
+    actionsDiv.innerHTML = `<button class="modal-btn" id="confirmCloseNo">CANCEL</button><button class="modal-btn" id="confirmCloseYes">CLOSE</button>`;
+    showModalWithAnimation(overlay);
+    
+    document.getElementById('confirmCloseNo').onclick = () => {
+        animateModalClose(overlay);
+    };
+    
+    document.getElementById('confirmCloseYes').onclick = () => {
+        animateModalClose(overlay, () => {
+            const chat = activeChats.get(peerId);
+            if (chat) {
+                if (chat.conn && chat.conn.open) {
+                    try { chat.conn.send({ type: 'peer_closed_chat', nick: myNick }); } catch(e) {}
+                    chat.conn.close();
+                }
+                activeChats.delete(peerId);
+                saveAllChats();
+                if (currentChatPeer === peerId) {
+                    currentChatPeer = null;
+                    currentConn = null;
+                    chatMessagesDiv.innerHTML = '';
+                    lastDateLabel = '';
+                    updateStatus('ONLINE', '#da8f27');
+                    switchToHomeMode();
+                }
+                updateChatsListUI();
             }
-        } catch(e) { console.error("History load error", e); }
-    }
+        });
+    };
+}
     
-    function updateStatus(text, colorHint) {
-        const st = document.getElementById('status');
-        st.innerText = text.toUpperCase();
-        st.style.color = colorHint || '#bbb';
+    function connectToPeer() {
+        if (!peer) { showAlert("Initializing... Please wait"); return; }
+        const friendNick = document.getElementById('peer-nick-input').value.trim();
+        if (!friendNick) { showAlert("Enter friend's nickname"); return; }
+        if (friendNick === myNick) { showAlert("You cannot connect to yourself"); return; }
+        if (activeChats.has(friendNick)) { openChat(friendNick); return; }
+        if (activeChats.size >= 30) { showAlert("Maximum 30 simultaneous chats"); return; }
+        
+        updateStatus('CONNECTING...', '#b0b0b0');
+        const newConn = peer.connect(friendNick);
+        activeChats.set(friendNick, {
+            conn: newConn,
+            nick: friendNick,
+            avatar: 'image/ava1.png',
+            status: 'connecting',
+            displayName: friendNick,
+            unreadCount: 0,
+            lastMessage: '---',
+            history: []
+        });
+        saveAllChats();
+        setupConnectionForPeer(friendNick, newConn);
+        openChat(friendNick);
     }
     
     function sendText() {
         const input = document.getElementById('msgInput');
         const text = input.value.trim();
         if (text === "") return;
-        if (conn && conn.open) {
+        if (currentConn && currentConn.open) {
             const msgId = `msg_${Date.now()}_${Math.random()}`;
-            conn.send({ type: 'text', data: text, msgId: msgId });
-            addMsg(text, 'my', 'text', true, null, msgId);
+            currentConn.send({ type: 'text', data: text, msgId: msgId });
+            addMsgToChat(text, 'my', 'text', null, msgId);
+            const chat = activeChats.get(currentChatPeer);
+            if (chat) {
+                chat.lastMessage = text.length > 30 ? text.substring(0,27)+'...' : text;
+                if (!chat.history) chat.history = [];
+                chat.history.push({ data: text, side: 'my', type: 'text', time: Date.now(), msgId: msgId });
+                if (chat.history.length > 50) chat.history.shift();
+                saveAllChats();
+                updateChatsListUI();
+            }
             input.value = '';
         }
     }
     
     function sendFile(file) {
         if (!file) return;
-        if (conn && conn.open) {
+        if (currentConn && currentConn.open) {
             const reader = new FileReader();
             reader.onload = (ev) => { 
                 const msgId = `msg_${Date.now()}_${Math.random()}`;
-                conn.send({ type: 'image', data: ev.target.result, msgId: msgId }); 
-                addMsg(ev.target.result, 'my', 'image', true, null, msgId); 
+                currentConn.send({ type: 'image', data: ev.target.result, msgId: msgId });
+                addMsgToChat(ev.target.result, 'my', 'image', null, msgId);
+                const chat = activeChats.get(currentChatPeer);
+                if (chat) {
+                    chat.lastMessage = '✿ Photo';
+                    if (!chat.history) chat.history = [];
+                    chat.history.push({ data: ev.target.result, side: 'my', type: 'image', time: Date.now(), msgId: msgId });
+                    if (chat.history.length > 50) chat.history.shift();
+                    saveAllChats();
+                    updateChatsListUI();
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -1790,10 +1698,19 @@ function showModalWithAnimation(modalElement) {
                 const blob = new Blob(audioChunks, { type: 'audio/webm' });
                 const reader = new FileReader();
                 reader.onload = (ev) => { 
-                    if (conn && conn.open) {
+                    if (currentConn && currentConn.open) {
                         const msgId = `msg_${Date.now()}_${Math.random()}`;
-                        conn.send({ type: 'audio', data: ev.target.result, msgId: msgId }); 
-                        addMsg(ev.target.result, 'my', 'audio', true, null, msgId); 
+                        currentConn.send({ type: 'audio', data: ev.target.result, msgId: msgId });
+                        addMsgToChat(ev.target.result, 'my', 'audio', null, msgId);
+                        const chat = activeChats.get(currentChatPeer);
+                        if (chat) {
+                            chat.lastMessage = '♪ Voice';
+                            if (!chat.history) chat.history = [];
+                            chat.history.push({ data: ev.target.result, side: 'my', type: 'audio', time: Date.now(), msgId: msgId });
+                            if (chat.history.length > 50) chat.history.shift();
+                            saveAllChats();
+                            updateChatsListUI();
+                        }
                     }
                 };
                 reader.readAsDataURL(blob);
@@ -1804,24 +1721,82 @@ function showModalWithAnimation(modalElement) {
         } catch(err) { showAlert("Mic access denied"); }
     }
     
-    function showAlert(msg, callback) {
-        const overlay = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerText = msg;
-        const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `<button class="modal-btn" id="alertOkBtn">OK</button>`;
-        showModalWithAnimation(overlay);
-        document.getElementById('alertOkBtn').onclick = () => {
-            animateModalClose(overlay, () => {
+    // ========== МОДАЛЬНЫЕ ОКНА ==========
+    
+    function animateModalClose(modalElement, callback) {
+        const modalContent = modalElement.querySelector('.modal');
+        if (modalContent) {
+            modalContent.classList.remove('modal-exit');
+            void modalContent.offsetWidth;
+            modalContent.classList.add('modal-exit');
+            setTimeout(() => {
+                modalElement.style.display = 'none';
+                modalContent.classList.remove('modal-exit');
                 if (callback) callback();
+            }, 150);
+        } else {
+            modalElement.style.display = 'none';
+            if (callback) callback();
+        }
+    }
+    
+    function showModalWithAnimation(modalElement) {
+        modalElement.style.display = 'flex';
+        const modalContent = modalElement.querySelector('.modal');
+        if (modalContent) {
+            modalContent.classList.remove('modal-exit');
+            void modalContent.offsetWidth;
+            modalContent.style.animation = 'none';
+            void modalContent.offsetWidth;
+            modalContent.style.animation = 'modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
+        }
+    }
+    
+    function showValidationError(returnToModal) {
+        const overlay = document.getElementById('modal-overlay');
+        document.getElementById('modal-text').innerHTML = `Nickname must be 3-20 characters (letters, numbers, _)`;
+        document.getElementById('modal-actions').innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
+        showModalWithAnimation(overlay);
+        document.getElementById('errorOkBtn').onclick = () => {
+            animateModalClose(overlay, () => {
+                if (returnToModal === 'registration') {
+                    showModalWithAnimation(document.getElementById('registrationModal'));
+                    document.getElementById('regNickInput').value = '';
+                    document.getElementById('regNickInput').focus();
+                } else if (returnToModal === 'profile') {
+                    showModalWithAnimation(document.getElementById('profileModal'));
+                }
             });
         };
     }
     
+    function showNicknameTakenError(returnToModal) {
+        const overlay = document.getElementById('modal-overlay');
+        document.getElementById('modal-text').innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Nickname already taken! Choose another one.</b>`;
+        document.getElementById('modal-actions').innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
+        showModalWithAnimation(overlay);
+        document.getElementById('errorOkBtn').onclick = () => {
+            animateModalClose(overlay, () => {
+                if (returnToModal === 'registration') {
+                    showModalWithAnimation(document.getElementById('registrationModal'));
+                    document.getElementById('regNickInput').value = '';
+                    document.getElementById('regNickInput').focus();
+                } else if (returnToModal === 'profile') {
+                    showModalWithAnimation(document.getElementById('profileModal'));
+                }
+            });
+        };
+    }
+    
+    function showRegistrationModal() {
+        document.getElementById('regNickInput').value = '';
+        showModalWithAnimation(document.getElementById('registrationModal'));
+        setTimeout(() => document.getElementById('regNickInput').focus(), 100);
+    }
+    
     function showRules(fromRegistration = false) {
         const overlay = document.getElementById('modal-overlay');
-        const txtDiv = document.getElementById('modal-text');
-        txtDiv.style.textAlign = 'left';
-        txtDiv.innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Legal Disclaimer</b>
+        document.getElementById('modal-text').innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Legal Disclaimer</b>
         This application uses P2P (Peer-to-Peer) technology. All data is transferred directly between devices.<br><br>
         The developer does NOT store, monitor, or have access to your conversations. Therefore, the developer is NOT responsible for user behavior or content shared.<br><br>
         This tool was created for good purposes and privacy. Please use it responsibly.`;
@@ -1829,53 +1804,21 @@ function showModalWithAnimation(modalElement) {
         showModalWithAnimation(overlay);
         document.getElementById('rulesOkBtn').onclick = () => {
             animateModalClose(overlay, () => {
-                if (fromRegistration) {
-                    showModalWithAnimation(document.getElementById('registrationModal'));
-                }
+                if (fromRegistration) showModalWithAnimation(document.getElementById('registrationModal'));
             });
         };
     }
     
-    function showRulesFromHome() {
-        showRules(false);
-    }
-    
-    document.getElementById('regSubmitBtn').onclick = () => {
-        const newNick = document.getElementById('regNickInput').value.trim();
-        if (!isValidNick(newNick)) {
-            animateModalClose(document.getElementById('registrationModal'), () => {
-                showValidationError('registration');
-            });
-            return;
-        }
-        animateModalClose(document.getElementById('registrationModal'), () => {
-            startWithNick(newNick, true);
-        });
-    };
-    
-    document.getElementById('regRulesBtn').onclick = () => {
-        animateModalClose(document.getElementById('registrationModal'), () => {
-            showRules(true);
-        });
-    };
-    
-    let tempAvatar = myAvatar;
-    let tempStatus = myStatus;
-    let tempNick = myNick;
+    function showRulesFromHome() { showRules(false); }
     
     function openProfileModal() {
-        tempNick = myNick;
-        tempAvatar = myAvatar;
-        tempStatus = myStatus;
         document.getElementById('modalNickInput').value = myNick;
         document.getElementById('modalAvatarImg').src = myAvatar;
         document.getElementById('modalStatusSelect').value = myStatus;
         showModalWithAnimation(document.getElementById('profileModal'));
     }
     
-    function openAvatarUploadFromProfile() {
-        document.getElementById('customAvatarInput').click();
-    }
+    function openAvatarUploadFromProfile() { document.getElementById('customAvatarInput').click(); }
     
     window.handleCustomAvatarUpload = function(file) {
         if (!file) return;
@@ -1887,14 +1830,132 @@ function showModalWithAnimation(modalElement) {
         reader.readAsDataURL(file);
     };
     
-    document.getElementById('mainProfileBtn').addEventListener('click', openProfileModal);
-    document.getElementById('modalAvatarClickArea').onclick = (e) => { 
-        e.stopPropagation(); 
-        openAvatarUploadFromProfile(); 
+function openPeerProfile() {
+    const peerId = currentChatPeer;
+    if (!peerId) return;
+    const chat = activeChats.get(peerId);
+    if (!chat) return;
+    
+    const currentDisplayName = chat.displayName || chat.nick;
+    
+    document.getElementById('peerModalAvatar').src = chat.avatar || 'image/ava1.png';
+    document.getElementById('editPeerDisplayName').value = currentDisplayName;
+    document.getElementById('realNickDisplay').innerHTML = 'ID: ' + escapeHtml(chat.nick);
+    
+    showModalWithAnimation(document.getElementById('peerProfileModal'));
+    
+    const cancelBtn = document.getElementById('cancelPeerEdit');
+    const saveBtn = document.getElementById('savePeerDisplayNameBtn');
+    
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    const newSaveBtn = saveBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+    
+    newCancelBtn.onclick = () => {
+        animateModalClose(document.getElementById('peerProfileModal'));
     };
     
-    document.getElementById('cancelProfileBtn').onclick = () => { animateModalClose(document.getElementById('profileModal')); };
+    newSaveBtn.onclick = () => {
+        const newDisplayName = document.getElementById('editPeerDisplayName').value.trim();
+        
+        if (newDisplayName === "") {
+            chat.displayName = chat.nick;
+            localStorage.removeItem(`display_name_${peerId}`);
+        } else {
+            chat.displayName = newDisplayName;
+            localStorage.setItem(`display_name_${peerId}`, newDisplayName);
+        }
+        
+        if (currentChatPeer === peerId) {
+            peerNickChat.innerText = chat.displayName;
+        }
+        
+        updateChatsListUI();
+        saveAllChats();
+        animateModalClose(document.getElementById('peerProfileModal'));
+    };
+}
     
+    let tempAvatar = myAvatar;
+    
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    
+    function startWithNick(nick, fromRegistration = true) {
+        if (peer) peer.destroy();
+        peer = new Peer(nick, { debug: 2 });
+        
+        peer.on('open', () => {
+            updateStatus('ONLINE', '#da8f27');
+            if (fromRegistration) {
+                myNick = nick;
+                localStorage.setItem('soc-nickname', myNick);
+                updateHomeUI();
+            }
+            loadSavedChats();
+            for (const [peerId, chat] of activeChats.entries()) {
+                if (peerId !== myNick && (!chat.conn || !chat.conn.open)) {
+                    const newConn = peer.connect(peerId);
+                    chat.conn = newConn;
+                    setupConnectionForPeer(peerId, newConn);
+                }
+            }
+            updateChatsListUI();
+        });
+        
+        peer.on('error', (err) => {
+            console.warn(err);
+            updateStatus('ERROR', '#aa5555');
+            if (err.type === 'unavailable-id' && fromRegistration) {
+                animateModalClose(document.getElementById('registrationModal'), () => {
+                    showNicknameTakenError('registration');
+                });
+            }
+        });
+        
+        peer.on('connection', (incomingConn) => {
+            const peerId = incomingConn.peer;
+            if (activeChats.has(peerId)) {
+                const existing = activeChats.get(peerId);
+                if (existing.conn && existing.conn.open) { incomingConn.close(); return; }
+            }
+            if (activeChats.size >= 30) { incomingConn.close(); return; }
+            activeChats.set(peerId, {
+                conn: incomingConn,
+                nick: peerId,
+                avatar: 'image/ava1.png',
+                status: 'online',
+                displayName: peerId,
+                unreadCount: 0,
+                lastMessage: '---',
+                history: []
+            });
+            saveAllChats();
+            setupConnectionForPeer(peerId, incomingConn);
+            updateChatsListUI();
+        });
+        
+        updateStatus('CONNECTING...', '#b0b0b0');
+    }
+    
+    // ========== ОБРАБОТЧИКИ ==========
+    
+    document.getElementById('regSubmitBtn').onclick = () => {
+        const newNick = document.getElementById('regNickInput').value.trim();
+        if (!isValidNick(newNick)) {
+            animateModalClose(document.getElementById('registrationModal'), () => { showValidationError('registration'); });
+            return;
+        }
+        animateModalClose(document.getElementById('registrationModal'), () => { startWithNick(newNick, true); });
+    };
+    
+    document.getElementById('regRulesBtn').onclick = () => {
+        animateModalClose(document.getElementById('registrationModal'), () => { showRules(true); });
+    };
+    
+    document.getElementById('mainProfileBtn').addEventListener('click', openProfileModal);
+    document.getElementById('modalAvatarClickArea').onclick = (e) => { e.stopPropagation(); openAvatarUploadFromProfile(); };
+    document.getElementById('cancelProfileBtn').onclick = () => { animateModalClose(document.getElementById('profileModal')); };
     document.getElementById('saveProfileBtn').onclick = () => {
         let newNick = document.getElementById('modalNickInput').value.trim();
         let newAvatar = tempAvatar;
@@ -1906,15 +1967,13 @@ function showModalWithAnimation(modalElement) {
             localStorage.setItem('soc-avatar', myAvatar);
             localStorage.setItem('soc-status', myStatus);
             updateHomeUI();
-            if (conn && conn.open) conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
+            if (currentConn && currentConn.open) currentConn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
             animateModalClose(document.getElementById('profileModal'));
             return;
         }
         
         if (!isValidNick(newNick)) {
-            animateModalClose(document.getElementById('profileModal'), () => {
-                showValidationError('profile');
-            });
+            animateModalClose(document.getElementById('profileModal'), () => { showValidationError('profile'); });
             return;
         }
         
@@ -1938,13 +1997,13 @@ function showModalWithAnimation(modalElement) {
         
         peer.on('open', () => {
             updateStatus('ONLINE', '#da8f27');
-            if (conn && conn.open) {
-                conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
+            if (currentConn && currentConn.open) currentConn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
+            for (const [peerId, chat] of activeChats.entries()) {
+                if (chat.conn && chat.conn.open) chat.conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
             }
         });
         
         peer.on('error', (err) => {
-            console.warn(err);
             if (err.type === 'unavailable-id') {
                 myNick = oldNick;
                 myAvatar = oldAvatar;
@@ -1955,78 +2014,49 @@ function showModalWithAnimation(modalElement) {
                 updateHomeUI();
                 if (peer) peer.destroy();
                 peer = oldPeer;
-                if (oldPeer) {
-                    oldPeer.on('connection', (incomingConn) => {
-                        if (conn && (conn.open || conn.peerConnection)) { incomingConn.close(); return; }
-                        conn = incomingConn;
-                        setupConnection();
-                    });
-                }
                 showNicknameTakenError('profile');
             }
         });
         
         peer.on('connection', (incomingConn) => {
-            if (conn && (conn.open || conn.peerConnection)) { incomingConn.close(); return; }
-            conn = incomingConn;
-            setupConnection();
+            const peerId = incomingConn.peer;
+            if (activeChats.has(peerId)) {
+                const existing = activeChats.get(peerId);
+                if (existing.conn && existing.conn.open) { incomingConn.close(); return; }
+            }
+            if (activeChats.size >= 30) { incomingConn.close(); return; }
+            activeChats.set(peerId, {
+                conn: incomingConn,
+                nick: peerId,
+                avatar: 'image/ava1.png',
+                status: 'online',
+                displayName: peerId,
+                unreadCount: 0,
+                lastMessage: '---',
+                history: []
+            });
+            saveAllChats();
+            setupConnectionForPeer(peerId, incomingConn);
+            updateChatsListUI();
         });
     };
     
-    function openPeerProfile() {
-        if(connectedNick) {
-            document.getElementById('peerModalAvatar').src = connectedAvatar || 'image/ava1.png';
-            document.getElementById('peerModalNick').innerText = connectedNick;
-            document.getElementById('peerModalStatus').innerText = connectedStatus || 'user';
-            showModalWithAnimation(document.getElementById('peerProfileModal'));
-        }
-    }
-    document.getElementById('closePeerModal').onclick = () => { animateModalClose(document.getElementById('peerProfileModal')); };
+    document.getElementById('backHomeBtn').addEventListener('click', switchToHomeMode);
+    document.getElementById('peerInfoBtn').addEventListener('click', openPeerProfile);
     
-    function switchToChatMode() {
-        isChatOpen = true;
-        resetUnreadCount();
-        homeScreen.classList.add('chat-open');
-        chatScreen.classList.add('chat-visible');
-        setTimeout(() => {
-            document.getElementById('msgInput').focus();
-            if (chatMessagesDiv) {
-                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-                setTimeout(() => checkScrollPosition(), 100);
-            }
-        }, 200);
-    }
+    if (scrollDownBtn) scrollDownBtn.addEventListener('click', scrollToBottom);
+    if (chatMessagesDiv) chatMessagesDiv.addEventListener('scroll', onChatScroll);
     
-    function switchToHomeMode() {
-        isChatOpen = false;
-        homeScreen.classList.remove('chat-open');
-        chatScreen.classList.remove('chat-visible');
-        setTimeout(() => {
-            updateUIForConnectionState(!!(connectedNick && conn && conn.open));
-        }, 300);
-    }
+    document.getElementById('peer-nick-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); connectToPeer(); }
+    });
     
-    function askCloseChat() {
-        if(!conn || !conn.open) return;
-        const overlay = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerText = "Close chat?";
-        const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `<button class="modal-btn" id="confirmNo">CANCEL</button><button class="modal-btn" id="confirmYes">CLOSE</button>`;
-        showModalWithAnimation(overlay);
-        document.getElementById('confirmNo').onclick = () => animateModalClose(overlay);
-        document.getElementById('confirmYes').onclick = () => {
-            animateModalClose(overlay, () => {
-                fullCloseChat();
-            });
-        };
-    }
-    
+    // Drag and drop
     const dropOverlay = document.getElementById('dropOverlay');
-    
     window.addEventListener('dragover', (e) => { e.preventDefault(); });
     window.addEventListener('dragenter', (e) => {
         e.preventDefault();
-        if (chatScreen.classList.contains('chat-visible') && conn && conn.open) {
+        if (chatScreen.classList.contains('chat-visible') && currentConn && currentConn.open) {
             dropOverlay.classList.add('active');
         }
     });
@@ -2039,60 +2069,25 @@ function showModalWithAnimation(modalElement) {
     window.addEventListener('drop', (e) => {
         e.preventDefault();
         dropOverlay.classList.remove('active');
-        if (!chatScreen.classList.contains('chat-visible') || !conn || !conn.open) return;
+        if (!chatScreen.classList.contains('chat-visible') || !currentConn || !currentConn.open) return;
         const files = e.dataTransfer.files;
-        if (files.length > 0 && files[0].type.indexOf('image') !== -1) {
-            const file = files[0];
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const msgId = `msg_${Date.now()}_${Math.random()}`;
-                conn.send({ type: 'image', data: ev.target.result, msgId: msgId });
-                addMsg(ev.target.result, 'my', 'image', true, null, msgId);
-            };
-            reader.readAsDataURL(file);
-        }
+        if (files.length > 0 && files[0].type.indexOf('image') !== -1) sendFile(files[0]);
     });
     
     document.addEventListener('paste', (e) => {
-        if (!chatScreen.classList.contains('chat-visible') || !conn || !conn.open) return;
+        if (!chatScreen.classList.contains('chat-visible') || !currentConn || !currentConn.open) return;
         const items = (e.clipboardData || e.originalEvent.clipboardData).items;
         for (let item of items) {
             if (item.type.indexOf('image') !== -1) {
                 e.preventDefault();
                 const file = item.getAsFile();
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        const msgId = `msg_${Date.now()}_${Math.random()}`;
-                        conn.send({ type: 'image', data: ev.target.result, msgId: msgId });
-                        addMsg(ev.target.result, 'my', 'image', true, null, msgId);
-                    };
-                    reader.readAsDataURL(file);
-                }
+                if (file) sendFile(file);
                 return;
             }
         }
     });
     
-    document.getElementById('peer-nick-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            connectToPeer();
-        }
-    });
-    
-    document.getElementById('backHomeBtn').addEventListener('click', switchToHomeMode);
-    document.getElementById('closeChatFromHomeBtn').addEventListener('click', askCloseChat);
-    document.getElementById('activeChatTap').addEventListener('click', () => { if(connectedNick && conn && conn.open) switchToChatMode(); });
-    document.getElementById('peerInfoBtn').addEventListener('click', openPeerProfile);
-    
-    // Обработчики для кнопки прокрутки
-    if (scrollDownBtn) {
-        scrollDownBtn.addEventListener('click', scrollToBottom);
-    }
-    if (chatMessagesDiv) {
-        chatMessagesDiv.addEventListener('scroll', onChatScroll);
-    }
+    // ========== ЗАПУСК ==========
     
     if(!myNick || !isValidNick(myNick)) {
         showRegistrationModal();
@@ -2100,15 +2095,16 @@ function showModalWithAnimation(modalElement) {
         startWithNick(myNick, false);
         updateHomeUI();
     }
-    loadHistory();
-    updateUIForConnectionState(false);
     
     setTimeout(() => {
         document.getElementById('preloader').classList.add('hide-preloader');
         document.getElementById('mainApp').classList.add('app-visible');
     }, 2000);
     
-    window.addEventListener('beforeunload', () => { if(conn && conn.open) conn.close(); if(peer) peer.destroy(); });
+    window.addEventListener('beforeunload', () => {
+        if (currentConn && currentConn.open) currentConn.close();
+        if (peer) peer.destroy();
+    });
 </script>
 </body>
 </html>
