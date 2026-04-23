@@ -980,6 +980,12 @@
 .connect-section {
     flex-shrink: 0;
 }
+
+/* Для более точной настройки - смещение только на телефонах */
+@media (max-width: 800px) {
+    .input-area {
+        left: -2px;
+    }}
     </style>
 </head>
 <body>
@@ -1019,7 +1025,7 @@
                     <span>NO ACTIVE CHATS</span>
                 </div>
             </div>
-            <div class="rules-bottom-btn" onclick="showRulesFromHome()">RULES & DISCLAIMER</div>
+            <div class="rules-bottom-btn" style="margin: 10px 20px;" onclick="showRulesFromHome()">RULES & DISCLAIMER</div>
         </div>
 
         <div class="chat-screen" id="chatScreen">
