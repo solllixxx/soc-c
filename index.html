@@ -5,6 +5,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SOC">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" href="logo.png">
     <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -999,7 +1006,26 @@
     z-index: 20;
 }
 
-/* Всі інші стилі залишаються без змін, як у тебе було */
+
+.app {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Для PWA на iOS — прибираємо зайві відступи */
+@media (display-mode: standalone) {
+    body, html {
+        background: #000000;
+    }
+    .app {
+        padding-top: env(safe-area-inset-top);
+    }
+    .home-header {
+        padding-top: max(12px, env(safe-area-inset-top));
+    }
+}
+
+
     </style>
 </head>
 <body>
@@ -2157,6 +2183,17 @@ function openPeerProfile() {
         if (currentConn && currentConn.open) currentConn.close();
         if (peer) peer.destroy();
     });
+</script>
+
+<script>
+    // Реєстрація Service Worker для PWA
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        console.log('Service Worker registered:', registration.scope);
+    }).catch(function(error) {
+        console.log('Service Worker registration failed:', error);
+    });
+}
 </script>
 </body>
 </html>
