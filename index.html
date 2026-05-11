@@ -1332,21 +1332,32 @@
         return /^[a-zA-Z0-9_]{3,20}$/.test(nick);
     }
     
-    function saveAllChats() {
-        const toSave = {};
-        for (const [peerId, chat] of activeChats.entries()) {
-            toSave[peerId] = {
-                nick: chat.nick,
-                avatar: chat.avatar,
-                status: chat.status,
-                displayName: chat.displayName,
-                unreadCount: chat.unreadCount,
-                lastMessage: chat.lastMessage,
-                history: chat.history || []
-            };
+function saveAllChats() {
+    const toSave = {};
+    for (const [peerId, chat] of activeChats.entries()) {
+        // Зберігаємо реакції перед збереженням
+        if (chat.history) {
+            chat.history.forEach(msg => {
+                if (msg.msgId && reactionsStore.has(msg.msgId)) {
+                    const reactions = reactionsStore.get(msg.msgId);
+                    msg.myReaction = reactions.my;
+                    msg.peerReaction = reactions.peer;
+                }
+            });
         }
-        localStorage.setItem('soc-active-chats', JSON.stringify(toSave));
+        
+        toSave[peerId] = {
+            nick: chat.nick,
+            avatar: chat.avatar,
+            status: chat.status,
+            displayName: chat.displayName,
+            unreadCount: chat.unreadCount,
+            lastMessage: chat.lastMessage,
+            history: chat.history || []
+        };
     }
+    localStorage.setItem('soc-active-chats', JSON.stringify(toSave));
+}
     
     function loadSavedChats() {
         const saved = localStorage.getItem('soc-active-chats');
@@ -1425,21 +1436,25 @@
         }
     }
     
-    function loadChatHistoryForPeer(peerId) {
-        const chat = activeChats.get(peerId);
-        if (!chat || !chatMessagesDiv) return;
-        chatMessagesDiv.innerHTML = '';
-        lastDateLabel = '';
-        reactionsStore.clear();
-        if (chat.history && chat.history.length) {
-            chat.history.forEach(item => {
-                addMsgToChat(item.data, item.side, item.type, item.time, item.msgId);
-            });
-        }
-        setTimeout(() => {
-            if (chatMessagesDiv) chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-        }, 100);
+function loadChatHistoryForPeer(peerId) {
+    const chat = activeChats.get(peerId);
+    if (!chat || !chatMessagesDiv) return;
+    chatMessagesDiv.innerHTML = '';
+    lastDateLabel = '';
+    reactionsStore.clear();
+    
+    // Завантажуємо збережені реакції
+    loadReactionsFromChat(peerId);
+    
+    if (chat.history && chat.history.length) {
+        chat.history.forEach(item => {
+            addMsgToChat(item.data, item.side, item.type, item.time, item.msgId);
+        });
     }
+    setTimeout(() => {
+        if (chatMessagesDiv) chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+    }, 100);
+}
     
     function addMsgToChat(data, side, type, savedTime = null, existingMsgId = null) {
         const container = chatMessagesDiv;
@@ -1477,7 +1492,22 @@
         const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
         if (side === 'my' || wasNearBottom) container.scrollTop = container.scrollHeight;
         
-        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
+        if (!reactionsStore.has(msgId)) {
+    // Перевіряємо чи є збережені реакції
+    let myReaction = null;
+    let peerReaction = null;
+    if (savedTime) { // це завантаження з історії
+        const chat = activeChats.get(currentChatPeer);
+        if (chat && chat.history) {
+            const savedMsg = chat.history.find(m => m.msgId === msgId);
+            if (savedMsg) {
+                myReaction = savedMsg.myReaction || null;
+                peerReaction = savedMsg.peerReaction || null;
+            }
+        }
+    }
+    reactionsStore.set(msgId, { my: myReaction, peer: peerReaction });
+}
         
         const isMyMessage = (side === 'my');
         msgDiv.addEventListener('contextmenu', (e) => {
@@ -1557,21 +1587,45 @@
         setTimeout(() => document.addEventListener('click', closePicker), 10);
     }
     
-    function sendReactionToggle(msgId, emoji) {
-        if (!currentConn || !currentConn.open) return;
-        currentConn.send({ type: 'reaction_toggle', msgId: msgId, emoji: emoji });
-        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
-        const store = reactionsStore.get(msgId);
-        store.my = (store.my === emoji) ? null : emoji;
-        updateReactionsUI(msgId);
+function sendReactionToggle(msgId, emoji) {
+    if (!currentConn || !currentConn.open) return;
+    currentConn.send({ type: 'reaction_toggle', msgId: msgId, emoji: emoji });
+    if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
+    const store = reactionsStore.get(msgId);
+    store.my = (store.my === emoji) ? null : emoji;
+    
+    // Зберігаємо реакцію в історію чату
+    const chat = activeChats.get(currentChatPeer);
+    if (chat && chat.history) {
+        const msg = chat.history.find(m => m.msgId === msgId);
+        if (msg) {
+            msg.myReaction = store.my;
+            msg.peerReaction = store.peer;
+        }
+        saveAllChats();
     }
     
-    function handlePeerReaction(msgId, emoji) {
-        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
-        const store = reactionsStore.get(msgId);
-        store.peer = (store.peer === emoji) ? null : emoji;
-        updateReactionsUI(msgId);
+    updateReactionsUI(msgId);
+}
+    
+function handlePeerReaction(msgId, emoji) {
+    if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
+    const store = reactionsStore.get(msgId);
+    store.peer = (store.peer === emoji) ? null : emoji;
+    
+    // Зберігаємо реакцію в історію чату
+    const chat = activeChats.get(currentChatPeer);
+    if (chat && chat.history) {
+        const msg = chat.history.find(m => m.msgId === msgId);
+        if (msg) {
+            msg.myReaction = store.my;
+            msg.peerReaction = store.peer;
+        }
+        saveAllChats();
     }
+    
+    updateReactionsUI(msgId);
+}
     
     function updateReactionsUI(msgId) {
         const targetMsg = document.querySelector(`.msg[data-msg-id="${msgId}"]`);
@@ -2285,6 +2339,35 @@ function openPeerProfile() {
         if (currentConn && currentConn.open) currentConn.close();
         if (peer) peer.destroy();
     });
+
+    // Додай після функції saveAllChats()
+function saveReactionsToChat(peerId) {
+    const chat = activeChats.get(peerId);
+    if (!chat || !chat.history) return;
+    
+    // Для кожного повідомлення в історії додаємо реакції
+    chat.history.forEach(msg => {
+        if (msg.msgId && reactionsStore.has(msg.msgId)) {
+            const reactions = reactionsStore.get(msg.msgId);
+            msg.myReaction = reactions.my;
+            msg.peerReaction = reactions.peer;
+        }
+    });
+}
+
+function loadReactionsFromChat(peerId) {
+    const chat = activeChats.get(peerId);
+    if (!chat || !chat.history) return;
+    
+    chat.history.forEach(msg => {
+        if (msg.msgId && (msg.myReaction || msg.peerReaction)) {
+            reactionsStore.set(msg.msgId, {
+                my: msg.myReaction || null,
+                peer: msg.peerReaction || null
+            });
+        }
+    });
+}
 </script>
 
 <script>
