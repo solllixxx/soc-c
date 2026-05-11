@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -2186,14 +2186,22 @@ function openPeerProfile() {
 </script>
 
 <script>
-    // Реєстрація Service Worker для PWA
+// Реєстрація Service Worker
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(function(registration) {
-        console.log('Service Worker registered:', registration.scope);
-    }).catch(function(error) {
-        console.log('Service Worker registration failed:', error);
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+        console.log('SW registered:', reg);
+    }).catch(err => {
+        console.log('SW error:', err);
     });
 }
+
+// Перевірка PWA встановлення
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('PWA can be installed');
+});
 </script>
 </body>
 </html>
