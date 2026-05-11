@@ -1075,7 +1075,7 @@
     }
 }
 
-/* Щоб чат не з'їжджав вниз при відкритті */
+/* Повна заміна для chat-screen */
 .chat-screen {
     position: absolute;
     top: 0;
@@ -1088,9 +1088,24 @@
     transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     transform: translateX(100%);
     z-index: 20;
-    /* Прибираємо будь-які відступи */
-    margin: 0;
-    padding: 0;
+    overflow: hidden;
+}
+
+/* Повна заміна для input-area */
+.input-area {
+    padding: 10px 12px;
+    background: #0a0a0a;
+    border-top: 1px solid #1f1f1f;
+    flex-shrink: 0;
+    flex-grow: 0;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    /* Прив'язка до низу */
+    margin-top: auto;
 }
 
 /* Хедер чату з правильним відступом тільки зверху */
