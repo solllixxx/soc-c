@@ -995,7 +995,7 @@
 }
 
 
-/* ВИПРАВЛЕННЯ ДЛЯ PWA НА ТЕЛЕФОНІ - ПРИБИРАЄ ЗАЙВИЙ ВІДСТУП ЗВЕРХУ В ЧАТІ */
+/* ВИПРАВЛЕННЯ ДЛЯ PWA НА ТЕЛЕФОНІ */
 
 /* Основний контейнер */
 .app {
@@ -1009,60 +1009,10 @@
     position: relative;
     overflow-x: hidden;
     box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
-    /* Видаляємо padding-top, який створює зайвий відступ */
     padding-top: 0;
 }
 
-/* Для PWA на iOS - повне прибирання відступів */
-@media (display-mode: standalone) {
-    body, html {
-        background: #000000;
-        height: 100%;
-        position: fixed;
-    }
-    
-    .app {
-        padding-top: 0 !important;
-        height: 100dvh !important;
-    }
-    
-    /* Головний екран - нормальний відступ тільки для хедера */
-    .home-header {
-        padding-top: env(safe-area-inset-top, 12px);
-    }
-    
-    /* Екран чату - повне прибирання відступів зверху */
-    .chat-screen {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-    }
-    
-    .chat-header {
-        padding-top: env(safe-area-inset-top, 10px);
-    }
-    
-    /* Ховаємо статус бар на iOS */
-    .chat-screen::before {
-        display: none;
-    }
-}
-
-/* Додаткове виправлення для всіх телефонів */
-@media (max-width: 800px) {
-    .app {
-        padding-top: 0 !important;
-    }
-    
-    .home-screen {
-        padding-top: 0;
-    }
-    
-    .chat-screen {
-        padding-top: 0;
-        top: 0;
-    }
-}
-
+/* Екран чату */
 .chat-screen {
     position: fixed;
     top: 0;
@@ -1078,6 +1028,31 @@
     overflow: hidden;
 }
 
+/* Хедер чату */
+.chat-header {
+    padding: 10px 12px;
+    background: #0a0a0a;
+    border-bottom: 1px solid #222;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    padding-top: max(10px, env(safe-area-inset-top));
+}
+
+/* Область повідомлень */
+#chatMessages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #000000;
+    min-height: 0;
+}
+
+/* Панель введення - ПРИТИСНУТА ДО НИЗУ */
 .input-area {
     padding: 10px 12px;
     background: #0a0a0a;
@@ -1092,30 +1067,52 @@
     padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 
-#chatMessages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background: #000000;
-    min-height: 0;
-}
-
-/* Хедер чату з правильним відступом тільки зверху */
-.chat-header {
-    padding: 10px 12px;
+/* Головний екран - відступ для хедера */
+.home-header {
+    padding: 12px 16px;
     background: #0a0a0a;
-    border-bottom: 1px solid #222;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #222;
     flex-shrink: 0;
-    /* Відступ тільки для безпечної зони, але не більше */
-    padding-top: max(10px, env(safe-area-inset-top));
+    padding-top: max(12px, env(safe-area-inset-top));
 }
 
+/* Для PWA на iOS */
+@media (display-mode: standalone) {
+    body, html {
+        background: #000000;
+        height: 100%;
+        position: fixed;
+    }
+    
+    .app {
+        padding-top: 0 !important;
+        height: 100dvh !important;
+    }
+    
+    .chat-screen {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+}
+
+/* Для всіх телефонів */
+@media (max-width: 800px) {
+    .app {
+        padding-top: 0 !important;
+    }
+    
+    .home-screen {
+        padding-top: 0;
+    }
+    
+    .chat-screen {
+        padding-top: 0;
+        top: 0;
+    }
+}
     </style>
 </head>
 <body>
