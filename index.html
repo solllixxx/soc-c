@@ -1014,7 +1014,7 @@
 
 /* Екран чату */
 .chat-screen {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -1026,11 +1026,6 @@
     transform: translateX(100%);
     z-index: 20;
     overflow: hidden;
-}
-
-/* Коли чат відкритий */
-.chat-screen.chat-visible {
-    transform: translateX(0);
 }
 
 /* Хедер чату */
@@ -1045,9 +1040,9 @@
     padding-top: max(10px, env(safe-area-inset-top));
 }
 
-/* Область повідомлень - РОЗТЯГУЄТЬСЯ */
+/* Область повідомлень */
 #chatMessages {
-    flex: 1 1 auto;
+    flex: 1;
     overflow-y: auto;
     padding: 16px 14px;
     display: flex;
@@ -1068,8 +1063,8 @@
     width: 100%;
     box-sizing: border-box;
     flex-shrink: 0;
-    flex-grow: 0;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    margin-top: auto;
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
 }
 
 /* Головний екран - відступ для хедера */
@@ -1081,26 +1076,7 @@
     align-items: center;
     border-bottom: 1px solid #222;
     flex-shrink: 0;
-    padding-top: max(12px, env(safe-area-inset-top));
-}
-
-/* Домашній екран */
-.home-screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: #000000;
-    transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    transform: translateX(0);
-    z-index: 10;
-}
-
-.home-screen.chat-open {
-    transform: translateX(-30%);
+    padding-top: max(2px, env(safe-area-inset-top));
 }
 
 /* Для PWA на iOS */
