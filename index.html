@@ -1006,70 +1006,7 @@
     z-index: 20;
 }
 
-:root {
-    /* CSS-переменные для безопасных зон (челка iPhone, скругленные углы, полоска "Домой") */
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-left: env(safe-area-inset-left, 0px);
-    --safe-right: env(safe-area-inset-right, 0px);
-}
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    /* Убираем дефолтную синюю вспышку при нажатии на кнопки в Android/iOS */
-    -webkit-tap-highlight-color: transparent; 
-}
-
-html, body {
-    width: 100%;
-    /* ВАЖНО: 100dvh (Dynamic Viewport Height) вместо 100vh. 
-       С ним интерфейс не будет ломаться, когда выезжает клавиатура или прячется адресная строка браузера */
-    height: 100dvh; 
-    
-    /* Запрещаем "резиновую" прокрутку страницы (bounce effect), чтобы ощущалось как нативное приложение */
-    overflow: hidden; 
-    
-    background-color: #000000;
-    color: #ffffff;
-    
-    /* Запрещаем случайное выделение текста при долгом тапе по экрану */
-    user-select: none; 
-    -webkit-user-select: none;
-}
-
-/* Разрешаем выделение и копирование текста только там, где это нужно (сообщения и поля ввода) */
-input, textarea, .msg-bubble {
-    user-select: text;
-    -webkit-user-select: text;
-}
-
-/* Оболочка всего твоего приложения */
-#mainApp {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100dvh;
-    
-    /* Применяем безопасные отступы, чтобы контент не залезал под камеру или системную полоску снизу */
-    padding-top: var(--safe-top);
-    padding-bottom: var(--safe-bottom);
-    padding-left: var(--safe-left);
-    padding-right: var(--safe-right);
-}
-
-/* Зона с сообщениями, которая должна скроллиться */
-#chatMessages {
-    flex: 1; /* Занимает все свободное место между шапкой и полем ввода */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
-}
-
-/* Фикс для iOS: если шрифт в input меньше 16px, айфон будет бесить тем, что автоматически зумит экран при клике на поле ввода */
-input {
-    font-size: 16px; 
-}
     </style>
 </head>
 <body>
