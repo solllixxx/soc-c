@@ -1,2188 +1,495 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SOC">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#000000">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SOC">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     <title>SOC.</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --gray-light: #888888;
+            --gray-dark: #1a1a1a;
+            --gray-border: #333333;
+            --msg-sent: #2b2b2b;
+            --msg-recv: #141414;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
+        /* 100dvh решает проблему с клавиатурой и адресной строкой на мобильных */
         body, html {
-            height: 100dvh;
             width: 100%;
-            background: #000000;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            height: 100dvh; 
+            background-color: var(--bg-color);
+            color: var(--text-color);
             overflow: hidden;
-            position: fixed;
-            color: #e5e5e5;
         }
 
-        .preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-            flex-direction: column;
-            gap: 24px;
-        }
-        .preloader.hide-preloader { opacity: 0; visibility: hidden; }
-        .preloader-content {
+        #mainApp {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
             width: 100%;
-            text-align: center;
-        }
-        .preloader-title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            animation: subtlePulse 1.8s infinite ease;
-            margin-bottom: 8px;
-        }
-        @keyframes subtlePulse {
-            0% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        .loader-line-wrapper {
-            width: 80%;
-            max-width: 280px;
-            height: 4px;
-            background: #1a1a1a;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 0 auto;
-        }
-        .loader-line {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #e9e9e9, #bbbbbb);
-            animation: loadingProgress 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes loadingProgress {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
-        .preloader-sub {
-            font-size: 0.7rem;
-            color: #6a6a6a;
-            letter-spacing: 1px;
-            margin-top: 16px;
-            text-transform: uppercase;
-            text-align: center;
-        }
-
-        .app-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-        }
-        
-        .app {
-            display: flex;
-            flex-direction: column;
             height: 100dvh;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            background: #000000;
-            padding-top: env(safe-area-inset-top);
+            padding-top: var(--safe-top);
+            padding-bottom: var(--safe-bottom);
             opacity: 0;
-            transition: opacity 0.4s ease;
-            position: relative;
-            overflow-x: hidden;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+            transition: opacity 0.5s;
         }
-        .app.app-visible { opacity: 1; }
 
-        .home-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .app-visible {
+            opacity: 1 !important;
+        }
+
+        /* Экраны */
+        .screen {
+            display: none;
+            flex-direction: column;
             width: 100%;
             height: 100%;
+        }
+        .screen.active {
             display: flex;
-            flex-direction: column;
-            background: #000000;
-            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            transform: translateX(0);
-            z-index: 10;
-        }
-        
-        .chat-screen {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background: #000000;
-            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            transform: translateX(100%);
-            z-index: 20;
-        }
-        
-        .home-screen.chat-open {
-            transform: translateX(-30%);
-        }
-        
-        .chat-screen.chat-visible {
-            transform: translateX(0);
         }
 
-        .home-header {
-            padding: 12px 16px;
-            background: #0a0a0a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #222;
-            flex-shrink: 0;
-        }
-        .home-header h1 {
-            font-size: 1.35rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-        #status {
-            font-size: 0.65rem;
-            font-weight: 600;
-            background: #1a1a1a;
-            padding: 4px 10px;
-            border-radius: 40px;
-            color: #bbb;
-            border: 0.5px solid #2c2c2c;
-        }
-
-        .home-scrollable {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .main-profile-card {
-            margin: 30px 20px;
-            background: #0f0f0f;
-            border-radius: 32px;
-            border: 1px solid #2a2a2a;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .main-profile-card:active { transform: scale(0.98); background: #151515; }
-        
-        .avatar-large {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: #1e1e1e;
-            overflow: hidden;
-            border: 1px solid #3a3a3a;
-            margin-bottom: 12px;
-        }
-        .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
-        .main-nick { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
-        .main-status { font-size: 0.8rem; color: #9a9a9a; background: #1a1a1a; padding: 4px 14px; border-radius: 30px; border: 1px solid #3a3a3a;}
-
-        .active-chat-row {
-            margin: 10px 20px;
-            background: #111111;
-            border-radius: 60px;
-            border: 1px solid #2a2a2a;
+        /* Шапка */
+        .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 12px 8px 8px;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        .active-chat-row.hidden { display: none; }
-
-        .active-chat-row:hover {
-            transform: scale(0.96);
-            background: #222;
-            color: #ffffff;
-        }
-        .active-chat-row:active { background: #1a1a1a; }
-        .active-chat-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 0;
-        }
-        .active-chat-avatar { width: 48px; height: 48px; border-radius: 50%; background: #2a2a2a; overflow: hidden; flex-shrink: 0; position: relative; }
-        .active-chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .active-chat-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .active-chat-nick { font-weight: 600; font-size: 1rem; color: #eee; margin-bottom: 4px; }
-        .active-chat-lastmsg {
-            font-size: 0.7rem;
-            color: #888;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .close-chat-icon {
-            background: #2a2a2a;
-            border: 1px solid #3a3a3a;
-            width: 36px;
-            height: 36px;
-            border-radius: 30px;
-            cursor: pointer;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--gray-border);
             flex-shrink: 0;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .close-chat-icon img {
-            width: 18px;
-            height: 18px;
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
-        }
-        .close-chat-icon:hover {
-            transform: scale(0.92);
-            background: #3a3a3a;
-        }
-        .close-chat-icon:hover img {
-            opacity: 1;
         }
         
-        .unread-badge {
-            background: #ffffff;
-            color: rgb(0, 0, 0);
-            border-radius: 20px;
-            min-width: 25px;
-            height: 25px;
-            font-size: 11px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 6px;
-            box-shadow: 0 0 4px rgba(0,0,0,0.5);
-            z-index: 5;
-        }
-
-        .connect-section { margin: 20px 20px; margin-bottom: -10px; }
-        .connect-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        #peer-nick-input {
-            flex: 1;
-            background: #111;
-            border: 1px solid #2c2c2c;
-            padding: 12px 16px;
-            border-radius: 40px;
-            color: white;
-            font-size: 0.85rem;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        #peer-nick-input:hover {
-            transform: scale(0.96);
-            background: #222;
-            color: #ffffff;
-        }
-        #peer-nick-input:focus { border-color: #6a6a6a; background: #181818; }
-        .connect-btn {
-            background: #151515;
-            border: 1px solid #3a3a3a;
-            border-radius: 40px;
-            padding: 0 18px;
-            height: 42px;
+        .header h2 {
+            font-size: 1.2rem;
             font-weight: 600;
-            font-size: 0.75rem;
-            color: #ddd;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        .connect-btn:hover {
-            transform: scale(0.96);
-            background: #222;
-            color: #ffffff;
         }
 
-        .not-connect-placeholder {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #444;
+        button {
+            background-color: var(--gray-dark);
+            color: var(--text-color);
+            border: 1px solid var(--gray-border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            flex-direction: column;
-            gap: 15px;
-            min-height: 150px;
+            transition: background 0.2s;
         }
-        .not-connect-placeholder span:first-child { font-size: 2rem; opacity: 0.3; }
+        button:hover { background-color: var(--gray-border); }
 
-        .rules-bottom-btn {
-            margin: 20px;
-            background: #151515;
-            border: 1px solid #3a3a3a;
-            border-radius: 60px;
+        input {
+            width: 100%;
             padding: 12px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #888;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background-color: var(--gray-dark);
+            border: 1px solid var(--gray-border);
+            color: var(--text-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
         }
-        .rules-bottom-btn:hover {
-            transform: scale(0.97);
-            background: #222;
-            color: #aaa;
-        }
+        input:focus { border-color: var(--gray-light); }
 
-        .chat-header {
-            padding: 10px 12px;
-            background: #0a0a0a;
-            border-bottom: 1px solid #222;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
-        .back-home-btn {
-            background: #1a1a1a;
-            border: 1px solid #3a3a3a;
-            width: 42px;
-            height: 42px;
-            border-radius: 30px;
-            cursor: pointer;
-            color: white;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .back-home-btn img {
-            width: 20px;
-            height: 20px;
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
-        }
-        .back-home-btn:hover {
-            transform: scale(0.9);
-            background: #2a2a2a;
-        }
-        .back-home-btn:hover img {
-            opacity: 1;
-        }
-        .chat-peer-info-center {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-        }
-        .peer-info-button {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #1a1a1a;
-            padding: 6px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            border: 1px solid #3a3a3a;
-        }
-        .peer-info-button:hover {
-            transform: scale(0.96);
-            background: #2a2a2a;
-        }
-        .peer-info-avatar { width: 36px; height: 36px; border-radius: 50%; background: #2a2a2a; overflow: hidden; position: relative; }
-        .peer-info-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .peer-info-nick { font-weight: 600; font-size: 0.95rem; color: #eee; }
-        .placeholder-right { width: 36px; visibility: hidden; }
-
+        /* Контейнер чатов */
         #chatMessages {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 14px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            background: #000000;
         }
-        .msg {
-            max-width: 80%;
-            padding: 9px 14px;
-            border-radius: 22px;
-            font-size: 0.9rem;
-            line-height: 1.35;
+
+        .msg-bubble {
+            max-width: 75%;
+            padding: 12px;
+            border-radius: 12px;
             word-wrap: break-word;
-            animation: fadeSlide 0.18s ease;
+            line-height: 1.4;
             position: relative;
+        }
+        .msg-sent {
+            align-self: flex-end;
+            background-color: var(--msg-sent);
+            border-bottom-right-radius: 2px;
+        }
+        .msg-recv {
+            align-self: flex-start;
+            background-color: var(--msg-recv);
+            border: 1px solid var(--gray-border);
+            border-bottom-left-radius: 2px;
+        }
+        
+        .msg-time {
+            font-size: 0.7rem;
+            color: var(--gray-light);
+            margin-top: 5px;
+            text-align: right;
+            display: block;
+        }
+
+        /* Поле ввода */
+        .input-area {
+            display: flex;
+            padding: 10px 15px;
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--gray-border);
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Главный экран (Контакты) */
+        .contact-form {
+            padding: 20px;
             display: flex;
             flex-direction: column;
+            gap: 15px;
         }
-        @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(5px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-        .my { align-self: flex-end; background: #2c2c2c; color: white; border-bottom-right-radius: 5px; }
-        .other { align-self: flex-start; background: #141414; border: 0.5px solid #2b2b2b; border-bottom-left-radius: 5px; color: #efefef; }
-        .msg img { max-width: 100%; border-radius: 16px; display: block; margin-top: 5px; }
-        audio { height: 38px; width: 180px; max-width: 180px; margin-top: 5px; border-radius: 30px; flex-shrink: 0; }
-
-        .reactions-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 8px;
-        }
-        .my .reactions-container {
-            justify-content: flex-end;
-        }
-        .other .reactions-container {
-            justify-content: flex-start;
-        }
-        .reaction-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            font-size: 0.75rem;
-            background: rgba(30, 30, 35, 0.95);
-            border-radius: 30px;
-            padding: 2px 8px;
-            color: #f0f0f0;
-            border: 1px solid #3a3a3a;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
-        .reaction-badge:hover {
-            transform: scale(1.05);
-        }
-        .reaction-badge.my-reaction {
-            background: rgba(70, 60, 110, 0.95);
-            border-color: #a0a0c0;
-        }
-        .reaction-count {
-            font-size: 0.7rem;
-            opacity: 0.9;
-        }
-        .reaction-picker {
-            display: flex;
-            gap: 8px;
-            background: #1a1a1a;
-            padding: 6px 10px;
-            border-radius: 40px;
-            position: fixed;
-            z-index: 1000;
-            border: 1px solid #444;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-        .reaction-emoji {
-            font-size: 1.3rem;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-            padding: 2px;
-        }
-        .reaction-emoji:hover {
-            transform: scale(1.2);
-        }
-        .msg-time {
-            font-size: 0.6rem;
-            opacity: 0.5;
-            margin-top: 4px;
-            text-align: right;
-        }
-
-        .input-area {
-            padding: 8px 12px;
-            background: #0a0a0a;
-            border-top: 1px solid #1f1f1f;
-            flex-shrink: 0;
-            padding-bottom: max(8px, env(safe-area-inset-bottom)); 
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            position: relative;
-        }
-        .btn-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: 1px solid #3a3a3a;
-            background: #1a1a1a;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        .btn-icon:hover {
-            transform: scale(0.9);
-            background: #2a2a2a;
-        }
-        .btn-red { background: #3a2a2a !important; }
-        .btn-red:hover { background: #4a3a3a !important; }
-        #msgInput {
-            flex: 1;
-            background: #111;
-            border: 1px solid #2a2a2a;
-            padding: 10px 14px;
-            border-radius: 32px;
-            color: white;
-            outline: none;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-        #msgInput:focus { border-color: #6a6a6a; background: #181818; }
-        .send-btn { background: #202020; flex-shrink: 0; }
-        .send-btn:hover { background: #303030; }
-        .btn-img { width: 22px; height: 22px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.8; }
-        .date-divider {
-            align-self: center;
-            margin: 20px 0 10px;
-            font-size: 0.7rem;
-            color: #666;
-            text-transform: uppercase;
-            background: #0a0a0a;
-            padding: 4px 12px;
-            border-radius: 10px;
-        }
-
-        .scroll-down-btn {
-            position: absolute;
-            right: 16px;
-            bottom: 70px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #1a1a1a;
-            border: 1px solid #3a3a3a;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 30;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        .scroll-down-btn:hover {
-            transform: scale(0.92);
-            background: #2a2a2a;
-        }
-        .scroll-down-btn img {
-            width: 22px;
-            height: 22px;
-            filter: brightness(0) invert(1);
-            opacity: 0.9;
-        }
-        .scroll-down-btn.visible {
-            display: flex;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 24px;
-        }
-        .modal {
-            background: #111111;
-            padding: 22px 18px;
-            border-radius: 32px;
-            width: 100%;
-            max-width: 300px;
-            text-align: center;
-            border: 1px solid #333;
-            animation: modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            transform-origin: center;
-            will-change: transform, opacity;
-            backface-visibility: hidden;
-        }
-        .modal, .modal * { text-align: center !important; }
-        .modal .status-select { text-align: left !important; }
-        .modal .status-select option { text-align: left !important; }
-
-        @keyframes modalPopIn {
-            0% { opacity: 0; transform: scale(0.95); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes modalPopOut {
-            0% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.95); }
-        }
-        .modal-exit { animation: modalPopOut 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards !important; }
-        .modal #modal-text { font-size: 0.9rem; margin-bottom: 18px; color: #ccc; line-height: 1.4; }
-        .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
-        .modal-btn {
-            flex: 1;
-            padding: 10px 0;
-            border: none;
-            border-radius: 60px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            border: 1px solid #3a3a3a;
-        }
-        .modal-btn:hover {
-            transform: scale(0.96);
-            filter: brightness(0.9);
-        }
-        .modal-btn:first-child { background: #1f1f1f; color: #ccc; }
-        .modal-btn:last-child { background: #222; color: #ccc; }
-        .nick-input-modal {
-            background: #1a1a1a;
-            border: 1px solid #3a3a3a;
-            padding: 10px;
-            border-radius: 40px;
-            color: white;
-            width: 100%;
-            margin: 15px 0;
-            font-size: 1rem;
-            text-align: center;
-            outline: none;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        .nick-input-modal:hover {
-            transform: scale(0.96);
-            background: #222;
-            color: #ffffff;
-        }
-        .status-select {
-            width: 100%;
-            padding: 12px;
-            background: #1a1a1a;
-            border: 1px solid #3a3a3a;
-            border-radius: 40px;
-            color: white;
-            font-size: 0.9rem;
-            margin: 15px 0;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        .status-select:hover {
-            transform: scale(0.96);
-            background: #222;
-            color: #ffffff;
-        }
-        .flex-btns { display: flex; gap: 10px; margin-top: 12px; }
-        .modal-avatar-container {
-            position: relative;
-            display: inline-block;
-            margin: 0 auto 15px;
-            cursor: pointer;
-            border: 3px solid #3a3a3a;
-            border-radius: 100%;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        .modal-avatar-container:hover {
-            transform: scale(0.96);
-            background: #222;
-            color: #ffffff;
-        }
-        .modal-edit-icon {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            background: #2c2c2c;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #555;
-            font-size: 14px;
-            pointer-events: none;
-        }
-        .main-profile-card:hover { transform: scale(0.98); background: #151515; }
-        .active-chat-row:hover { background: #181818; border-color: #3a3a3a; }
-        #recordBtn { transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
-
-        .drop-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            z-index: 1500;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-        }
-        .drop-overlay.active { display: flex; }
-        .drop-hint {
-            background: transparent;
-            padding: 20px 32px;
-            font-size: 1.1rem;
-            color: #ccc;
-            text-align: center;
-        }
-
-        .welcome-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            margin-bottom: 8px;
-        }
-        .welcome-sub {
-            font-size: 0.7rem;
-            color: #6a6a6a;
-            letter-spacing: 1px;
-            margin-bottom: 16px;
-        }
-        .reg-primary-btn {
-            background: #222;
-            border: 1px solid #3a3a3a;
-            border-radius: 60px;
-            padding: 12px 0;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            width: 100%;
-            color: #ccc;
-            margin-top: 8px;
-        }
-        .reg-primary-btn:hover {
-            transform: scale(0.96);
-            background: #2f2f2f;
-        }
-        .reg-rules-btn {
-            background: transparent;
-            border: none;
-            color: #aaa;
-            font-size: 0.7rem;
-            margin-top: 12px;
-            cursor: pointer;
-            text-decoration: none;
-            padding: 8px;
-            transition: color 0.2s;
-        }
-        .reg-rules-btn:hover { color: #ffffff; }
-
-        @media (min-width: 801px) {
-            body, html { background: #000000; }
-            .app {
-                box-shadow: -2px 0 5px rgba(255,255,255,0.02), 2px 0 5px rgba(255,255,255,0.02);
-                border-left: 1px solid #1a1a1a;
-                border-right: 1px solid #1a1a1a;
-            }
-            .app-wrapper::before, .app-wrapper::after {
-                content: '';
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                width: calc((100% - 800px) / 2);
-                background: #000000;
-                z-index: 5;
-                pointer-events: none;
-            }
-            .app-wrapper::before { left: 0; }
-            .app-wrapper::after { right: 0; }
-        }
-        @media (max-width: 800px) {
-            .app-wrapper::before, .app-wrapper::after { display: none; }
-            .app { border-left: none; border-right: none; box-shadow: none; }
-        }
-
-        #chatMessages::-webkit-scrollbar { width: 3px; }
-        #chatMessages::-webkit-scrollbar-track { background: transparent; }
-        #chatMessages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
-        #chatMessages::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.5); }
-        #chatMessages { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.3) transparent; }
-
-        * {
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .msg, .msg * { user-select: text !important; -webkit-user-select: text !important; }
-        #peer-nick-input, #msgInput, #regNickInput, #modalNickInput, .status-select { user-select: text !important; -webkit-user-select: text !important; }
-        .modal #modal-text, .modal #modal-text * { user-select: text !important; -webkit-user-select: text !important; }
-        .main-nick, .main-status, .active-chat-nick, .peer-info-nick, .home-header h1, .status-text, #homeNick, #homeStatus, #activeChatNick { user-select: none !important; -webkit-user-select: none !important; }
 
         .status-dot {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            border: 2px solid #000000;
-            background: #555;
+            display: inline-block;
+            margin-right: 8px;
         }
-        .status-dot.online { background: #2ecc2e; }
-        .status-dot.offline { background: #e74c3c; }
-        .status-dot.away { background: #f39c12; }
-        .status-dot.dnd { background: #8e44ad; }
+        .status-online { background-color: #4caf50; }
+        .status-offline { background-color: #f44336; }
 
-        /* Чтобы точка не обрезалась */
-.active-chat-avatar {
-    position: relative;
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
-    overflow: visible !important;
-}
-
-.active-chat-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.active-chat-avatar .status-dot,
-.active-chat-avatar > span.status-dot {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 2px solid #000000;
-    z-index: 10;
-}
-
-.peer-info-avatar {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-    overflow: visible !important;
-}
-
-.peer-info-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.peer-info-avatar .status-dot,
-.peer-info-avatar > span.status-dot {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid #0a0a0a;
-    z-index: 10;
-}
-
-.status-dot.online { background: #2ecc2e; }
-.status-dot.offline { background: #e74c3c; }
-.status-dot.away { background: #f39c12; }
-.status-dot.connecting { background: #f1c40f; }
-
-#chatsListContainer .unread-badge {
-    position: absolute !important;
-    top: -7px !important;
-    right: -7px !important;
-    left: auto !important;
-    z-index: 100 !important;
-    margin: 0 !important;
-}
-
-/* INPUT AREA - ТІЛЬКИ ВИПРАВЛЕННЯ БЕЗ ЗБІЛЬШЕНЬ */
-.input-area {
-    padding: 8px 12px;
-    background: #0a0a0a;
-    border-top: 1px solid #1f1f1f;
-    flex-shrink: 0;
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    position: relative;
-    width: 100%;
-    box-sizing: border-box;
-    left: 0;
-    right: 0;
-}
-
-.btn-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid #3a3a3a;
-    background: #1a1a1a;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-}
-
-#msgInput {
-    flex: 1;
-    min-width: 0;
-    background: #111;
-    border: 1px solid #2a2a2a;
-    padding: 10px 14px;
-    border-radius: 32px;
-    color: white;
-    outline: none;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
-
-.send-btn { background: #202020; flex-shrink: 0; }
-
-/* chat-screen - ВИПРАВЛЕННЯ */
-.chat-screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: #000000;
-    transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    transform: translateX(100%);
-    z-index: 20;
-}
-
-
+        /* Модалка регистрации */
+        #registrationModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal-content {
+            padding: 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-content input { margin: 20px 0; text-align: center; }
     </style>
 </head>
 <body>
-<audio id="msgSound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
 
-<div id="preloader" class="preloader">
-    <div class="preloader-content">
-        <div class="preloader-title">SOC.</div>
-        <div class="loader-line-wrapper"><div class="loader-line"></div></div>
-        <div class="preloader-sub">ANONYMOUS MESSENGER FROM END TO END</div>
+    <div id="registrationModal" style="display: none;">
+        <div class="modal-content">
+            <h2>Ваш ID (Ник)</h2>
+            <input type="text" id="regNick" placeholder="Придумайте логин..." autocomplete="off">
+            <button onclick="register()">Войти</button>
+        </div>
     </div>
-</div>
 
-<div class="app-wrapper">
-    <div class="app" id="mainApp">
-        <div class="home-screen" id="homeScreen">
-            <div class="home-header">
-                <h1>SOC.</h1>
-                <span id="status">OFFLINE</span>
+    <div id="mainApp">
+        
+        <div id="homeScreen" class="screen active">
+            <div class="header">
+                <h2>SOC.</h2>
+                <span id="myIdDisplay" style="color: var(--gray-light); font-size: 0.8rem;"></span>
             </div>
-            <div id="connectSection" class="connect-section">
-                <div class="connect-row">
-                    <input type="text" id="peer-nick-input" placeholder="friend's nickname..." autocomplete="off">
-                    <button class="connect-btn" onclick="connectToPeer()">CONNECT</button>
-                </div>
+            <div class="contact-form">
+                <p style="color: var(--gray-light); font-size: 0.9rem;">Введите ID собеседника для чата (сообщения отправятся даже если он не в сети, и доставятся при подключении):</p>
+                <input type="text" id="peerIdInput" placeholder="ID собеседника...">
+                <button onclick="openChatWithInput()">Перейти в чат</button>
             </div>
-
-                            <div class="main-profile-card" id="mainProfileBtn">
-                    <div class="avatar-large"><img id="homeAvatarImg" src="image/ava1.png" draggable="false"></div>
-                    <div class="main-nick" id="homeNick">---</div>
-                    <div class="main-status" id="homeStatus">online</div>
-                </div>
-            <div class="home-scrollable">
-
-                <div id="chatsListContainer" style="margin: 10px 20px; display: flex; flex-direction: column; gap: 8px;"></div>
-                <div id="notConnectedPlaceholder" class="not-connect-placeholder"> 
-                    <span>NO ACTIVE CHATS</span>
-                </div>
-            </div>
-            <div class="rules-bottom-btn" style="margin: 10px 20px;" onclick="showRulesFromHome()">RULES & DISCLAIMER</div>
         </div>
 
-        <div class="chat-screen" id="chatScreen">
-            <div class="chat-header">
-                <button class="back-home-btn" id="backHomeBtn">
-                    <img src="image/back.png" alt="←" draggable="false">
-                </button>
-                <div class="chat-peer-info-center">
-                    <div class="peer-info-button" id="peerInfoBtn">
-                        <div class="peer-info-avatar" style="position:relative;">
-                            <img id="peerAvatarImg" src="image/ava1.png" draggable="false">
-                            <span class="status-dot" id="peerStatusDot"></span>
-                        </div>
-                        <div class="peer-info-nick" id="peerNickChat">friend</div>
+        <div id="chatScreen" class="screen">
+            <div class="header">
+                <button onclick="goBack()">&#8592; Назад</button>
+                <div style="text-align: center;">
+                    <h2 id="chatWithTitle">Chat</h2>
+                    <div style="font-size: 0.7rem; color: var(--gray-light); margin-top: 4px;">
+                        <span id="connStatusDot" class="status-dot status-offline"></span>
+                        <span id="connStatusText">Offline</span>
                     </div>
                 </div>
-                <div class="placeholder-right"></div>
-            </div>
-            <div id="chatMessages"></div>
+                <div style="width: 70px;"></div> </div>
+            
+            <div id="chatMessages">
+                </div>
+
             <div class="input-area">
-                <button class="btn-icon" onclick="document.getElementById('fileInput').click()"><img src="image/plus.png" alt="+" class="btn-img" draggable="false"></button>
-                <button class="btn-icon" id="recordBtn" onclick="toggleRecord()"><img src="image/mic.png" alt="V" class="btn-img" id="mic-icon" draggable="false"></button>
-                <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') sendText()" autocomplete="off">
-                <button class="btn-icon send-btn" onclick="sendText()"><img src="image/send.png" alt=">" class="btn-img" draggable="false"></button>
+                <input type="text" id="messageInput" placeholder="Сообщение..." autocomplete="off" onkeypress="handleEnter(event)">
+                <button onclick="sendMessageUI()">Отправить</button>
             </div>
-            <button id="scrollDownBtn" class="scroll-down-btn">
-                <img src="image/down.png" alt="↓" draggable="false">
-            </button>
         </div>
-    </div>
-</div>
 
-<div id="dropOverlay" class="drop-overlay">
-    <div class="drop-hint">Release to send photo</div>
-</div>
-
-<div id="modal-overlay" class="modal-overlay"><div class="modal"><div id="modal-text"></div><div class="modal-btns" id="modal-actions"></div></div></div>
-<div id="registrationModal" class="modal-overlay">
-    <div class="modal">
-        <div class="welcome-title">SOC.</div>
-        <div class="welcome-sub">WELCOME!</div>
-        <input type="text" id="regNickInput" class="nick-input-modal" placeholder="3-20 characters (a-z, 0-9, _)" maxlength="20">
-        <button class="reg-primary-btn" id="regSubmitBtn">REGISTRATION</button>
-        <button class="reg-rules-btn" id="regRulesBtn">RULES & DISCLAIMER</button>
     </div>
-</div>
-<div id="profileModal" class="modal-overlay">
-    <div class="modal">
-        <div style="font-weight:600; margin-bottom:8px;">Edit Profile</div>
-        <div class="modal-avatar-container" id="modalAvatarClickArea">
-            <div class="avatar-large" style="width:80px; height:80px; margin:0;"><img id="modalAvatarImg"></div>
-            <div class="modal-edit-icon">✎</div>
-        </div>
-        <input type="text" id="modalNickInput" class="nick-input-modal" placeholder="Nickname (3-20 chars: a-z, 0-9, _)">
-        <select id="modalStatusSelect" class="status-select">
-            <option value="online">online</option>
-            <option value="away">away</option>
-            <option value="do not disturb">do not disturb</option>
-            <option value="offline">offline</option>
-            <option value="in game">in game</option>
-            <option value="studying">studying</option>
-        </select>
-        <div class="flex-btns">
-            <button class="modal-btn" id="cancelProfileBtn" style="background:#1f1f1f;">CANCEL</button>
-            <button class="modal-btn" id="saveProfileBtn">SAVE</button>
-        </div>
-    </div>
-</div>
-<input type="file" id="customAvatarInput" hidden accept="image/*" onchange="handleCustomAvatarUpload(this.files[0])">
-<div id="peerProfileModal" class="modal-overlay">
-    <div class="modal">
-        <div class="avatar-large" style="margin:0 auto 15px;"><img id="peerModalAvatar"></div>
-        <input type="text" id="editPeerDisplayName" class="nick-input-modal" 
-               placeholder="Display name" 
-               style="margin:5px 0 0 0; text-align:center;">
-        <div style="font-size:0.85rem; color:#b9b9b9; margin-top:10px; margin-bottom:20px;" id="realNickDisplay"></div>
-        <div class="flex-btns" style="margin-top:5px;">
-            <button class="modal-btn" id="cancelPeerEdit" style="background:#1f1f1f;">CANCEL</button>
-            <button class="modal-btn" id="savePeerDisplayNameBtn" style="background:#1f1f1f;">SAVE</button>
-        </div>
-    </div>
-</div>
-<input type="file" id="fileInput" hidden accept="image/*" onchange="sendFile(this.files[0])">
 
 <script>
-    let myNick = localStorage.getItem('soc-nickname');
-    let myAvatar = localStorage.getItem('soc-avatar') || 'image/ava1.png';
-    let myStatus = localStorage.getItem('soc-status') || 'online';
+    // ========== ИНИЦИАЛИЗАЦИЯ И СОСТОЯНИЕ ==========
+    let myNick = localStorage.getItem('myNick');
     let peer = null;
     let currentConn = null;
-    let mediaRecorder = null;
-    let audioChunks = [];
-    let activeStream = null;
-    let activeChats = new Map();
     let currentChatPeer = null;
-    let lastMessageText = "---";
-    let unreadGlobalCount = 0;
-    let isChatOpen = false;
-    let reactionsStore = new Map();
-    let activeReactionPicker = null;
+    let isConnected = false;
     
-    // DOM элементы
-    const homeScreen = document.getElementById('homeScreen');
-    const chatScreen = document.getElementById('chatScreen');
-    const homeNickSpan = document.getElementById('homeNick');
-    const homeStatusSpan = document.getElementById('homeStatus');
-    const homeAvatarImg = document.getElementById('homeAvatarImg');
-    const chatMessagesDiv = document.getElementById('chatMessages');
-    const peerNickChat = document.getElementById('peerNickChat');
-    const peerAvatarChat = document.getElementById('peerAvatarImg');
-    const connectSection = document.getElementById('connectSection');
-    const notConnectedPlaceholder = document.getElementById('notConnectedPlaceholder');
-    const scrollDownBtn = document.getElementById('scrollDownBtn');
-    let lastDateLabel = "";
-    let isUserScrolling = false;
-    let scrollTimeout = null;
-    
-    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
+    // Структура хранилища чатов: { peerId: [ {id, sender, text, timestamp}, ... ] }
+    let chatHistory = JSON.parse(localStorage.getItem('soc_chats')) || {};
+
+    // Запуск приложения
+    window.onload = () => {
+        if (!myNick) {
+            document.getElementById('registrationModal').style.display = 'flex';
+        } else {
+            startPeer(myNick);
+        }
+        setTimeout(() => {
+            document.getElementById('mainApp').classList.add('app-visible');
+        }, 100);
+    };
+
+    function register() {
+        const nick = document.getElementById('regNick').value.trim();
+        if (nick.length > 2) {
+            myNick = nick;
+            localStorage.setItem('myNick', myNick);
+            document.getElementById('registrationModal').style.display = 'none';
+            startPeer(myNick);
+        }
+    }
+
+    // ========== PEERJS ЛОГИКА ==========
+    function startPeer(nick) {
+        document.getElementById('myIdDisplay').innerText = `Мой ID: ${nick}`;
+        peer = new Peer(nick, {
+            debug: 2
+        });
+
+        peer.on('open', (id) => {
+            console.log('My peer ID is: ' + id);
+        });
+
+        // Когда к нам подключаются
+        peer.on('connection', (conn) => {
+            handleConnection(conn);
+        });
+
+        peer.on('error', (err) => {
+            console.error(err);
+            if(err.type === 'peer-unavailable') {
+                updateStatus(false);
+            }
         });
     }
-    
-    function updateStatus(text, colorHint) {
-        const st = document.getElementById('status');
-        st.innerText = text.toUpperCase();
-        st.style.color = colorHint || '#bbb';
+
+    // Подключение к собеседнику
+    function connectTo(peerId) {
+        if (!peer) return;
+        if (currentConn) currentConn.close();
+        
+        updateStatus(false, 'Соединение...');
+        const conn = peer.connect(peerId, { reliable: true });
+        handleConnection(conn);
     }
-    
-    function showAlert(msg, callback) {
-        const overlay = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerText = msg;
-        const actionsDiv = document.getElementById('modal-actions');
-        actionsDiv.innerHTML = `<button class="modal-btn" id="alertOkBtn">OK</button>`;
-        showModalWithAnimation(overlay);
-        document.getElementById('alertOkBtn').onclick = () => {
-            animateModalClose(overlay, () => { if (callback) callback(); });
+
+    // Общая обработка соединения (входящего или исходящего)
+    function handleConnection(conn) {
+        currentConn = conn;
+
+        conn.on('open', () => {
+            isConnected = true;
+            updateStatus(true);
+            
+            // ВАЖНО: При установке соединения синхронизируем историю сообщений!
+            syncMessages(conn.peer);
+        });
+
+        conn.on('data', (data) => {
+            // Если пришел запрос на синхронизацию
+            if (data.type === 'sync') {
+                mergeHistory(conn.peer, data.history);
+            } 
+            // Если пришло обычное сообщение
+            else if (data.type === 'msg') {
+                saveMessageLocally(conn.peer, data.msg);
+                if (currentChatPeer === conn.peer) renderChat();
+            }
+        });
+
+        conn.on('close', () => {
+            isConnected = false;
+            updateStatus(false);
+        });
+        
+        conn.on('error', () => {
+            isConnected = false;
+            updateStatus(false);
+        });
+    }
+
+    function updateStatus(online, text) {
+        const dot = document.getElementById('connStatusDot');
+        const txt = document.getElementById('connStatusText');
+        if (online) {
+            dot.className = 'status-dot status-online';
+            txt.innerText = text || 'Online';
+        } else {
+            dot.className = 'status-dot status-offline';
+            txt.innerText = text || 'Offline';
+        }
+    }
+
+    // ========== ЛОГИКА ОФЛАЙН/СИНХРОНИЗАЦИИ ==========
+
+    // Сохранение сообщения в локальную базу данных
+    function saveMessageLocally(peerId, msgObj) {
+        if (!chatHistory[peerId]) chatHistory[peerId] = [];
+        
+        // Проверяем, нет ли уже такого сообщения (чтобы избежать дублей при синхронизации)
+        const exists = chatHistory[peerId].find(m => m.id === msgObj.id);
+        if (!exists) {
+            chatHistory[peerId].push(msgObj);
+            // Сортируем по времени
+            chatHistory[peerId].sort((a, b) => a.timestamp - b.timestamp);
+            localStorage.setItem('soc_chats', JSON.stringify(chatHistory));
+            return true;
+        }
+        return false;
+    }
+
+    // Отправка своей базы данных собеседнику для сверки
+    function syncMessages(peerId) {
+        if (isConnected && currentConn && currentConn.open) {
+            const history = chatHistory[peerId] || [];
+            currentConn.send({
+                type: 'sync',
+                history: history
+            });
+        }
+    }
+
+    // Слияние чужой базы со своей (вызывается при получении 'sync')
+    function mergeHistory(peerId, incomingHistory) {
+        let hasNew = false;
+        incomingHistory.forEach(msg => {
+            if (saveMessageLocally(peerId, msg)) {
+                hasNew = true;
+            }
+        });
+        // Если при слиянии появились новые сообщения, обновляем UI
+        if (hasNew && currentChatPeer === peerId) {
+            renderChat();
+        }
+    }
+
+    // ========== UI И ВЗАИМОДЕЙСТВИЕ ==========
+
+    function openChatWithInput() {
+        const peerId = document.getElementById('peerIdInput').value.trim();
+        if (!peerId) return;
+        openChat(peerId);
+    }
+
+    function openChat(peerId) {
+        currentChatPeer = peerId;
+        document.getElementById('chatWithTitle').innerText = peerId;
+        document.getElementById('homeScreen').classList.remove('active');
+        document.getElementById('chatScreen').classList.add('active');
+        
+        // Загружаем сохраненные офлайн/онлайн сообщения
+        renderChat();
+        
+        // Пытаемся подключиться (в фоне)
+        connectTo(peerId);
+    }
+
+    function goBack() {
+        currentChatPeer = null;
+        if (currentConn) currentConn.close();
+        document.getElementById('chatScreen').classList.remove('active');
+        document.getElementById('homeScreen').classList.add('active');
+    }
+
+    function handleEnter(e) {
+        if (e.key === 'Enter') sendMessageUI();
+    }
+
+    function sendMessageUI() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if (!text || !currentChatPeer) return;
+
+        // 1. Создаем объект сообщения
+        const msgObj = {
+            id: Date.now() + '_' + myNick,
+            sender: myNick,
+            text: text,
+            timestamp: Date.now()
         };
-    }
-    
-    function formatLastMessage(type, data) {
-        if (type === 'text') return data.length > 30 ? data.substring(0, 27) + '...' : data;
-        if (type === 'image') return '✿ Photo';
-        if (type === 'audio') return '♪ Voice';
-        return '---';
-    }
-    
-    function updateHomeUI() {
-        homeNickSpan.innerText = myNick || '---';
-        homeStatusSpan.innerText = myStatus;
-        homeAvatarImg.src = myAvatar;
-    }
-    
-    function isValidNick(nick) {
-        if (!nick || nick.length < 3) return false;
-        return /^[a-zA-Z0-9_]{3,20}$/.test(nick);
-    }
-    
-    function saveAllChats() {
-        const toSave = {};
-        for (const [peerId, chat] of activeChats.entries()) {
-            toSave[peerId] = {
-                nick: chat.nick,
-                avatar: chat.avatar,
-                status: chat.status,
-                displayName: chat.displayName,
-                unreadCount: chat.unreadCount,
-                lastMessage: chat.lastMessage,
-                history: chat.history || []
-            };
-        }
-        localStorage.setItem('soc-active-chats', JSON.stringify(toSave));
-    }
-    
-    function loadSavedChats() {
-        const saved = localStorage.getItem('soc-active-chats');
-        if (saved) {
-            try {
-                const chats = JSON.parse(saved);
-                for (const [peerId, data] of Object.entries(chats)) {
-                    if (data.nick) {
-                        activeChats.set(peerId, {
-                            conn: null,
-                            nick: data.nick,
-                            avatar: data.avatar || 'image/ava1.png',
-                            status: data.status || 'offline',
-                            displayName: data.displayName || data.nick,
-                            unreadCount: data.unreadCount || 0,
-                            lastMessage: data.lastMessage || '---',
-                            history: data.history || []
-                        });
-                    }
-                }
-            } catch(e) { console.error(e); }
+
+        // 2. СРАЗУ сохраняем локально и рисуем (даже если офлайн)
+        saveMessageLocally(currentChatPeer, msgObj);
+        renderChat();
+        input.value = '';
+
+        // 3. Если сейчас онлайн — отправляем. Если нет — оно уйдет при следующем syncMessages()
+        if (isConnected && currentConn && currentConn.open) {
+            currentConn.send({ type: 'msg', msg: msgObj });
         }
     }
-    
-    function updateChatsListUI() {
-        let container = document.getElementById('chatsListContainer');
-        if (!container) return;
+
+    function renderChat() {
+        const container = document.getElementById('chatMessages');
         container.innerHTML = '';
         
-        let hasChats = false;
-        for (const [peerId, chat] of activeChats.entries()) {
-            hasChats = true;
-            const chatRow = document.createElement('div');
-            chatRow.className = 'active-chat-row';
-            chatRow.style.margin = '0';
-            chatRow.style.marginBottom = '8px';
+        const history = chatHistory[currentChatPeer] || [];
+        
+        history.forEach(msg => {
+            const div = document.createElement('div');
+            const isMe = msg.sender === myNick;
+            div.className = `msg-bubble ${isMe ? 'msg-sent' : 'msg-recv'}`;
             
-            const displayName = chat.displayName || chat.nick;
-            const statusClass = chat.status === 'online' ? 'online' : (chat.status === 'offline' ? 'offline' : 'away');
-            const isActive = (currentChatPeer === peerId);
+            const textSpan = document.createElement('span');
+            textSpan.innerText = msg.text;
             
-            if (isActive) {
-                chatRow.style.border = '1px solid #888';
-                chatRow.style.background = '#1f1f1f';
-            }
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'msg-time';
+            const date = new Date(msg.timestamp);
+            timeSpan.innerText = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
             
-            chatRow.innerHTML = `
-                <div class="active-chat-left" data-peer="${peerId}">
-                    <div class="active-chat-avatar" style="position:relative;">
-                        <img src="${chat.avatar || 'image/ava1.png'}" draggable="false">
-                        <span class="status-dot ${statusClass}" id="status-dot-${peerId}"></span>
-                    </div>
-                    <div class="active-chat-info">
-                        <div class="active-chat-nick">${escapeHtml(displayName)}</div>
-                        <div class="active-chat-lastmsg">${escapeHtml(chat.lastMessage || '---')}</div>
-                    </div>
-                    ${chat.unreadCount > 0 ? `<div class="unread-badge" style="position:relative; top:0; right:0;">${chat.unreadCount}</div>` : ''}
-                </div>
-                <button class="close-chat-icon" data-peer="${peerId}" onclick="event.stopPropagation(); removeChat('${peerId}')">
-                    <img src="image/close.png" alt="✕" draggable="false">
-                </button>
-            `;
-            
-            const chatLeft = chatRow.querySelector('.active-chat-left');
-            chatLeft.addEventListener('click', (function(id) {
-                return function() { openChat(id); };
-            })(peerId));
-            
-            container.appendChild(chatRow);
-        }
-        
-        if (hasChats) {
-            notConnectedPlaceholder.style.display = 'none';
-        } else {
-            notConnectedPlaceholder.style.display = 'flex';
-        }
-    }
-    
-    function loadChatHistoryForPeer(peerId) {
-        const chat = activeChats.get(peerId);
-        if (!chat || !chatMessagesDiv) return;
-        chatMessagesDiv.innerHTML = '';
-        lastDateLabel = '';
-        reactionsStore.clear();
-        if (chat.history && chat.history.length) {
-            chat.history.forEach(item => {
-                addMsgToChat(item.data, item.side, item.type, item.time, item.msgId);
-            });
-        }
-        setTimeout(() => {
-            if (chatMessagesDiv) chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-        }, 100);
-    }
-    
-    function addMsgToChat(data, side, type, savedTime = null, existingMsgId = null) {
-        const container = chatMessagesDiv;
-        if (!container) return;
-        
-        const now = savedTime ? new Date(savedTime) : new Date();
-        const dateOptions = { day: 'numeric', month: 'long' };
-        const currentDateLabel = now.toLocaleDateString('en-US', dateOptions);
-        if (currentDateLabel !== lastDateLabel) {
-            const dateDiv = document.createElement('div'); 
-            dateDiv.className = 'date-divider'; 
-            dateDiv.innerText = currentDateLabel;
-            container.appendChild(dateDiv);
-            lastDateLabel = currentDateLabel;
-        }
-        
-        const msgId = existingMsgId || `msg_${Date.now()}_${Math.random()}`;
-        const msgDiv = document.createElement('div'); 
-        msgDiv.className = `msg ${side === 'my' ? 'my' : 'other'}`;
-        msgDiv.setAttribute('data-msg-id', msgId);
-        
-        const content = document.createElement('div');
-        if (type === 'text') content.innerText = data;
-        else if (type === 'image') { const img = document.createElement('img'); img.src = data; content.appendChild(img); }
-        else if (type === 'audio') { const audioEl = document.createElement('audio'); audioEl.controls = true; audioEl.src = data; content.appendChild(audioEl); }
-        msgDiv.appendChild(content);
-        
-        const timeDiv = document.createElement('div'); 
-        timeDiv.className = 'msg-time';
-        timeDiv.innerText = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-        msgDiv.appendChild(timeDiv);
-        
-        container.appendChild(msgDiv);
-        
-        const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
-        if (side === 'my' || wasNearBottom) container.scrollTop = container.scrollHeight;
-        
-        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
-        
-        const isMyMessage = (side === 'my');
-        msgDiv.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showReactionPicker(msgDiv, msgId, isMyMessage);
-            return false;
+            div.appendChild(textSpan);
+            div.appendChild(timeSpan);
+            container.appendChild(div);
         });
-        let lastTap = 0;
-        msgDiv.addEventListener('touchstart', (e) => {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            if (tapLength < 300 && tapLength > 0) {
-                e.preventDefault();
-                showReactionPicker(msgDiv, msgId, isMyMessage);
-            }
-            lastTap = currentTime;
-        });
-        
-        if (side === 'other' && !savedTime) { 
-            const sound = document.getElementById('msgSound'); 
-            if(sound) sound.play().catch(e=>{}); 
-        }
-        
-        setTimeout(() => checkScrollPosition(), 50);
-    }
-    
-    // ========== ФУНКЦИИ РЕАКЦИЙ ==========
-    
-    function showReactionPicker(msgElement, msgId, isMyMessage) {
-        if (activeReactionPicker) { activeReactionPicker.remove(); activeReactionPicker = null; }
-        const picker = document.createElement('div');
-        picker.className = 'reaction-picker';
-        const reactions = ['❤️', '👍', '👎', '😂', '❗', '❓'];
-        reactions.forEach(emoji => {
-            const span = document.createElement('span');
-            span.innerText = emoji;
-            span.className = 'reaction-emoji';
-            span.onclick = (e) => {
-                e.stopPropagation();
-                sendReactionToggle(msgId, emoji);
-                picker.remove();
-                activeReactionPicker = null;
-            };
-            picker.appendChild(span);
-        });
-        
-        const rect = msgElement.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
-        let top = rect.top - 50;
-        if (top < 10) top = rect.bottom + 10;
-        if (top + 60 > viewportHeight) top = viewportHeight - 70;
-        if (top < 0) top = 5;
-        
-        let left;
-        if (isMyMessage) {
-            left = rect.left - 190 - 8;
-            if (left < 5) left = rect.right + 2;
-        } else {
-            left = rect.right - 28;
-            if (left + 190 > viewportWidth) left = rect.left - 190 - 2;
-        }
-        if (left < 5) left = 5;
-        if (left + 190 > viewportWidth) left = viewportWidth - 195;
-        
-        picker.style.cssText = `position:fixed; top:${top}px; left:${left}px; z-index:1000;`;
-        document.body.appendChild(picker);
-        activeReactionPicker = picker;
-        
-        const closePicker = (e) => {
-            if (picker && !picker.contains(e.target)) {
-                picker.remove();
-                activeReactionPicker = null;
-                document.removeEventListener('click', closePicker);
-            }
-        };
-        setTimeout(() => document.addEventListener('click', closePicker), 10);
-    }
-    
-    function sendReactionToggle(msgId, emoji) {
-        if (!currentConn || !currentConn.open) return;
-        currentConn.send({ type: 'reaction_toggle', msgId: msgId, emoji: emoji });
-        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
-        const store = reactionsStore.get(msgId);
-        store.my = (store.my === emoji) ? null : emoji;
-        updateReactionsUI(msgId);
-    }
-    
-    function handlePeerReaction(msgId, emoji) {
-        if (!reactionsStore.has(msgId)) reactionsStore.set(msgId, { my: null, peer: null });
-        const store = reactionsStore.get(msgId);
-        store.peer = (store.peer === emoji) ? null : emoji;
-        updateReactionsUI(msgId);
-    }
-    
-    function updateReactionsUI(msgId) {
-        const targetMsg = document.querySelector(`.msg[data-msg-id="${msgId}"]`);
-        if (!targetMsg) return;
-        let reactionsContainer = targetMsg.querySelector('.reactions-container');
-        if (reactionsContainer) reactionsContainer.remove();
-        const store = reactionsStore.get(msgId);
-        if (!store) return;
-        reactionsContainer = document.createElement('div');
-        reactionsContainer.className = 'reactions-container';
-        if (store.my && store.peer && store.my === store.peer) {
-            const badge = document.createElement('div');
-            badge.className = 'reaction-badge my-reaction';
-            badge.innerHTML = `${store.my} <span class="reaction-count">2</span>`;
-            badge.onclick = (e) => { e.stopPropagation(); sendReactionToggle(msgId, store.my); };
-            reactionsContainer.appendChild(badge);
-        } else {
-            if (store.my) {
-                const badge = document.createElement('div');
-                badge.className = 'reaction-badge my-reaction';
-                badge.innerHTML = store.my;
-                badge.onclick = (e) => { e.stopPropagation(); sendReactionToggle(msgId, store.my); };
-                reactionsContainer.appendChild(badge);
-            }
-            if (store.peer) {
-                const badge = document.createElement('div');
-                badge.className = 'reaction-badge';
-                badge.innerHTML = store.peer;
-                reactionsContainer.appendChild(badge);
-            }
-        }
-        if (reactionsContainer.children.length > 0) targetMsg.appendChild(reactionsContainer);
-    }
-    
-    // ========== ОСНОВНЫЕ ФУНКЦИИ ЧАТА ==========
-    
-    function switchToChatMode() {
-        isChatOpen = true;
-        homeScreen.classList.add('chat-open');
-        chatScreen.classList.add('chat-visible');
-        setTimeout(() => {
-            document.getElementById('msgInput').focus();
-            if (chatMessagesDiv) {
-                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-                setTimeout(() => checkScrollPosition(), 100);
-            }
-        }, 200);
-    }
-    
-    function switchToHomeMode() {
-        isChatOpen = false;
-        homeScreen.classList.remove('chat-open');
-        chatScreen.classList.remove('chat-visible');
-        updateChatsListUI();
-    }
-    
-    function checkScrollPosition() {
-        if (!chatMessagesDiv) return;
-        const isNearBottom = chatMessagesDiv.scrollHeight - chatMessagesDiv.scrollTop - chatMessagesDiv.clientHeight < 100;
-        if (!isNearBottom && !isUserScrolling) scrollDownBtn.classList.add('visible');
-        else scrollDownBtn.classList.remove('visible');
-    }
-    
-    function scrollToBottom() {
-        if (!chatMessagesDiv) return;
-        chatMessagesDiv.scrollTo({ top: chatMessagesDiv.scrollHeight, behavior: 'smooth' });
-        scrollDownBtn.classList.remove('visible');
-        isUserScrolling = false;
-    }
-    
-    function onChatScroll() {
-        isUserScrolling = true;
-        if (scrollTimeout) clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => { isUserScrolling = false; checkScrollPosition(); }, 150);
-        checkScrollPosition();
-    }
-    
-    function setupConnectionForPeer(peerId, connection) {
-        const chat = activeChats.get(peerId);
-        if (!chat) return;
-        chat.conn = connection;
-        
-        connection.on('open', () => {
-            connection.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
-            if (currentChatPeer === peerId) {
-                currentConn = connection;
-                updateStatus(`CHAT WITH: ${chat.nick}`, '#559b61');
-            }
-        });
-        
-        connection.on('data', (payload) => {
-            const chatData = activeChats.get(peerId);
-            if (!chatData) return;
-            
-            if (payload.type === 'profile') {
-                chatData.nick = payload.nick;
-                chatData.avatar = payload.avatar;
-                chatData.status = payload.status || 'online';
-                const savedDisplay = localStorage.getItem(`display_name_${peerId}`);
-                chatData.displayName = savedDisplay || chatData.nick;
-                saveAllChats();
-                updatePeerStatusUI(peerId, chatData.status);
-                if (currentChatPeer === peerId) {
-                    peerNickChat.innerText = chatData.displayName;
-                    peerAvatarChat.src = chatData.avatar;
-                    const statusDot = document.getElementById('peerStatusDot');
-                    if (statusDot) statusDot.className = `status-dot ${chatData.status === 'online' ? 'online' : 'offline'}`;
-                }
-                updateChatsListUI();
-            } else if (payload.type === 'text' || payload.type === 'image' || payload.type === 'audio') {
-                chatData.lastMessage = payload.type === 'text' ? 
-                    (payload.data.length > 30 ? payload.data.substring(0,27)+'...' : payload.data) : 
-                    (payload.type === 'image' ? '✿ Photo' : '♪ Voice');
-                if (currentChatPeer !== peerId) chatData.unreadCount = (chatData.unreadCount || 0) + 1;
-                if (!chatData.history) chatData.history = [];
-                chatData.history.push({ data: payload.data, side: 'other', type: payload.type, time: Date.now(), msgId: payload.msgId });
-                if (chatData.history.length > 50) chatData.history.shift();
-                saveAllChats();
-                if (currentChatPeer === peerId) {
-                    addMsgToChat(payload.data, 'other', payload.type, null, payload.msgId);
-                    const sound = document.getElementById('msgSound');
-                    if(sound) sound.play().catch(e=>{});
-                } else {
-                    updateChatsListUI();
-                }
-            } else if (payload.type === 'reaction_toggle') {
-                if (currentChatPeer === peerId) handlePeerReaction(payload.msgId, payload.emoji);
-            } else if (payload.type === 'peer_closed_chat') {
-                removeChat(peerId);
-            }
-        });
-        
-        connection.on('close', () => {
-            const chatData = activeChats.get(peerId);
-            if (chatData) {
-                chatData.status = 'offline';
-                updatePeerStatusUI(peerId, 'offline');
-                saveAllChats();
-                updateChatsListUI();
-                if (currentChatPeer === peerId) updateStatus('OFFLINE', '#aa5555');
-            }
-        });
-    }
-    
-    function updatePeerStatusUI(peerId, status) {
-        const dot = document.getElementById(`status-dot-${peerId}`);
-        if (dot) dot.className = `status-dot ${status === 'online' ? 'online' : 'offline'}`;
-        if (currentChatPeer === peerId) {
-            const chatDot = document.getElementById('peerStatusDot');
-            if (chatDot) chatDot.className = `status-dot ${status === 'online' ? 'online' : 'offline'}`;
-        }
-    }
-    
-    function openChat(peerId) {
-        const chat = activeChats.get(peerId);
-        if (!chat) return;
-        
-        currentChatPeer = peerId;
-        currentConn = chat.conn;
-        
-        if (!chat.conn || !chat.conn.open) {
-            if (peer) {
-                const newConn = peer.connect(peerId);
-                chat.conn = newConn;
-                setupConnectionForPeer(peerId, newConn);
-                currentConn = newConn;
-            }
-        }
-        
-        chat.unreadCount = 0;
-        loadChatHistoryForPeer(peerId);
-        
-        peerNickChat.innerText = chat.displayName || chat.nick;
-        peerAvatarChat.src = chat.avatar || 'image/ava1.png';
-        const statusDot = document.getElementById('peerStatusDot');
-        if (statusDot) statusDot.className = `status-dot ${chat.status === 'online' ? 'online' : 'offline'}`;
-        
-        updateStatus(`CHAT WITH: ${chat.nick}`, '#559b61');
-        updateChatsListUI();
-        switchToChatMode();
-    }
-    
-function removeChat(peerId) {
-    // Показываем подтверждение
-    const overlay = document.getElementById('modal-overlay');
-    document.getElementById('modal-text').innerHTML = `Close chat with ${escapeHtml(activeChats.get(peerId)?.displayName || peerId)}?<br><small style="color:#888;">All messages will be deleted</small>`;
-    const actionsDiv = document.getElementById('modal-actions');
-    actionsDiv.innerHTML = `<button class="modal-btn" id="confirmCloseNo">CANCEL</button><button class="modal-btn" id="confirmCloseYes">CLOSE</button>`;
-    showModalWithAnimation(overlay);
-    
-    document.getElementById('confirmCloseNo').onclick = () => {
-        animateModalClose(overlay);
-    };
-    
-    document.getElementById('confirmCloseYes').onclick = () => {
-        animateModalClose(overlay, () => {
-            const chat = activeChats.get(peerId);
-            if (chat) {
-                if (chat.conn && chat.conn.open) {
-                    try { chat.conn.send({ type: 'peer_closed_chat', nick: myNick }); } catch(e) {}
-                    chat.conn.close();
-                }
-                activeChats.delete(peerId);
-                saveAllChats();
-                if (currentChatPeer === peerId) {
-                    currentChatPeer = null;
-                    currentConn = null;
-                    chatMessagesDiv.innerHTML = '';
-                    lastDateLabel = '';
-                    updateStatus('ONLINE', '#da8f27');
-                    switchToHomeMode();
-                }
-                updateChatsListUI();
-            }
-        });
-    };
-}
-    
-    function connectToPeer() {
-        if (!peer) { showAlert("Initializing... Please wait"); return; }
-        const friendNick = document.getElementById('peer-nick-input').value.trim();
-        if (!friendNick) { showAlert("Enter friend's nickname"); return; }
-        if (friendNick === myNick) { showAlert("You cannot connect to yourself"); return; }
-        if (activeChats.has(friendNick)) { openChat(friendNick); return; }
-        if (activeChats.size >= 30) { showAlert("Maximum 30 simultaneous chats"); return; }
-        
-        updateStatus('CONNECTING...', '#b0b0b0');
-        const newConn = peer.connect(friendNick);
-        activeChats.set(friendNick, {
-            conn: newConn,
-            nick: friendNick,
-            avatar: 'image/ava1.png',
-            status: 'connecting',
-            displayName: friendNick,
-            unreadCount: 0,
-            lastMessage: '---',
-            history: []
-        });
-        saveAllChats();
-        setupConnectionForPeer(friendNick, newConn);
-        openChat(friendNick);
-    }
-    
-    function sendText() {
-        const input = document.getElementById('msgInput');
-        const text = input.value.trim();
-        if (text === "") return;
-        if (currentConn && currentConn.open) {
-            const msgId = `msg_${Date.now()}_${Math.random()}`;
-            currentConn.send({ type: 'text', data: text, msgId: msgId });
-            addMsgToChat(text, 'my', 'text', null, msgId);
-            const chat = activeChats.get(currentChatPeer);
-            if (chat) {
-                chat.lastMessage = text.length > 30 ? text.substring(0,27)+'...' : text;
-                if (!chat.history) chat.history = [];
-                chat.history.push({ data: text, side: 'my', type: 'text', time: Date.now(), msgId: msgId });
-                if (chat.history.length > 50) chat.history.shift();
-                saveAllChats();
-                updateChatsListUI();
-            }
-            input.value = '';
-        }
-    }
-    
-    function sendFile(file) {
-        if (!file) return;
-        if (currentConn && currentConn.open) {
-            const reader = new FileReader();
-            reader.onload = (ev) => { 
-                const msgId = `msg_${Date.now()}_${Math.random()}`;
-                currentConn.send({ type: 'image', data: ev.target.result, msgId: msgId });
-                addMsgToChat(ev.target.result, 'my', 'image', null, msgId);
-                const chat = activeChats.get(currentChatPeer);
-                if (chat) {
-                    chat.lastMessage = '✿ Photo';
-                    if (!chat.history) chat.history = [];
-                    chat.history.push({ data: ev.target.result, side: 'my', type: 'image', time: Date.now(), msgId: msgId });
-                    if (chat.history.length > 50) chat.history.shift();
-                    saveAllChats();
-                    updateChatsListUI();
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-    
-    async function toggleRecord() {
-        const btn = document.getElementById('recordBtn');
-        const micImg = document.getElementById('mic-icon');
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-            mediaRecorder.stop();
-            if (activeStream) { activeStream.getTracks().forEach(track => track.stop()); activeStream = null; }
-            btn.classList.remove('btn-red');
-            if (micImg) micImg.src = "image/mic.png";
-            return;
-        }
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            activeStream = stream;
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
-            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                const reader = new FileReader();
-                reader.onload = (ev) => { 
-                    if (currentConn && currentConn.open) {
-                        const msgId = `msg_${Date.now()}_${Math.random()}`;
-                        currentConn.send({ type: 'audio', data: ev.target.result, msgId: msgId });
-                        addMsgToChat(ev.target.result, 'my', 'audio', null, msgId);
-                        const chat = activeChats.get(currentChatPeer);
-                        if (chat) {
-                            chat.lastMessage = '♪ Voice';
-                            if (!chat.history) chat.history = [];
-                            chat.history.push({ data: ev.target.result, side: 'my', type: 'audio', time: Date.now(), msgId: msgId });
-                            if (chat.history.length > 50) chat.history.shift();
-                            saveAllChats();
-                            updateChatsListUI();
-                        }
-                    }
-                };
-                reader.readAsDataURL(blob);
-            };
-            mediaRecorder.start();
-            btn.classList.add('btn-red');
-            if (micImg) micImg.src = "image/stop.png";
-        } catch(err) { showAlert("Mic access denied"); }
-    }
-    
-    // ========== МОДАЛЬНЫЕ ОКНА ==========
-    
-    function animateModalClose(modalElement, callback) {
-        const modalContent = modalElement.querySelector('.modal');
-        if (modalContent) {
-            modalContent.classList.remove('modal-exit');
-            void modalContent.offsetWidth;
-            modalContent.classList.add('modal-exit');
-            setTimeout(() => {
-                modalElement.style.display = 'none';
-                modalContent.classList.remove('modal-exit');
-                if (callback) callback();
-            }, 150);
-        } else {
-            modalElement.style.display = 'none';
-            if (callback) callback();
-        }
-    }
-    
-    function showModalWithAnimation(modalElement) {
-        modalElement.style.display = 'flex';
-        const modalContent = modalElement.querySelector('.modal');
-        if (modalContent) {
-            modalContent.classList.remove('modal-exit');
-            void modalContent.offsetWidth;
-            modalContent.style.animation = 'none';
-            void modalContent.offsetWidth;
-            modalContent.style.animation = 'modalPopIn 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
-        }
-    }
-    
-    function showValidationError(returnToModal) {
-        const overlay = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerHTML = `Nickname must be 3-20 characters (letters, numbers, _)`;
-        document.getElementById('modal-actions').innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
-        showModalWithAnimation(overlay);
-        document.getElementById('errorOkBtn').onclick = () => {
-            animateModalClose(overlay, () => {
-                if (returnToModal === 'registration') {
-                    showModalWithAnimation(document.getElementById('registrationModal'));
-                    document.getElementById('regNickInput').value = '';
-                    document.getElementById('regNickInput').focus();
-                } else if (returnToModal === 'profile') {
-                    showModalWithAnimation(document.getElementById('profileModal'));
-                }
-            });
-        };
-    }
-    
-    function showNicknameTakenError(returnToModal) {
-        const overlay = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Nickname already taken! Choose another one.</b>`;
-        document.getElementById('modal-actions').innerHTML = `<button class="modal-btn" id="errorOkBtn" style="width:100%">OK</button>`;
-        showModalWithAnimation(overlay);
-        document.getElementById('errorOkBtn').onclick = () => {
-            animateModalClose(overlay, () => {
-                if (returnToModal === 'registration') {
-                    showModalWithAnimation(document.getElementById('registrationModal'));
-                    document.getElementById('regNickInput').value = '';
-                    document.getElementById('regNickInput').focus();
-                } else if (returnToModal === 'profile') {
-                    showModalWithAnimation(document.getElementById('profileModal'));
-                }
-            });
-        };
-    }
-    
-    function showRegistrationModal() {
-        document.getElementById('regNickInput').value = '';
-        showModalWithAnimation(document.getElementById('registrationModal'));
-        setTimeout(() => document.getElementById('regNickInput').focus(), 100);
-    }
-    
-    function showRules(fromRegistration = false) {
-        const overlay = document.getElementById('modal-overlay');
-        document.getElementById('modal-text').innerHTML = `<b style="color:white; display:block; margin-bottom:10px;">Legal Disclaimer</b>
-        This application uses P2P (Peer-to-Peer) technology. All data is transferred directly between devices.<br><br>
-        The developer does NOT store, monitor, or have access to your conversations. Therefore, the developer is NOT responsible for user behavior or content shared.<br><br>
-        This tool was created for good purposes and privacy. Please use it responsibly.`;
-        document.getElementById('modal-actions').innerHTML = `<button class="modal-btn" id="rulesOkBtn" style="width:100%">I UNDERSTAND</button>`;
-        showModalWithAnimation(overlay);
-        document.getElementById('rulesOkBtn').onclick = () => {
-            animateModalClose(overlay, () => {
-                if (fromRegistration) showModalWithAnimation(document.getElementById('registrationModal'));
-            });
-        };
-    }
-    
-    function showRulesFromHome() { showRules(false); }
-    
-    function openProfileModal() {
-        document.getElementById('modalNickInput').value = myNick;
-        document.getElementById('modalAvatarImg').src = myAvatar;
-        document.getElementById('modalStatusSelect').value = myStatus;
-        showModalWithAnimation(document.getElementById('profileModal'));
-    }
-    
-    function openAvatarUploadFromProfile() { document.getElementById('customAvatarInput').click(); }
-    
-    window.handleCustomAvatarUpload = function(file) {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            tempAvatar = ev.target.result;
-            document.getElementById('modalAvatarImg').src = tempAvatar;
-        };
-        reader.readAsDataURL(file);
-    };
-    
-function openPeerProfile() {
-    const peerId = currentChatPeer;
-    if (!peerId) return;
-    const chat = activeChats.get(peerId);
-    if (!chat) return;
-    
-    const currentDisplayName = chat.displayName || chat.nick;
-    
-    document.getElementById('peerModalAvatar').src = chat.avatar || 'image/ava1.png';
-    document.getElementById('editPeerDisplayName').value = currentDisplayName;
-    document.getElementById('realNickDisplay').innerHTML = 'ID: ' + escapeHtml(chat.nick);
-    
-    showModalWithAnimation(document.getElementById('peerProfileModal'));
-    
-    const cancelBtn = document.getElementById('cancelPeerEdit');
-    const saveBtn = document.getElementById('savePeerDisplayNameBtn');
-    
-    const newCancelBtn = cancelBtn.cloneNode(true);
-    const newSaveBtn = saveBtn.cloneNode(true);
-    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-    saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
-    
-    newCancelBtn.onclick = () => {
-        animateModalClose(document.getElementById('peerProfileModal'));
-    };
-    
-    newSaveBtn.onclick = () => {
-        const newDisplayName = document.getElementById('editPeerDisplayName').value.trim();
-        
-        if (newDisplayName === "") {
-            chat.displayName = chat.nick;
-            localStorage.removeItem(`display_name_${peerId}`);
-        } else {
-            chat.displayName = newDisplayName;
-            localStorage.setItem(`display_name_${peerId}`, newDisplayName);
-        }
-        
-        if (currentChatPeer === peerId) {
-            peerNickChat.innerText = chat.displayName;
-        }
-        
-        updateChatsListUI();
-        saveAllChats();
-        animateModalClose(document.getElementById('peerProfileModal'));
-    };
-}
-    
-    let tempAvatar = myAvatar;
-    
-    // ========== ИНИЦИАЛИЗАЦИЯ ==========
-    
-    function startWithNick(nick, fromRegistration = true) {
-        if (peer) peer.destroy();
-        peer = new Peer(nick, { debug: 2 });
-        
-        peer.on('open', () => {
-            updateStatus('ONLINE', '#da8f27');
-            if (fromRegistration) {
-                myNick = nick;
-                localStorage.setItem('soc-nickname', myNick);
-                updateHomeUI();
-            }
-            loadSavedChats();
-            for (const [peerId, chat] of activeChats.entries()) {
-                if (peerId !== myNick && (!chat.conn || !chat.conn.open)) {
-                    const newConn = peer.connect(peerId);
-                    chat.conn = newConn;
-                    setupConnectionForPeer(peerId, newConn);
-                }
-            }
-            updateChatsListUI();
-        });
-        
-        peer.on('error', (err) => {
-            console.warn(err);
-            updateStatus('ERROR', '#aa5555');
-            if (err.type === 'unavailable-id' && fromRegistration) {
-                animateModalClose(document.getElementById('registrationModal'), () => {
-                    showNicknameTakenError('registration');
-                });
-            }
-        });
-        
-        peer.on('connection', (incomingConn) => {
-            const peerId = incomingConn.peer;
-            if (activeChats.has(peerId)) {
-                const existing = activeChats.get(peerId);
-                if (existing.conn && existing.conn.open) { incomingConn.close(); return; }
-            }
-            if (activeChats.size >= 30) { incomingConn.close(); return; }
-            activeChats.set(peerId, {
-                conn: incomingConn,
-                nick: peerId,
-                avatar: 'image/ava1.png',
-                status: 'online',
-                displayName: peerId,
-                unreadCount: 0,
-                lastMessage: '---',
-                history: []
-            });
-            saveAllChats();
-            setupConnectionForPeer(peerId, incomingConn);
-            updateChatsListUI();
-        });
-        
-        updateStatus('CONNECTING...', '#b0b0b0');
-    }
-    
-    // ========== ОБРАБОТЧИКИ ==========
-    
-    document.getElementById('regSubmitBtn').onclick = () => {
-        const newNick = document.getElementById('regNickInput').value.trim();
-        if (!isValidNick(newNick)) {
-            animateModalClose(document.getElementById('registrationModal'), () => { showValidationError('registration'); });
-            return;
-        }
-        animateModalClose(document.getElementById('registrationModal'), () => { startWithNick(newNick, true); });
-    };
-    
-    document.getElementById('regRulesBtn').onclick = () => {
-        animateModalClose(document.getElementById('registrationModal'), () => { showRules(true); });
-    };
-    
-    document.getElementById('mainProfileBtn').addEventListener('click', openProfileModal);
-    document.getElementById('modalAvatarClickArea').onclick = (e) => { e.stopPropagation(); openAvatarUploadFromProfile(); };
-    document.getElementById('cancelProfileBtn').onclick = () => { animateModalClose(document.getElementById('profileModal')); };
-    document.getElementById('saveProfileBtn').onclick = () => {
-        let newNick = document.getElementById('modalNickInput').value.trim();
-        let newAvatar = tempAvatar;
-        let newStatus = document.getElementById('modalStatusSelect').value;
-        
-        if (newNick === myNick || newNick === "") {
-            myAvatar = newAvatar;
-            myStatus = newStatus;
-            localStorage.setItem('soc-avatar', myAvatar);
-            localStorage.setItem('soc-status', myStatus);
-            updateHomeUI();
-            if (currentConn && currentConn.open) currentConn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
-            animateModalClose(document.getElementById('profileModal'));
-            return;
-        }
-        
-        if (!isValidNick(newNick)) {
-            animateModalClose(document.getElementById('profileModal'), () => { showValidationError('profile'); });
-            return;
-        }
-        
-        animateModalClose(document.getElementById('profileModal'));
-        
-        let oldNick = myNick;
-        let oldAvatar = myAvatar;
-        let oldStatus = myStatus;
-        let oldPeer = peer;
-        
-        myNick = newNick;
-        myAvatar = newAvatar;
-        myStatus = newStatus;
-        localStorage.setItem('soc-nickname', myNick);
-        localStorage.setItem('soc-avatar', myAvatar);
-        localStorage.setItem('soc-status', myStatus);
-        updateHomeUI();
-        
-        if (peer) peer.destroy();
-        peer = new Peer(myNick, { debug: 2 });
-        
-        peer.on('open', () => {
-            updateStatus('ONLINE', '#da8f27');
-            if (currentConn && currentConn.open) currentConn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
-            for (const [peerId, chat] of activeChats.entries()) {
-                if (chat.conn && chat.conn.open) chat.conn.send({ type: 'profile', nick: myNick, avatar: myAvatar, status: myStatus });
-            }
-        });
-        
-        peer.on('error', (err) => {
-            if (err.type === 'unavailable-id') {
-                myNick = oldNick;
-                myAvatar = oldAvatar;
-                myStatus = oldStatus;
-                localStorage.setItem('soc-nickname', myNick);
-                localStorage.setItem('soc-avatar', myAvatar);
-                localStorage.setItem('soc-status', myStatus);
-                updateHomeUI();
-                if (peer) peer.destroy();
-                peer = oldPeer;
-                showNicknameTakenError('profile');
-            }
-        });
-        
-        peer.on('connection', (incomingConn) => {
-            const peerId = incomingConn.peer;
-            if (activeChats.has(peerId)) {
-                const existing = activeChats.get(peerId);
-                if (existing.conn && existing.conn.open) { incomingConn.close(); return; }
-            }
-            if (activeChats.size >= 30) { incomingConn.close(); return; }
-            activeChats.set(peerId, {
-                conn: incomingConn,
-                nick: peerId,
-                avatar: 'image/ava1.png',
-                status: 'online',
-                displayName: peerId,
-                unreadCount: 0,
-                lastMessage: '---',
-                history: []
-            });
-            saveAllChats();
-            setupConnectionForPeer(peerId, incomingConn);
-            updateChatsListUI();
-        });
-    };
-    
-    document.getElementById('backHomeBtn').addEventListener('click', switchToHomeMode);
-    document.getElementById('peerInfoBtn').addEventListener('click', openPeerProfile);
-    
-    if (scrollDownBtn) scrollDownBtn.addEventListener('click', scrollToBottom);
-    if (chatMessagesDiv) chatMessagesDiv.addEventListener('scroll', onChatScroll);
-    
-    document.getElementById('peer-nick-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); connectToPeer(); }
-    });
-    
-    // Drag and drop
-    const dropOverlay = document.getElementById('dropOverlay');
-    window.addEventListener('dragover', (e) => { e.preventDefault(); });
-    window.addEventListener('dragenter', (e) => {
-        e.preventDefault();
-        if (chatScreen.classList.contains('chat-visible') && currentConn && currentConn.open) {
-            dropOverlay.classList.add('active');
-        }
-    });
-    window.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        if (e.clientY <= 0 || e.clientX <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
-            dropOverlay.classList.remove('active');
-        }
-    });
-    window.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropOverlay.classList.remove('active');
-        if (!chatScreen.classList.contains('chat-visible') || !currentConn || !currentConn.open) return;
-        const files = e.dataTransfer.files;
-        if (files.length > 0 && files[0].type.indexOf('image') !== -1) sendFile(files[0]);
-    });
-    
-    document.addEventListener('paste', (e) => {
-        if (!chatScreen.classList.contains('chat-visible') || !currentConn || !currentConn.open) return;
-        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-        for (let item of items) {
-            if (item.type.indexOf('image') !== -1) {
-                e.preventDefault();
-                const file = item.getAsFile();
-                if (file) sendFile(file);
-                return;
-            }
-        }
-    });
-    
-    // ========== ЗАПУСК ==========
-    
-    if(!myNick || !isValidNick(myNick)) {
-        showRegistrationModal();
-    } else {
-        startWithNick(myNick, false);
-        updateHomeUI();
-    }
-    
-    setTimeout(() => {
-        document.getElementById('preloader').classList.add('hide-preloader');
-        document.getElementById('mainApp').classList.add('app-visible');
-    }, 2000);
-    
-    window.addEventListener('beforeunload', () => {
-        if (currentConn && currentConn.open) currentConn.close();
-        if (peer) peer.destroy();
-    });
-</script>
 
-<script>
-// Реєстрація Service Worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').then(reg => {
-        console.log('SW registered:', reg);
-    }).catch(err => {
-        console.log('SW error:', err);
-    });
-}
+        // Скролл вниз
+        container.scrollTop = container.scrollHeight;
+    }
 
-// Перевірка PWA встановлення
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    console.log('PWA can be installed');
-});
+    // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('SW registered:', reg);
+        }).catch(err => {
+            console.log('SW error:', err);
+        });
+    }
 </script>
 </body>
 </html>
